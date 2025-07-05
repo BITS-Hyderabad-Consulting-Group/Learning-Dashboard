@@ -35,6 +35,7 @@ A cross-functional team of designers and developers from BITS Hyderabad Consulti
 -   Bhavya Gupta
 -   Aryan Saini
 -   Arjun Rathore
+-   Garima Dwivedi
 
 ### 💻 Tech Team
 
