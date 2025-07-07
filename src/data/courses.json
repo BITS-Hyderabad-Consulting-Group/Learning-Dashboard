@@ -1,0 +1,53 @@
+[
+	{
+		"id": "course_001",
+		"name": "Introduction to Python",
+		"description": "Learn the basics of Python programming including syntax, data structures, and libraries.",
+		"duration": "6 weeks",
+		"progress": 75,
+		"modules": 24,
+		"attendees": 1200,
+		"date_created": "2023-03-15T10:30:00Z",
+		"thumbnail_url": "https://example.com/thumbnails/python.png",
+		"prereq": "Basic computer knowledge",
+		"price": 49.99,
+		"tags": ["Python", "Programming", "Beginner"],
+		"badge_name": "Python Beginner",
+		"date_updated": "2024-06-20T08:15:00Z",
+		"status": "active"
+	},
+	{
+		"id": "course_002",
+		"name": "Advanced React & Next.js",
+		"description": "Master server-side rendering, static site generation, and advanced state management.",
+		"duration": "8 weeks",
+		"progress": 30,
+		"modules": 32,
+		"attendees": 950,
+		"date_created": "2023-05-20T11:00:00Z",
+		"thumbnail_url": "https://example.com/thumbnails/react.png",
+		"prereq": "Intermediate JavaScript & React",
+		"price": 99.99,
+		"tags": ["React", "Next.js", "Web Development", "Advanced"],
+		"badge_name": "React Pro",
+		"date_updated": "2024-06-25T10:00:00Z",
+		"status": "active"
+	},
+	{
+		"id": "course_003",
+		"name": "UI/UX Design Fundamentals",
+		"description": "Explore the principles of user interface and user experience design with Figma.",
+		"duration": "4 weeks",
+		"progress": 100,
+		"modules": 18,
+		"attendees": 2500,
+		"date_created": "2023-01-10T09:00:00Z",
+		"thumbnail_url": "https://example.com/thumbnails/figma.png",
+		"prereq": "None",
+		"price": 79.99,
+		"tags": ["UI", "UX", "Design", "Figma"],
+		"badge_name": "Design Novice",
+		"date_updated": "2024-05-15T12:45:00Z",
+		"status": "completed"
+	}
+]

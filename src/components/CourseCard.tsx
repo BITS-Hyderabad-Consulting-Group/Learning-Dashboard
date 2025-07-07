@@ -1,68 +1,91 @@
-export const courses = [
-  {
-    id: "course_001",
-    name: "Introduction to Python",
-    description: "Learn the basics of Python programming including syntax, data structures, and libraries.",
-    duration: "6 weeks",
-    progress: "75%",
-    attendees: 1200,
-    date_created: "2023-03-15T10:30:00Z",
-    thumbnail_url: "https://example.com/thumbnails/python.png",
-    prereq: "Basic computer knowledge",
-    price: 49.99,
-    tags: ["Python", "Programming", "Beginner"],
-    badge_name: "Python Beginner",
-    date_updated: "2024-06-20T08:15:00Z",
-    status: "active"
-  },
-]; // dummy data accd to schema 
+'use client';
 
-import { Button } from "@/components/ui/button";
+import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
 import {
-  Card,
-  CardContent,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardAction,
-} from "@/components/ui/card";
-import { Calendar, SquareArrowOutUpRight, Timer } from "lucide-react";
-import { Progress } from "@/components/ui/progress";
+	Card,
+	CardContent,
+	CardFooter,
+	CardHeader,
+	CardTitle,
+} from '@/components/ui/card';
+import { Calendar, SquareArrowOutUpRight, Timer } from 'lucide-react';
+import { Progress } from '@/components/ui/progress';
 
+type Course = {
+	id: string;
+	name: string;
+	duration: string;
+	progress: number;
+	modules: number;
+};
 
-export function CourseCard() {
-  const course = courses[0];
+const MotionCard = motion(Card);
 
-  return (
-    <Card className="w-full max-w-md bg-white text-zinc-900 shadow-lg border-t-12 border-x-0 border-b-0 border-teal-800">
-      <CardHeader>
-        <CardTitle className="text-2xl">{course.name}</CardTitle>
-            <CardAction className="bg-white">
-                <Button variant="ghost" size="icon" asChild>
-                    <SquareArrowOutUpRight className="w-5 h-5 text-teal-800"/>
-                </Button>        
-            </CardAction>
-      </CardHeader>
-      <CardContent>
-        <div className="flex flex-row items-center justify-start flex-auto text-slate-500 space-x-8">
-            <div className="flex items-center space-x-2">
-                <Calendar />
-                <span>24 Modules</span> {/*Need this data from API*/}
-            </div>
-            <div className="flex items-center space-x-2">
-                <Timer />
-                <span>{course.duration}</span>
-            </div>  
-        </div>
-      </CardContent>
-      <CardFooter className="flex flex-row justify-start text-slate-500">
-        <Progress
-          value={30} 
-          className="bg-zinc-200 max-w-9/10"
-        />      {/*This too. Made some changes to progress component from ShadCN*/}
-        <span className="text-sm pl-4">30%</span>
-        </CardFooter>
-    </Card>
-  );
+export function CourseCard({ course }: { course: Course }) {
+	const cardVariants = {
+		hidden: { opacity: 0, y: 20 },
+		visible: {
+			opacity: 1,
+			y: 0,
+			transition: { duration: 0.4, ease: 'easeOut' as const },
+		},
+	};
+
+	return (
+		<MotionCard
+			variants={cardVariants}
+			whileHover={{ y: -6, scale: 1.02 }}
+			className='w-full max-w-md cursor-pointer bg-white text-zinc-900 shadow-lg border-t-[12px] border-x-0 border-b-0 border-teal-800'
+		>
+			<CardHeader className='pb-0'>
+				<div className='flex items-start justify-between'>
+					<div className='flex-1 truncate'>
+						<CardTitle className='text-xl truncate'>
+							{course.name}
+						</CardTitle>
+					</div>
+					<Button
+						variant='ghost'
+						size='icon'
+						asChild
+						className='shrink-0'
+					>
+						<a
+							href={`/courses/${course.id}`}
+							aria-label={`View details for ${course.name}`}
+						>
+							<SquareArrowOutUpRight className='h-5 w-5 text-teal-800' />
+						</a>
+					</Button>
+				</div>
+			</CardHeader>
+
+			<CardContent className='pb-2'>
+				<div className='flex items-center justify-start space-x-3 text-sm text-slate-500'>
+					<div className='flex items-center space-x-1.5'>
+						<Calendar className='h-4 w-4' />
+						<span>{course.modules} Modules</span>
+					</div>
+					<div className='flex items-center space-x-1.5'>
+						<Timer className='h-4 w-4' />
+						<span>{course.duration}</span>
+					</div>
+				</div>
+			</CardContent>
+
+			<CardFooter className='flex flex-col items-start space-y-1 text-slate-500'>
+				<div className='flex w-full justify-between text-sm'>
+					<p className='font-medium'>Progress</p>
+					<span className='font-bold text-teal-800'>
+						{course.progress}%
+					</span>
+				</div>
+				<Progress
+					value={course.progress}
+					className='h-2 w-full bg-zinc-200'
+				/>
+			</CardFooter>
+		</MotionCard>
+	);
 }
