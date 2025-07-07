@@ -54,7 +54,7 @@ const Footer: React.FC = () => {
         <div className="flex flex-col gap-4 items-start w-full md:w-auto">
           <div className="flex items-center gap-4">
             <Image
-              src="/BHCGlogo.png"
+              src="/Logo.png"
               alt="BHCG Logo"
               width={225}
               height={225}
@@ -94,8 +94,8 @@ const Footer: React.FC = () => {
 
         {/* Quick Links */}
         <div className="flex flex-col gap-2 mt-8 md:mt-0 md:ml-12 w-full md:w-auto">
-          <h4 className="font-semibold mb-1">Quick Links</h4>
-          <ul className="space-y-1">
+          <h4 className="font-bold mb-1 text-lg">Quick Links</h4>
+          <ul className="space-y-2">
             <li>
               <a href="#" className="hover:text-gray-300">
                 Home
@@ -116,8 +116,8 @@ const Footer: React.FC = () => {
 
         {/* Contact Us */}
         <div className="flex flex-col gap-2 mt-8 md:mt-0 md:-ml-4 w-full md:w-auto">
-          <h4 className="font-semibold mb-1">Contact Us</h4>
-          <ul className="space-y-1">
+          <h4 className="font-bold mb-1 text-lg">Contact Us</h4>
+          <ul className="space-y-2">
             <li>
               <a
                 href="tel:9346315392"
