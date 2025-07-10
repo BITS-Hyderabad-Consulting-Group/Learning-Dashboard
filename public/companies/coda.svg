@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   id="svg14"
+   xml:space="preserve"
+   style="enable-background:new 0 0 2000 520.5;"
+   viewBox="0 0 2000 520.5"
+   height="520.5px"
+   width="2000px"
+   y="0px"
+   x="0px"
+   version="1.1"><metadata
+   id="metadata20">
+  <rdf:RDF>
+    <cc:Work
+       rdf:about="">
+      <dc:format>image/svg+xml</dc:format>
+      <dc:type
+         rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      <dc:title></dc:title>
+    </cc:Work>
+  </rdf:RDF>
+</metadata>
+<defs
+   id="defs18">
+  <filter
+     id="filter40"
+     style="color-interpolation-filters:sRGB;">
+    <feColorMatrix
+       id="feColorMatrix32"
+       result="result2"
+       type="luminanceToAlpha" />
+    <feComposite
+       id="feComposite34"
+       result="result4"
+       k3="2"
+       in="result2"
+       operator="arithmetic"
+       in2="SourceGraphic" />
+    <feBlend
+       id="feBlend36"
+       in2="result2"
+       result="result3"
+       mode="multiply"
+       in="result4" />
+    <feComposite
+       id="feComposite38"
+       in="result3"
+       operator="in"
+       in2="SourceGraphic" />
+  </filter>
+</defs>
+
+<style
+   id="style10"
+   type="text/css">
+	.st0{fill:#FFFFFF;}
+</style>
+
+<path
+   style="filter:url(#filter40)"
+   id="path12"
+   d="M1948,506.7h52L1765.1,0h-41.9l-234.4,506.7h49.8l63.1-138.3H1885L1948,506.7z M1621.2,325.5l122.2-268l122,268  H1621.2z M748.1,0C602.9,0,494.9,116.2,494.9,259.6s99.8,259.6,253.2,259.6s253.2-119.6,253.2-259.6C1001.3,116.2,897.2,0,748.1,0z   M748.1,476.6c-124.1,0-204.9-97.1-204.9-216.8S630.6,43.1,748.1,43.1c120.6,0,204.9,97.1,204.9,216.8  C953,376.7,872.2,476.6,748.1,476.6z M421.3,397c-42.2,47.1-103,79.6-164.3,79.6c-126.4,0-208.7-97.1-208.7-216.8  S137.3,43.1,257,43.1c64.8,0,116.9,32.2,160.3,74.9l33.2-34.3C392.5,28,333.1,0,253.1,0C105.5,0,0,116.2,0,259.6  s100.4,260.9,256.2,260.9c84.2,0,151.2-42.2,197.1-91.9L421.3,397z M1231.6,0c-153.5,0-158.1,0-158.1,0v502.9h165.9  c161.4,0,271.4-104.8,271.4-251.7C1510.8,108.4,1403.4,0,1231.6,0z M1254.1,458.7h-133.6V43.8h133.6c114.6,0,207.5,90.7,207.5,207.5  C1461.5,371.1,1368.7,458.7,1254.1,458.7z"
+   class="st0" />
+
+</svg>

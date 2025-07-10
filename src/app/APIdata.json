@@ -1,0 +1,111 @@
+{
+  "coursesPage": {
+    "continueLearning": [
+      {
+        "id": "cl-1",
+        "name": "Consulting Foundations",
+        "modules": 24,
+        "duration": "3 Hours",
+        "progress": 33
+      },
+      {
+        "id": "cl-2",
+        "name": "Advanced Data Analytics",
+        "modules": 24,
+        "duration": "3 Hours",
+        "progress": 50
+      },
+      {
+        "id": "cl-3",
+        "name": "Product Management Mastery",
+        "modules": 24,
+        "duration": "3 Hours",
+        "progress": 10
+      }
+    ],
+        "recommended": [
+      {
+        "id": "rec-1",
+        "name": "Consulting",
+        "modules": 24,
+        "duration": "3 Hours",
+        "progress": 0
+      },
+      {
+        "id": "rec-2",
+        "name": "Data Analytics",
+        "modules": 24,
+        "duration": "3 Hours",
+        "progress": 0
+      },
+      {
+        "id": "rec-3",
+        "name": "Product Management",
+        "modules": 24,
+        "duration": "3 Hours",
+        "progress": 0
+      },
+      {
+        "id": "rec-4",
+        "name": "UX/UI Design Fundamentals",
+        "modules": 18,
+        "duration": "2.5 Hours",
+        "progress": 0
+      },
+      {
+        "id": "rec-5",
+        "name": "Digital Marketing Strategy",
+        "modules": 30,
+        "duration": "4 Hours",
+        "progress": 0
+      },
+      {
+        "id": "rec-6",
+        "name": "Cloud Computing Essentials",
+        "modules": 20,
+        "duration": "3.5 Hours",
+        "progress": 0
+      },
+      {
+        "id": "rec-7",
+        "name": "Agile & Scrum Mastery",
+        "modules": 15,
+        "duration": "2 Hours",
+        "progress": 0
+      }
+    ]
+  },
+  "Companies": [
+  { "id": "alum-8", "name": "Jio", "logoSrc": "/companies/jio.svg" },
+  { "id": "alum-1", "name": "PwC", "logoSrc": "/companies/pwc.svg" },
+  { "id": "alum-2", "name": "EY", "logoSrc": "/companies/ey.svg" },
+  { "id": "alum-3", "name": "Deloitte", "logoSrc": "/companies/deloitte.svg" },
+  { "id": "alum-4", "name": "KPMG", "logoSrc": "/companies/kpmg.svg" },
+  { "id": "alum-5", "name": "JPMC", "logoSrc": "/companies/jpmorgan.svg" },
+  { "id": "alum-6", "name": "Nomura", "logoSrc": "/companies/nomura.svg" },
+  { "id": "alum-7", "name": "Amazon", "logoSrc": "/companies/amazon.svg" },
+  { "id": "alum-9", "name": "Navi", "logoSrc": "/companies/navi.svg" },
+  { "id": "alum-10", "name": "MoveInSync", "logoSrc": "/companies/moveinsync.svg" },
+  { "id": "alum-11", "name": "BCG", "logoSrc": "/companies/bcg.svg" },
+  { "id": "alum-12", "name": "INDMoney", "logoSrc": "/companies/indmoney.svg" },
+  { "id": "alum-13", "name": "Morgan Stanley", "logoSrc": "/companies/morganstanley.svg" },
+  { "id": "alum-14", "name": "Flipkart", "logoSrc": "/companies/flipkart.svg" },
+  { "id": "alum-15", "name": "Deutsche Bank", "logoSrc": "/companies/deutschebank.svg" },
+  { "id": "alum-16", "name": "MPL", "logoSrc": "/companies/mpl.svg" },
+  { "id": "alum-17", "name": "Urban Company", "logoSrc": "/companies/urbancompany.svg" },
+  { "id": "alum-18", "name": "Caarya", "logoSrc": "/companies/caarya.svg" },
+  { "id": "alum-27", "name": "Oracle", "logoSrc": "/companies/oracle.svg" },
+  { "id": "alum-28", "name": "Nvidia", "logoSrc": "/companies/nvidia.svg" },
+  { "id": "alum-29", "name": "Mahindra", "logoSrc": "/companies/mahindra.svg" },
+  { "id": "alum-19", "name": "Blinkit", "logoSrc": "/companies/blinkit.svg" },
+  { "id": "alum-20", "name": "Pharmeasy", "logoSrc": "/companies/pharmeasy.svg" },
+  { "id": "alum-21", "name": "Wells Fargo", "logoSrc": "/companies/wellsfargo.svg" },
+  { "id": "alum-22", "name": "Swiggy", "logoSrc": "/companies/swiggy.svg" },
+  { "id": "alum-23", "name": "CRED", "logoSrc": "/companies/cred.svg" },
+  { "id": "alum-24", "name": "Coda", "logoSrc": "/companies/coda.svg" },
+  { "id": "alum-25", "name": "Microsoft", "logoSrc": "/companies/microsoft.svg" },
+  { "id": "alum-30", "name": "Viacom18", "logoSrc": "/companies/viacom18.svg" },
+  { "id": "alum-31", "name": "BYJU's", "logoSrc": "/companies/byjus.svg" },
+  { "id": "alum-32", "name": "Tata Strategic Management", "logoSrc": "/companies/tatastrategic.svg" }
+  ]
+}
