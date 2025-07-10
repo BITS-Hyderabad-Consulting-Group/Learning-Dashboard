@@ -145,13 +145,15 @@ export default function CoursesPage() {
           </div>
         </section>
 
-        <section className="mt-24 text-center">
-          <h2 className="text-2xl md:text-3xl font-medium text-gray-700 mb-8 text-center">
-            Curated with guidance from our esteemed Alumni
-          </h2>
+        {!isUserLoggedIn && (
+          <section className="mt-24 text-center">
+            <h2 className="text-2xl md:text-3xl font-medium text-gray-700 mb-8 text-center">
+              Curated with guidance from our esteemed Alumni
+            </h2>
 
-          <Scroller />
-        </section>
+            <Scroller />
+          </section>
+        )}
 
         <div className="space-y-20 mt-24">
           {isUserLoggedIn && (
