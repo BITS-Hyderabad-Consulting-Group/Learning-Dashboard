@@ -107,5 +107,32 @@
   { "id": "alum-30", "name": "Viacom18", "logoSrc": "/companies/viacom18.svg" },
   { "id": "alum-31", "name": "BYJU's", "logoSrc": "/companies/byjus.svg" },
   { "id": "alum-32", "name": "Tata Strategic Management", "logoSrc": "/companies/tatastrategic.svg" }
-  ]
+  ],
+   "faqPage": {
+    "title": "Frequently Asked Questions",
+    "lastUpdated": "June 2024",
+    "categories": [
+      {
+        "id": "general",
+        "title": "General",
+        "items": [
+          {
+            "id": "q1",
+            "question": "How do I enroll in a course?",
+            "answer": "You can enroll directly from any course page by clicking the 'Enroll Now' button. If you are not logged in, you will be prompted to create an account first."
+          },
+          {
+            "id": "q2",
+            "question": "How do I track my progress?",
+            "answer": "Your progress is automatically saved. You can view it on your personal dashboard and on each course card in the 'Continue Learning' section."
+          },
+          {
+            "id": "q3",
+            "question": "Are the courses self-paced?",
+            "answer": "Yes, all of our courses are designed to be self-paced. You can learn on your own schedule and revisit materials at any time."
+          }
+        ]
+      }
+    ]
+  }
 }
