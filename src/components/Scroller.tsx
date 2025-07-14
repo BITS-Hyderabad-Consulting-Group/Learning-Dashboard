@@ -12,7 +12,7 @@ type Company = {
 // This is a self-contained component for a single scrolling row.
 const ScrollerRow = ({
   companies,
-  duration = 40,
+  duration = 60,
   direction = "left",
 }: {
   companies: Company[];
@@ -40,7 +40,6 @@ const ScrollerRow = ({
       variants={marqueeVariants}
       animate="animate"
     >
-      {/* We render the list of logos twice for the seamless loop */}
       {[...companies, ...companies].map((company, index) => (
         <div
           key={`${company.id}-${index}`}
@@ -70,7 +69,6 @@ export const Scroller = () => {
 
   return (
     <div className="w-full flex flex-col gap-8">
-      {/* Top Row Wrapper */}
       <div
         className="w-full overflow-hidden"
         style={{
@@ -80,12 +78,11 @@ export const Scroller = () => {
       >
         <ScrollerRow
           companies={topRowCompanies}
-          duration={50}
+          duration={60}
           direction="left"
         />
       </div>
 
-      {/* Bottom Row Wrapper */}
       <div
         className="w-full overflow-hidden"
         style={{
@@ -95,7 +92,7 @@ export const Scroller = () => {
       >
         <ScrollerRow
           companies={bottomRowCompanies}
-          duration={50}
+          duration={60}
           direction="right"
         />
       </div>
