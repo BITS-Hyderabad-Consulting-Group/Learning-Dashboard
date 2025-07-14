@@ -3,7 +3,7 @@
     "continueLearning": [
       {
         "id": "cl-1",
-        "name": "Consulting Foundations",
+        "name": "Management Consulting 101 - Introduction",
         "modules": 24,
         "duration": "3 Hours",
         "progress": 33
@@ -108,7 +108,7 @@
   { "id": "alum-31", "name": "BYJU's", "logoSrc": "/companies/byjus.svg" },
   { "id": "alum-32", "name": "Tata Strategic Management", "logoSrc": "/companies/tatastrategic.svg" }
   ],
-   "faqPage": {
+  "faqPage": {
     "title": "Frequently Asked Questions",
     "lastUpdated": "June 2024",
     "categories": [
@@ -118,18 +118,81 @@
         "items": [
           {
             "id": "q1",
-            "question": "How do I enroll in a course?",
-            "answer": "You can enroll directly from any course page by clicking the 'Enroll Now' button. If you are not logged in, you will be prompted to create an account first."
+            "question": "Are the courses beginner-friendly?",
+            "answer": "Yes! All courses are structured with beginner modules at the start. Even if you have no prior knowledge, you can begin learning from scratch."
           },
           {
             "id": "q2",
-            "question": "How do I track my progress?",
-            "answer": "Your progress is automatically saved. You can view it on your personal dashboard and on each course card in the 'Continue Learning' section."
+            "question": "Do I need to pay to access the courses?",
+            "answer": "No. All club-hosted courses are free for registered students."
           },
           {
             "id": "q3",
-            "question": "Are the courses self-paced?",
-            "answer": "Yes, all of our courses are designed to be self-paced. You can learn on your own schedule and revisit materials at any time."
+            "question": "Can I take multiple courses at once?",
+            "answer": "Yes! You can enroll in any number of courses and learn at your own pace."
+          },
+          {
+            "id": "q4",
+            "question": "Is there a certificate for every course?",
+            "answer": "Yes. You’ll receive a digital certificate once you complete the course and its requirements."
+          },
+          {
+            "id": "q5",
+            "question": "Do I have lifetime access to the course materials?",
+            "answer": "Yes. Once enrolled, you'll retain access to all course content indefinitely."
+          }
+        ]
+      },
+      {
+        "id": "product",
+        "title": "Product Management",
+        "items": [
+          {
+            "id": "q6",
+            "question": "Do I need a technical background to learn product management?",
+            "answer": "No. While tech knowledge helps, our course focuses on strategy, user research, roadmapping, and communication."
+          },
+          {
+            "id": "q7",
+            "question": "What tools will I learn in the Product Management course?",
+            "answer": "You’ll be introduced to tools like Miro, Notion, Trello, and basic analytics platforms."
+          },
+          {
+            "id": "q8",
+            "question": "Will I work on product case studies?",
+            "answer": "Yes. Case-based problem solving is a core part of the course to help you think like a PM."
+          }
+        ]
+      },
+      {
+        "id": "consulting",
+        "title": "Consulting",
+        "items": [
+          {
+            "id": "q9",
+            "question": "What is covered in the Consulting course?",
+            "answer": "We cover structured problem solving, market sizing, guesstimates, profitability cases, and real consulting frameworks."
+          },
+          {
+            "id": "q11",
+            "question": "Is the course suitable for placement preparation?",
+            "answer": "Absolutely. It is tailored for roles in consulting firms and product-based companies with a case-focus."
+          }
+        ]
+      },
+      {
+        "id": "marketing",
+        "title": "Marketing & Strategy",
+        "items": [
+          {
+            "id": "q15",
+            "question": "What is the focus of the Marketing course?",
+            "answer": "It focuses on digital marketing, brand strategy, SEO, and consumer behavior with case examples."
+          },
+          {
+            "id": "q16",
+            "question": "Are real-world brand examples discussed?",
+            "answer": "Yes. We include campaigns from top companies to break down what worked and why."
           }
         ]
       }

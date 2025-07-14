@@ -363,7 +363,7 @@
           "external_ref_id": "txn_987654321"
         },
         {
-          "course_id": "course_001",
+          "course_id": "course_003",
           "course_name": "Introduction to Python",
           "enrollment_date": "2025-06-10T08:00:00Z",
           "access_expiry": "2026-06-10T08:00:00Z",
@@ -371,7 +371,7 @@
           "external_ref_id": "txn_123456789"
         },
         {
-          "course_id": "course_001",
+          "course_id": "course_004",
           "course_name": "Introduction to Python",
           "enrollment_date": "2025-06-10T08:00:00Z",
           "access_expiry": "2026-06-10T08:00:00Z",
@@ -379,12 +379,12 @@
           "external_ref_id": "txn_123456789"
         },
         {
-          "course_id": "course_001",
-          "course_name": "Introduction to Python",
-          "enrollment_date": "2025-06-10T08:00:00Z",
-          "access_expiry": "2026-06-10T08:00:00Z",
-          "amount_paid": 49.99,
-          "external_ref_id": "txn_123456789"
+          "course_id": "course_005",
+          "course_name": "UI/UX Design Fundamentals",
+          "enrollment_date": "2025-07-01T11:00:00Z",
+          "access_expiry": "2026-07-01T11:00:00Z",
+          "amount_paid": 79.99,
+          "external_ref_id": "txn_112233445"
         }
       ],
       "progress": [
