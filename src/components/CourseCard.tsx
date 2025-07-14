@@ -18,11 +18,12 @@ type Course = {
 	duration: string;
 	progress: number;
 	modules: number;
+	showProgress: boolean;
 };
 
 const MotionCard = motion(Card);
 
-export function CourseCard({ course }: { course: Course }) {
+export function CourseCard({ id, name, duration, modules, progress = 0, showProgress = false } : Course ) {
 	const cardVariants = {
 		hidden: { opacity: 0, y: 20 },
 		visible: {
@@ -31,7 +32,6 @@ export function CourseCard({ course }: { course: Course }) {
 			transition: { duration: 0.4, ease: 'easeOut' as const },
 		},
 	};
-
 	return (
 		<MotionCard
 			variants={cardVariants}
@@ -39,10 +39,10 @@ export function CourseCard({ course }: { course: Course }) {
 			className='w-full max-w-md cursor-pointer bg-white text-zinc-900 shadow-lg border-t-[12px] border-x-0 border-b-0 border-teal-800'
 		>
 			<CardHeader className='pb-0'>
-				<div className='flex items-start justify-between'>
-					<div className='flex-1 truncate'>
-						<CardTitle className='text-xl truncate'>
-							{course.name}
+				<div className='flex items-start justify-between gap-2'>
+					<div className='flex-1 min-w-0'>
+						<CardTitle className='truncate text-xl'>
+							{name}
 						</CardTitle>
 					</div>
 					<Button
@@ -52,8 +52,8 @@ export function CourseCard({ course }: { course: Course }) {
 						className='shrink-0'
 					>
 						<a
-							href={`/courses/${course.id}`}
-							aria-label={`View details for ${course.name}`}
+							href={`/courses/${id}`}
+							aria-label={`View details for ${name}`}
 						>
 							<SquareArrowOutUpRight className='h-5 w-5 text-teal-800' />
 						</a>
@@ -65,27 +65,27 @@ export function CourseCard({ course }: { course: Course }) {
 				<div className='flex items-center justify-start space-x-3 text-sm text-slate-500'>
 					<div className='flex items-center space-x-1.5'>
 						<Calendar className='h-4 w-4' />
-						<span>{course.modules} Modules</span>
+						<span>{modules} Modules</span>
 					</div>
 					<div className='flex items-center space-x-1.5'>
 						<Timer className='h-4 w-4' />
-						<span>{course.duration}</span>
+						<span>{duration}</span>
 					</div>
 				</div>
 			</CardContent>
-
+			{showProgress && (
 			<CardFooter className='flex flex-col items-start space-y-1 text-slate-500'>
 				<div className='flex w-full justify-between text-sm'>
 					<p className='font-medium'>Progress</p>
 					<span className='font-bold text-teal-800'>
-						{course.progress}%
+						{progress}%
 					</span>
 				</div>
-				<Progress
-					value={course.progress}
+			    <Progress
+					value={progress}
 					className='h-2 w-full bg-zinc-200'
-				/>
-			</CardFooter>
+				/>			
+			</CardFooter> )}
 		</MotionCard>
 	);
 }
