@@ -1,0 +1,196 @@
+"use client";
+
+import { useState } from "react";
+import { Clock, CheckCheck, Bookmark, BookOpen, Video, FileCheck2 } from "lucide-react";
+
+interface Module {
+  title: string;
+  type: string;
+  completed: boolean;
+  markedForReview: boolean;
+}
+
+interface Week {
+  title: string;
+  duration: number;
+  modules: Module[];
+}
+
+interface Props {
+  weeks: Week[];
+}
+
+function formatDuration(minutes: number): string {
+  const hrs = Math.floor(minutes / 60);
+  const mins = minutes % 60;
+  return hrs > 0 ? `${hrs} hr ${mins} min` : `${mins} min`;
+}
+
+export default function WeekList({ weeks }: Props) {
+  const [openIndex, setOpenIndex] = useState<number | null>(null);
+  const [moduleStatus, setModuleStatus] = useState<{ [key: string]: boolean }>({});
+  const [reviewStatus, setReviewStatus] = useState<{ [key: string]: boolean }>({});
+
+  const toggleReviewStatus = (weekIndex: number, moduleIndex: number) => {
+    const key = `${weekIndex}-${moduleIndex}`;
+    setReviewStatus(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
+  };
+
+  const toggleModuleStatus = (weekIndex: number, moduleIndex: number) => {
+    const key = `${weekIndex}-${moduleIndex}`;
+    setModuleStatus(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
+  };
+
+  return (
+    <div className="space-y-4 mt-6">
+      {weeks.map((week, index) => {
+        const isOpen = openIndex === index;
+
+        return (
+          <div key={index} className="relative pl-8">
+            {/* Vertical dotted line connecting circles */}
+            {index < weeks.length - 1 && (
+              <div 
+                className={`absolute left-2.5 top-11 w-0.5 border-l-2 border-dotted border-[#007C6A] z-0`}
+                style={{
+                  height: isOpen 
+                    ? `${week.modules.length > 0 ? 63 + week.modules.length * 51 + 40 : 150}px` 
+                    : '72px'
+                }}
+              />
+            )}
+
+            {/* Circle */}
+            <div className="absolute left-0 top-5 w-6 h-6 rounded-full border-4 flex items-center justify-center z-10 border-[#007C6A] bg-white">
+              {isOpen ? (
+                <div className="w-2.5 h-2.5 bg-[#007C6A] rounded-full" />
+              ) : null}
+            </div>
+
+            <button
+              onClick={() => setOpenIndex(isOpen ? null : index)}
+              className={`w-full px-6 py-4 flex justify-between items-center rounded-md shadow-sm bg-[#B4DEDD] transition-all duration-200`}
+            >
+              {/* Left: Circle indicator + Week Title */}
+              <div className="flex items-center gap-3">
+                {/* Circle indicator */}
+                <div className="w-5 h-5 rounded-full border-2 flex items-center justify-center bg-white border-[#007C6A]">
+                  {week.modules.length > 0 && week.modules.every((m) => m.completed) ? (
+                    <CheckCheck className="w-4 h-4 text-green-600" />
+                  ) : null}
+                </div>
+
+                {/* Week Title */}
+                {/^Week \d+ \| /.test(week.title) ? (
+                  (() => {
+                    const [weekPart, ...rest] = week.title.split(" | ");
+                    return (
+                      <h3 className="font-semibold text-base">
+                        <span className="text-[#007C6A]">{weekPart} |</span>
+                        <span className="text-black ml-2">{rest.join()}</span>
+                      </h3>
+                    );
+                  })()
+                ) : (
+                  <h3 className="text-[#007C6A] font-semibold text-base">{week.title}</h3>
+                )}
+              </div>
+
+              {/* Duration + Icon */}
+              <div className="flex items-center gap-1 text-gray-500 text-sm font-medium">
+                <Clock className="w-4 h-4 text-gray-500" />
+                <span>{formatDuration(week.duration)}</span>
+                <span className="ml-2 text-lg font-bold text-[#007C6A]">{isOpen ? "−" : "+"}</span>
+              </div>
+            </button>
+
+            {isOpen && (
+              <div className="px-6 pb-4 pt-2 bg-[#B4DEDD] rounded-md mt-1">
+                {/* Table Headers */}
+                <div className="flex justify-between text-sm text-[#666] font-semibold py-2 border-b border-[#A6D6D8]">
+                  <div>Content</div>
+                  <div className="grid grid-cols-3 text-center w-[280px]">
+                    <div className="text-center">Type</div>
+                    <div className="text-center">Status</div>
+                    <div className="text-center">Review</div>
+                  </div>
+                </div>
+
+                {/* Modules */}
+                {week.modules.length === 0 ? (
+                  <p className="text-sm text-gray-600 mt-3">No modules yet.</p>
+                ) : (
+                  week.modules.map((mod, idx) => {
+                    const statusKey = `${index}-${idx}`;
+                    const isCompleted = moduleStatus[statusKey] || false;
+                    
+                    return (
+                      <div key={idx}>
+                        <div className="flex justify-between items-center py-3 text-sm text-[#065F5F]">
+                          {/* Title */}
+                          <p className="font-medium">{mod.title}</p>
+
+                          {/* Type, Status, Review */}
+                          <div className="grid grid-cols-3 place-items-center w-[280px]">
+                            {/* Type with Icon */}
+                            <div className="flex items-center gap-2 capitalize">
+                              {mod.type === "Article" && <BookOpen className="w-4 h-4" />}
+                              {mod.type === "Video" && <Video className="w-4 h-4" />}
+                              {mod.type === "Evaluative" && <FileCheck2 className="w-4 h-4" />}
+                              <span>{mod.type}</span>
+                            </div>
+
+                            {/* Status Toggle Button */}
+                            <div className="flex justify-center">
+                              <button
+                                onClick={() => toggleModuleStatus(index, idx)}
+                                className="w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-200"
+                                style={{
+                                  backgroundColor: isCompleted ? '#007C6A' : 'white',
+                                  borderColor: isCompleted ? '#007C6A' : '#d1d5db'
+                                }}
+                              >
+                                {isCompleted && <CheckCheck className="w-3 h-3 text-white" />}
+                              </button>
+                            </div>
+
+                            {/* Review Toggle Button */}
+                            <div className="flex justify-center">
+                              <button
+                                onClick={() => toggleReviewStatus(index, idx)}
+                                className="transition-colors duration-200"
+                              >
+                                <Bookmark
+                                  className={`w-5 h-5 ${
+                                    reviewStatus[`${index}-${idx}`]
+                                      ? "text-[#007C6A] fill-[#007C6A]"
+                                      : "text-[#025959]"
+                                  }`}
+                                />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        {/* White horizontal line separator */}
+                        {idx < week.modules.length - 1 && (
+                          <div className="border-b border-white"></div>
+                        )}
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            )}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
