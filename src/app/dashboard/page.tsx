@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import { CourseCard } from '@/components/CourseCard';
 import combinedData from '@/app/dashboard/APIdata.json';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {
     Carousel,
     CarouselContent,
@@ -21,6 +22,7 @@ import {
     Pagination,
     PaginationContent,
     PaginationItem,
+    PaginationLink,
     PaginationEllipsis,
     PaginationNext,
     PaginationPrevious,
@@ -80,7 +82,7 @@ export default function Dashboard() {
 
     const [selectedDomain, setSelectedDomain] = useState('all');
     const [currentPage, setCurrentPage] = useState(1);
-    const coursesPerPage = 6;
+    
     const [sortOrder, setSortOrder] = useState('a-z');
     const filteredAndSortedCourses = useMemo(() => {
         const filtered =
@@ -106,41 +108,58 @@ export default function Dashboard() {
             }
         });
     }, [allCourses, selectedDomain, sortOrder]);
-
+    const [loggedIn, setLoggedIn] = useState(false);
+    const coursesPerPage = loggedIn ? 6 : 9;
     const totalPages = Math.ceil(filteredAndSortedCourses.length / coursesPerPage);
     const currentCoursesToDisplay = filteredAndSortedCourses.slice(
         (currentPage - 1) * coursesPerPage,
         currentPage * coursesPerPage
     );
+    const currentCourses = allCourses.slice(
+    (currentPage - 1) * coursesPerPage,
+    currentPage * coursesPerPage
+    );
+   
+  return (
+        <div className="p-8 space-y-10">
+        <div className="absolute top-30 right-30">
+          <button
+            className="bg-teal-800 text-white px-4 py-2 rounded"
+            onClick={() => {
+              setLoggedIn(!loggedIn);
+              setCurrentPage(1);
+            }}
+          >
+            {loggedIn ? "Logout" : "Login"}
+          </button>
+        </div>
 
-    return (
-        <div className="container mx-auto space-y-10 px-4 py-8">
-            <h1 className="text-teal-800 text-4xl my-4 font-semibold">
-                Welcome Back, {user.full_name}!
-            </h1>
-            <section>
-                <h2 className="text-gray-700 text-2xl font-semibold mb-6">Continue Learning</h2>
-                <Carousel className="w-full">
-                    <CarouselContent className="-ml-4 py-4">
-                        {userCoursesWithDetails.map((course) => (
-                            <CarouselItem
-                                key={course.id}
-                                className="pl-4 md:basis-1/2 lg:basis-1/3"
-                            >
-                                <div className="p-1">
-                                    <CourseCard {...course} showProgress={true} />
-                                </div>
-                            </CarouselItem>
-                        ))}
-                    </CarouselContent>
-                    <CarouselPrevious className="text-teal-800 border border-gray-300 bg-white hover:bg-gray-100 hover:border-teal-800" />
-                    <CarouselNext className="text-teal-800 border border-gray-300 bg-white hover:bg-gray-100 hover:border-teal-800" />
-                </Carousel>
-            </section>
+        {loggedIn ? (
+          <div className="container mx-auto space-y-15 px-6 py-8 overflow-x-hidden">
+          <h1 className="text-teal-800 text-4xl ml-6 font-semibold">
+            Welcome Back, {user.full_name}!
+          </h1>
+          <section>
+          <h2 className="text-gray-700 text-2xl ml-18 font-semibold mb-8">Continue Learning</h2>
+          <Carousel className="relative mx-auto w-full max-w-[1200px]">
+          <CarouselContent className=" py-4 ml-1 ">
+            {userCoursesWithDetails.map((course) => (
+            <CarouselItem
+              key={course.id}
+              className="basis-1/3 px-2"
+            >
+            <CourseCard {...course} showProgress={true} />
+            </CarouselItem>
+            ))}
+          </CarouselContent>
+        <CarouselPrevious className="text-teal-800 border border-gray-300 bg-white hover:bg-gray-100 hover:border-teal-800" />
+        <CarouselNext className="text-teal-800 border border-gray-300 bg-white hover:bg-gray-100 hover:border-teal-800" />
+        </Carousel>
+        </section>
 
             <section>
-                <h2 className="text-gray-700 text-2xl mt-12 font-semibold mb-6">All Courses</h2>
-                <div className="flex flex-wrap gap-4 mt-8 mb-10">
+                <h2 className="text-gray-700 text-2xl mt-12 font-semibold mb-6 pl-18">All Courses</h2>
+                <div className="flex flex-wrap gap-4 mt-8 mb-10 pl-18">
                     <Select onValueChange={setSortOrder} defaultValue="a-z">
                         <SelectTrigger className="w-[200px] text-teal-800 font-semibold">
                             <SelectValue placeholder="Title: A-to-Z" />
@@ -200,7 +219,7 @@ export default function Dashboard() {
                     </Select>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-18">
                     {currentCoursesToDisplay.map((course) => (
                         <CourseCard key={course.id} {...course} progress={0} showProgress={false} />
                     ))}
@@ -223,5 +242,60 @@ export default function Dashboard() {
                 </Pagination>
             </section>
         </div>
-    );
+) : (
+    <div>
+      <h2 className="text-gray-800 text-4xl font-semibold mb-12 mt-4 text-center">
+        All Courses
+      </h2>
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-24">
+      {currentCourses.map((course) => (
+        <CourseCard key={course.id} progress={0} {...course} showProgress={false} />
+      ))}
+    </div>
+    <Pagination className="mt-8 ml-10">
+       <PaginationContent>
+        <PaginationItem>
+          <PaginationPrevious
+            onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+          />
+        </PaginationItem>
+
+        {Array.from({ length: Math.min(3, totalPages) }, (_, i) => (
+          <PaginationItem key={i}>
+            <PaginationLink
+              isActive={currentPage === i + 1}
+              onClick={() => setCurrentPage(i + 1)}
+            >
+              {i + 1}
+            </PaginationLink>
+          </PaginationItem>
+        ))}
+
+        {totalPages > 3 && (
+          <div>
+            <PaginationItem>
+              <PaginationEllipsis />
+            </PaginationItem>
+            <PaginationItem>
+              <PaginationLink
+                isActive={currentPage === totalPages}
+                onClick={() => setCurrentPage(totalPages)}
+              >
+                {totalPages}
+              </PaginationLink>
+            </PaginationItem>
+          </div>
+        )}
+
+        <PaginationItem>
+          <PaginationNext
+            onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+          />
+        </PaginationItem>
+      </PaginationContent>
+    </Pagination>
+    </div>
+    )}
+   </div>
+  );
 }
