@@ -1,508 +1,274 @@
 {
-  "allCourses": [
-    {
-      "id": "course_001",
-      "name": "Management Consulting 101 - Introduction",
-      "duration": "3 Hours",
-      "modules": 24,
-      "domain": "Consulting",
-      "created_at": "2024-01-21",
-      "updated_at": "2024-03-13"
-    },
-    {
-      "id": "course_002",
-      "name": "Product Management Foundations",
-      "duration": "3 Hours",
-      "modules": 24,
-      "domain": "Product Management",
-      "created_at": "2024-01-02",
-      "updated_at": "2024-03-02"
-    },
-    {
-      "id": "course_003",
-      "name": "Data Analytics Fundamentals",
-      "duration": "3 Hours",
-      "modules": 24,
-      "domain": "Data Analytics",
-      "created_at": "2024-02-20",
-      "updated_at": "2024-03-14"
-    },
-    {
-      "id": "course_004",
-      "name": "Advanced Data Analytics",
-      "duration": "3 Hours",
-      "modules": 24,
-      "domain": "Data Analytics",
-      "created_at": "2024-02-04",
-      "updated_at": "2024-02-20"
-    },
-    {
-      "id": "course_005",
-      "name": "Consulting Foundations",
-      "duration": "3 Hours",
-      "modules": 24,
-      "domain": "Consulting",
-      "created_at": "2024-03-24",
-      "updated_at": "2024-04-04"
-    },
-    {
-      "id": "course_006",
-      "name": "Advanced Data Analytics1",
-      "duration": "3 Hours",
-      "modules": 24,
-      "domain": "Data Analytics",
-      "created_at": "2024-03-10",
-      "updated_at": "2024-04-16"
-    },
-    {
-      "id": "course_007",
-      "name": "Advanced Data Analytics2",
-      "duration": "3 Hours",
-      "modules": 24,
-      "domain": "Data Analytics",
-      "created_at": "2024-02-18",
-      "updated_at": "2024-04-15"
-    },
-    {
-      "id": "course_008",
-      "name": "Advanced Data Analytics3",
-      "duration": "3 Hours",
-      "modules": 24,
-      "domain": "Data Analytics",
-      "created_at": "2024-02-01",
-      "updated_at": "2024-03-23"
-    },
-    {
-      "id": "course_009",
-      "name": "Advanced Data Analytics4",
-      "duration": "3 Hours",
-      "modules": 24,
-      "domain": "Data Analytics",
-      "created_at": "2024-01-20",
-      "updated_at": "2024-02-22"
-    },
-    {
-      "id": "course_010",
-      "name": "Advanced Data Analytics5",
-      "duration": "3 Hours",
-      "modules": 24,
-      "domain": "Data Analytics",
-      "created_at": "2024-02-21",
-      "updated_at": "2024-03-28"
-    },
-    {
-      "id": "course_011",
-      "name": "Advanced Data Analytics6",
-      "duration": "3 Hours",
-      "modules": 24,
-      "domain": "Data Analytics",
-      "created_at": "2024-01-14",
-      "updated_at": "2024-02-12"
-    },
-    {
-      "id": "course_012",
-      "name": "Advanced Data Analytics7",
-      "duration": "3 Hours",
-      "modules": 24,
-      "domain": "Data Analytics",
-      "created_at": "2024-02-16",
-      "updated_at": "2024-02-20"
-    },
-    {
-      "id": "course_013",
-      "name": "Advanced Data Analytics13",
-      "duration": "3 Hours",
-      "modules": 24,
-      "domain": "Data Analytics",
-      "created_at": "2024-01-23",
-      "updated_at": "2024-02-26"
-    },
-    {
-      "id": "course_015",
-      "name": "Advanced Data Analytics14",
-      "duration": "3 Hours",
-      "modules": 24,
-      "domain": "Data Analytics",
-      "created_at": "2024-03-03",
-      "updated_at": "2024-04-17"
-    },
-    {
-      "id": "course_014",
-      "name": "Advanced Data Analytics15",
-      "duration": "3 Hours",
-      "modules": 24,
-      "domain": "Data Analytics",
-      "created_at": "2024-03-08",
-      "updated_at": "2024-04-03"
-    },
-    {
-      "id": "course_016",
-      "name": "Advanced Data Analytics16",
-      "duration": "3 Hours",
-      "modules": 24,
-      "domain": "Data Analytics",
-      "created_at": "2024-01-16",
-      "updated_at": "2024-01-23"
-    },
-    {
-      "id": "course_017",
-      "name": "Advanced Data Analytics17",
-      "duration": "3 Hours",
-      "modules": 24,
-      "domain": "Data Analytics",
-      "created_at": "2024-03-16",
-      "updated_at": "2024-05-09"
-    },
-    {
-      "id": "course_018",
-      "name": "Advanced Data Analytics18",
-      "duration": "3 Hours",
-      "modules": 24,
-      "domain": "Data Analytics",
-      "created_at": "2024-03-14",
-      "updated_at": "2024-03-15"
-    },
-    {
-      "id": "course_019",
-      "name": "Advanced Data Analytics19",
-      "duration": "3 Hours",
-      "modules": 24,
-      "domain": "Data Analytics",
-      "created_at": "2024-03-25",
-      "updated_at": "2024-03-30"
-    },
-    {
-      "id": "course_020",
-      "name": "Advanced Data Analytics20",
-      "duration": "3 Hours",
-      "modules": 24,
-      "domain": "Data Analytics",
-      "created_at": "2024-03-27",
-      "updated_at": "2024-05-13"
-    },
-    {
-      "id": "course_021",
-      "name": "Advanced Data Analytics21",
-      "duration": "3 Hours",
-      "modules": 24,
-      "domain": "Data Analytics",
-      "created_at": "2024-01-29",
-      "updated_at": "2024-03-26"
-    },
-    {
-      "id": "course_022",
-      "name": "Advanced Data Analytics22",
-      "duration": "3 Hours",
-      "modules": 24,
-      "domain": "Data Analytics",
-      "created_at": "2024-03-03",
-      "updated_at": "2024-03-11"
-    },
-    {
-      "id": "course_023",
-      "name": "Advanced Data Analytics23",
-      "duration": "3 Hours",
-      "modules": 24,
-      "domain": "Data Analytics",
-      "created_at": "2024-01-21",
-      "updated_at": "2024-02-01"
-    },
-    {
-      "id": "course_024",
-      "name": "Advanced Data Analytics24",
-      "duration": "3 Hours",
-      "modules": 24,
-      "domain": "Data Analytics",
-      "created_at": "2024-02-26",
-      "updated_at": "2024-03-27"
-    },
-    {
-      "id": "course_025",
-      "name": "Advanced Data Analytics25",
-      "duration": "3 Hours",
-      "modules": 24,
-      "domain": "Data Analytics",
-      "created_at": "2024-03-04",
-      "updated_at": "2024-03-13"
-    },
-    {
-      "id": "course_026",
-      "name": "Advanced Data Analytics26",
-      "duration": "3 Hours",
-      "modules": 24,
-      "domain": "Data Analytics",
-      "created_at": "2024-03-17",
-      "updated_at": "2024-05-06"
-    },
-    {
-      "id": "course_027",
-      "name": "Advanced Data Analytics27",
-      "duration": "3 Hours",
-      "modules": 24,
-      "domain": "Data Analytics",
-      "created_at": "2024-03-07",
-      "updated_at": "2024-04-21"
-    },
-    {
-      "id": "course_028",
-      "name": "Advanced Data Analytics28",
-      "duration": "3 Hours",
-      "modules": 24,
-      "domain": "Data Analytics",
-      "created_at": "2024-02-27",
-      "updated_at": "2024-03-20"
-    },
-    {
-      "id": "course_029",
-      "name": "Advanced Data Analytics29",
-      "duration": "3 Hours",
-      "modules": 24,
-      "domain": "Data Analytics",
-      "created_at": "2024-03-06",
-      "updated_at": "2024-03-26"
-    },
-    {
-      "id": "course_030",
-      "name": "Advanced Data Analytics30",
-      "duration": "3 Hours",
-      "modules": 24,
-      "domain": "Data Analytics",
-      "created_at": "2024-02-08",
-      "updated_at": "2024-03-24"
-    }
-  ],
-  "courses": [
-    {
-      "id": "course_001",
-      "name": "Introduction to Python",
-      "description": "Learn the basics of Python programming including syntax, data structures, and libraries.",
-      "duration": "6 weeks",
-      "progress": 75,
-      "modules": 24,
-      "attendees": 1200,
-      "date_created": "2023-03-15T10:30:00Z",
-      "thumbnail_url": "https://example.com/thumbnails/python.png",
-      "prereq": "Basic computer knowledge",
-      "price": 49.99,
-      "tags": [
-        "Python",
-        "Programming",
-        "Beginner"
-      ],
-      "badge_name": "Python Beginner",
-      "date_updated": "2024-06-20T08:15:00Z",
-      "status": "active"
-    },
-    {
-      "id": "course_002",
-      "name": "Advanced React & Next.js",
-      "description": "Master server-side rendering, static site generation, and advanced state management.",
-      "duration": "8 weeks",
-      "progress": 30,
-      "modules": 32,
-      "attendees": 950,
-      "date_created": "2023-05-20T11:00:00Z",
-      "thumbnail_url": "https://example.com/thumbnails/react.png",
-      "prereq": "Intermediate JavaScript & React",
-      "price": 99.99,
-      "tags": [
-        "React",
-        "Next.js",
-        "Web Development",
-        "Advanced"
-      ],
-      "badge_name": "React Pro",
-      "date_updated": "2024-06-25T10:00:00Z",
-      "status": "active"
-    },
-    {
-      "id": "course_003",
-      "name": "UI/UX Design Fundamentals",
-      "description": "Explore the principles of user interface and user experience design with Figma.",
-      "duration": "4 weeks",
-      "progress": 100,
-      "modules": 18,
-      "attendees": 2500,
-      "date_created": "2023-01-10T09:00:00Z",
-      "thumbnail_url": "https://example.com/thumbnails/figma.png",
-      "prereq": "None",
-      "price": 79.99,
-      "tags": [
-        "UI",
-        "UX",
-        "Design",
-        "Figma"
-      ],
-      "badge_name": "Design Novice",
-      "date_updated": "2024-05-15T12:45:00Z",
-      "status": "completed"
-    }
-  ],
-  "users": [
-    {
-      "id": "user_001",
-      "full_name": "Sashidhar",
-      "student_year": "3",
-      "student_status": "active",
-      "updated_at": "2025-07-08T09:00:00Z",
-      "enrolments": [
+    "users": [
         {
-          "course_id": "course_001",
-          "course_name": "Introduction to Python",
-          "enrollment_date": "2025-06-10T08:00:00Z",
-          "access_expiry": "2026-06-10T08:00:00Z",
-          "amount_paid": 49.99,
-          "external_ref_id": "txn_123456789"
+            "id": "user_1",
+            "full_name": "Sashidhar",
+            "enrolments": [
+                { "course_id": "course_cons_1" },
+                { "course_id": "course_cons_3" },
+                { "course_id": "course_cons_5" },
+                { "course_id": "course_pm_2" },
+                { "course_id": "course_pm_3" },
+                { "course_id": "course_da_1" },
+                { "course_id": "course_da_4" }
+            ]
+        }
+    ],
+    "courses": [
+        {
+            "id": "course_cons_1",
+            "name": "Consulting Foundations",
+            "domain": "Consulting",
+            "created_at": "2024-01-10T10:00:00Z",
+            "updated_at": "2024-05-20T08:00:00Z",
+            "modules": 8,
+            "duration": "3h 20m",
+            "progress": 60
         },
         {
-          "course_id": "course_002",
-          "course_name": "Advanced React & Next.js",
-          "enrollment_date": "2025-06-20T10:00:00Z",
-          "access_expiry": "2026-06-20T10:00:00Z",
-          "amount_paid": 99.99,
-          "external_ref_id": "txn_987654321"
+            "id": "course_cons_3",
+            "name": "Strategy & Frameworks",
+            "domain": "Consulting",
+            "created_at": "2024-02-01T11:00:00Z",
+            "updated_at": "2024-04-15T09:00:00Z",
+            "modules": 6,
+            "duration": "2h 45m",
+            "progress": 80
         },
         {
-          "course_id": "course_001",
-          "course_name": "Introduction to Python",
-          "enrollment_date": "2025-06-10T08:00:00Z",
-          "access_expiry": "2026-06-10T08:00:00Z",
-          "amount_paid": 49.99,
-          "external_ref_id": "txn_123456789"
+            "id": "course_cons_5",
+            "name": "Market Sizing Crash Course",
+            "domain": "Consulting",
+            "created_at": "2024-01-20T10:00:00Z",
+            "updated_at": "2024-06-10T09:00:00Z",
+            "modules": 4,
+            "duration": "1h 30m",
+            "progress": 100
         },
         {
-          "course_id": "course_001",
-          "course_name": "Introduction to Python",
-          "enrollment_date": "2025-06-10T08:00:00Z",
-          "access_expiry": "2026-06-10T08:00:00Z",
-          "amount_paid": 49.99,
-          "external_ref_id": "txn_123456789"
+            "id": "course_pm_2",
+            "name": "Roadmapping & Strategy",
+            "domain": "Product Management",
+            "created_at": "2024-04-10T11:00:00Z",
+            "updated_at": "2024-06-20T10:00:00Z",
+            "modules": 5,
+            "duration": "2h 00m",
+            "progress": 35
         },
         {
-          "course_id": "course_001",
-          "course_name": "Introduction to Python",
-          "enrollment_date": "2025-06-10T08:00:00Z",
-          "access_expiry": "2026-06-10T08:00:00Z",
-          "amount_paid": 49.99,
-          "external_ref_id": "txn_123456789"
-        }
-      ],
-      "progress": [
+            "id": "course_pm_3",
+            "name": "Metrics & KPIs",
+            "domain": "Product Management",
+            "created_at": "2024-03-12T09:00:00Z",
+            "updated_at": "2024-07-01T08:00:00Z",
+            "modules": 6,
+            "duration": "2h 15m",
+            "progress": 45
+        },
         {
-          "module_id": "module_001",
-          "course_id": "course_001",
-          "module_title": "Python Data Structures",
-          "completed_at": "2025-07-01T15:00:00Z"
-        }
-      ],
-      "badges": [
+            "id": "course_da_1",
+            "name": "Data Analysis with Excel",
+            "domain": "Data Analytics",
+            "created_at": "2024-01-05T10:00:00Z",
+            "updated_at": "2024-05-25T10:00:00Z",
+            "modules": 7,
+            "duration": "2h 30m",
+            "progress": 25
+        },
         {
-          "badge_id": "badge_001",
-          "badge_name": "Python Beginner",
-          "course_id": "course_001",
-          "awarded_at": "2025-07-05T12:00:00Z"
+            "id": "course_da_4",
+            "name": "Python for Data Analysis",
+            "domain": "Data Analytics",
+            "created_at": "2024-04-01T13:00:00Z",
+            "updated_at": "2024-06-05T11:00:00Z",
+            "modules": 9,
+            "duration": "4h 00m",
+            "progress": 10
         }
-      ],
-      "quiz_submissions": [
+    ],
+    "allCourses": [
         {
-          "quiz_id": "quiz_001",
-          "course_id": "course_001",
-          "status": "graded",
-          "score": 8.7,
-          "submitted_at": "2025-07-04T14:00:00Z",
-          "graded_at": "2025-07-04T16:00:00Z",
-          "instructor_feedback": "Excellent understanding of the basics!"
-        }
-      ],
-      "files_submitted": [
+            "id": "course_cons_1",
+            "name": "Consulting Foundations",
+            "domain": "Consulting",
+            "created_at": "2024-01-10T10:00:00Z",
+            "updated_at": "2024-05-20T08:00:00Z",
+            "modules": 8,
+            "duration": "3h 20m"
+        },
         {
-          "file_id": "file_001",
-          "question_id": "question_001",
-          "file_storage_path": "/uploads/user_001/python_project.zip",
-          "original_filename": "python_project.zip"
-        }
-      ],
-      "text_submissions": [
+            "id": "course_cons_2",
+            "name": "Advanced Case Studies",
+            "domain": "Consulting",
+            "created_at": "2024-03-01T09:00:00Z",
+            "updated_at": "2024-06-15T13:00:00Z",
+            "modules": 10,
+            "duration": "5h 00m"
+        },
         {
-          "text_id": "text_001",
-          "question_id": "question_002",
-          "submitted_text": "This is my explanation of how recursion works in Python."
-        }
-      ]
-    },
-    {
-      "id": "user_002",
-      "full_name": "Anand",
-      "student_year": "2",
-      "student_status": "active",
-      "updated_at": "2025-07-07T12:00:00Z",
-      "enrolments": [
+            "id": "course_cons_3",
+            "name": "Strategy & Frameworks",
+            "domain": "Consulting",
+            "created_at": "2024-02-01T11:00:00Z",
+            "updated_at": "2024-04-15T09:00:00Z",
+            "modules": 6,
+            "duration": "2h 45m"
+        },
         {
-          "course_id": "course_003",
-          "course_name": "UI/UX Design Fundamentals",
-          "enrollment_date": "2025-05-15T09:00:00Z",
-          "access_expiry": "2026-05-15T09:00:00Z",
-          "amount_paid": 79.99,
-          "external_ref_id": "txn_2233445566"
-        }
-      ],
-      "progress": [
+            "id": "course_cons_4",
+            "name": "M&A Case Prep",
+            "domain": "Consulting",
+            "created_at": "2024-05-10T10:00:00Z",
+            "updated_at": "2024-06-25T11:00:00Z",
+            "modules": 7,
+            "duration": "3h 10m"
+        },
         {
-          "module_id": "module_010",
-          "course_id": "course_003",
-          "module_title": "Design Systems & Figma",
-          "completed_at": "2025-06-10T11:00:00Z"
-        }
-      ],
-      "badges": [
+            "id": "course_cons_5",
+            "name": "Market Sizing Crash Course",
+            "domain": "Consulting",
+            "created_at": "2024-01-20T10:00:00Z",
+            "updated_at": "2024-06-10T09:00:00Z",
+            "modules": 4,
+            "duration": "1h 30m"
+        },
+
         {
-          "badge_id": "badge_002",
-          "badge_name": "Design Novice",
-          "course_id": "course_003",
-          "awarded_at": "2025-06-25T10:00:00Z"
-        }
-      ],
-      "quiz_submissions": [
+            "id": "course_pm_1",
+            "name": "Intro to Product Management",
+            "domain": "Product Management",
+            "created_at": "2024-02-15T12:00:00Z",
+            "updated_at": "2024-06-01T14:30:00Z",
+            "modules": 5,
+            "duration": "1h 45m"
+        },
         {
-          "quiz_id": "quiz_003",
-          "course_id": "course_003",
-          "status": "graded",
-          "score": 9.2,
-          "submitted_at": "2025-06-20T10:00:00Z",
-          "graded_at": "2025-06-20T12:00:00Z",
-          "instructor_feedback": "Great UI thinking!"
-        }
-      ],
-      "files_submitted": [],
-      "text_submissions": [
+            "id": "course_pm_2",
+            "name": "Roadmapping & Strategy",
+            "domain": "Product Management",
+            "created_at": "2024-04-10T11:00:00Z",
+            "updated_at": "2024-06-20T10:00:00Z",
+            "modules": 5,
+            "duration": "2h 00m"
+        },
         {
-          "text_id": "text_005",
-          "question_id": "question_010",
-          "submitted_text": "Wireframes for the mobile app screens."
-        }
-      ]
-    },
-    {
-      "id": "user_003",
-      "full_name": "Ravi Kumar",
-      "student_year": "1",
-      "student_status": "active",
-      "updated_at": "2025-07-06T15:30:00Z",
-      "enrolments": [
+            "id": "course_pm_3",
+            "name": "Metrics & KPIs",
+            "domain": "Product Management",
+            "created_at": "2024-03-12T09:00:00Z",
+            "updated_at": "2024-07-01T08:00:00Z",
+            "modules": 6,
+            "duration": "2h 15m"
+        },
         {
-          "course_id": "course_001",
-          "course_name": "Introduction to Python",
-          "enrollment_date": "2025-04-12T08:30:00Z",
-          "access_expiry": "2026-04-12T08:30:00Z",
-          "amount_paid": 49.99,
-          "external_ref_id": "txn_9988776655"
+            "id": "course_pm_4",
+            "name": "User Interviews & Research",
+            "domain": "Product Management",
+            "created_at": "2024-01-25T14:00:00Z",
+            "updated_at": "2024-05-05T12:00:00Z",
+            "modules": 4,
+            "duration": "1h 10m"
+        },
+        {
+            "id": "course_pm_5",
+            "name": "Technical PM 101",
+            "domain": "Product Management",
+            "created_at": "2024-05-01T10:00:00Z",
+            "updated_at": "2024-06-30T13:00:00Z",
+            "modules": 8,
+            "duration": "3h 30m"
+        },
+
+        {
+            "id": "course_da_1",
+            "name": "Data Analysis with Excel",
+            "domain": "Data Analytics",
+            "created_at": "2024-01-05T10:00:00Z",
+            "updated_at": "2024-05-25T10:00:00Z",
+            "modules": 7,
+            "duration": "2h 30m"
+        },
+        {
+            "id": "course_da_2",
+            "name": "SQL for Analytics",
+            "domain": "Data Analytics",
+            "created_at": "2024-03-12T08:00:00Z",
+            "updated_at": "2024-07-01T09:00:00Z",
+            "modules": 6,
+            "duration": "2h 15m"
+        },
+        {
+            "id": "course_da_3",
+            "name": "Data Visualization Basics",
+            "domain": "Data Analytics",
+            "created_at": "2024-02-20T10:00:00Z",
+            "updated_at": "2024-06-10T14:00:00Z",
+            "modules": 5,
+            "duration": "2h 00m"
+        },
+        {
+            "id": "course_da_4",
+            "name": "Python for Data Analysis",
+            "domain": "Data Analytics",
+            "created_at": "2024-04-01T13:00:00Z",
+            "updated_at": "2024-06-05T11:00:00Z",
+            "modules": 9,
+            "duration": "4h 00m"
+        },
+        {
+            "id": "course_da_5",
+            "name": "A/B Testing & Experimentation",
+            "domain": "Data Analytics",
+            "created_at": "2024-05-15T09:00:00Z",
+            "updated_at": "2024-07-10T15:00:00Z",
+            "modules": 6,
+            "duration": "1h 50m"
+        },
+
+        {
+            "id": "course_extra_1",
+            "name": "Consulting Resume Prep",
+            "domain": "Consulting",
+            "created_at": "2024-01-05T10:00:00Z",
+            "updated_at": "2024-06-01T10:00:00Z",
+            "modules": 3,
+            "duration": "1h 20m"
+        },
+        {
+            "id": "course_extra_2",
+            "name": "PM Mock Interviews",
+            "domain": "Product Management",
+            "created_at": "2024-01-18T12:00:00Z",
+            "updated_at": "2024-06-22T12:00:00Z",
+            "modules": 4,
+            "duration": "1h 40m"
+        },
+        {
+            "id": "course_extra_3",
+            "name": "Excel Tips for Analysts",
+            "domain": "Data Analytics",
+            "created_at": "2024-02-08T11:00:00Z",
+            "updated_at": "2024-07-08T09:00:00Z",
+            "modules": 4,
+            "duration": "1h 25m"
+        },
+        {
+            "id": "course_extra_4",
+            "name": "Consulting Tools 101",
+            "domain": "Consulting",
+            "created_at": "2024-03-01T08:00:00Z",
+            "updated_at": "2024-07-03T10:00:00Z",
+            "modules": 5,
+            "duration": "2h 10m"
+        },
+        {
+            "id": "course_extra_5",
+            "name": "Data Ethics & Privacy",
+            "domain": "Data Analytics",
+            "created_at": "2024-04-14T14:00:00Z",
+            "updated_at": "2024-07-11T16:00:00Z",
+            "modules": 4,
+            "duration": "1h 15m"
         }
-      ],
-      "progress": [],
-      "badges": [],
-      "quiz_submissions": [],
-      "files_submitted": [],
-      "text_submissions": []
-    }
-  ]
+    ]
 }
