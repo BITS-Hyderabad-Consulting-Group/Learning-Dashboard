@@ -243,7 +243,7 @@ export default function Dashboard() {
             </section>
         </div>
 ) : (
-    <div>
+    <div className="overflow-x-hidden">
       <h2 className="text-gray-800 text-4xl font-semibold mb-12 mt-4 text-center">
         All Courses
       </h2>
