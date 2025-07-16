@@ -1,1 +1,37 @@
-
+{
+  "title": "Frequently Asked Questions",
+  "lastUpdated": "June 2024",
+  "items": [
+    {
+        "id": "q1",
+        "question": "Are the courses free?",
+        "answer": "Yes. All courses are free for registered students."
+    },
+    {
+        "id": "q2",
+        "question": "Can I enroll in multiple courses?",
+        "answer": "Yes, you can take as many as you want at your own pace."
+    },
+    {
+        "id": "q3",
+        "question": "Do I get a certificate?",
+        "answer": "Yes. A digital certificate is issued upon completion."
+    },
+    {
+        "id": "q4",
+        "question": "Are the courses beginner-friendly?",
+        "answer": "Absolutely. Our courses are structured for beginners and go step by step."
+    },
+    {
+        "id": "q5",
+        "question": "Do I have lifetime access to the course materials?",
+        "answer": "Yes. Once enrolled, you'll retain access to all course content indefinitely."
+    },            
+    {
+        "id": "q6",
+        "question": "Are the course suitable for placement preparation?",
+        "answer": "Absolutely. They are tailored for roles in consulting firms and product-based companies with a case-focus."
+    }
+  ]
+}
+    

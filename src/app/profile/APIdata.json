@@ -1,0 +1,49 @@
+{
+  "name": "Rithvik Vallivedu",
+  "email": "f20231103@hyderabad.bits-pilani.ac.in",
+  "profileImage": "/api/placeholder/100/100",
+  "joined": "2024-01-15",
+  "xp": 2450,
+  "stats": {
+    "highestStreaks": 15,
+    "highestRank": 3,
+    "coursesCompleted": 8
+  },
+  "courses": [
+    {
+      "id": 1,
+      "name": "Management Consulting",
+      "progress": 10,
+      "currentWeek": "Week 1: Introduction to fundamentals",
+      "modulesCompleted": 10,
+      "totalModules": 30
+    },
+    {
+      "id": 2,
+      "name": "Data Analytics",
+      "progress": 65,
+      "currentWeek": "Week 4: Advanced Analysis",
+      "modulesCompleted": 20,
+      "totalModules": 25
+    }
+  ],
+  "learningStreak": {
+    "currentStreak": 7,
+    "streakData": [
+      { "day": "Mon", "completed": true },
+      { "day": "Tue", "completed": true },
+      { "day": "Wed", "completed": true },
+      { "day": "Thu", "completed": false },
+      { "day": "Fri", "completed": true },
+      { "day": "Sat", "completed": true },
+      { "day": "Sun", "completed": true }
+    ]
+  },
+  "leaderboard": [
+    { "id": 1, "name": "Sarah Johnson", "initials": "SJ", "rank": 1, "xp": 3200 },
+    { "id": 2, "name": "Michael Chen", "initials": "MC", "rank": 2, "xp": 2800 },
+    { "id": 3, "name": "Rithvik Vallivedu", "initials": "RV", "rank": 3, "xp": 2450 },
+    { "id": 4, "name": "Emma Wilson", "initials": "EW", "rank": 4, "xp": 2100 },
+    { "id": 5, "name": "David Brown", "initials": "DB", "rank": 5, "xp": 1950 }
+  ]
+}

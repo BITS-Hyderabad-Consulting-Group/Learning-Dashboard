@@ -13,103 +13,24 @@ import {
     CarouselPrevious,
 } from '@/components/ui/carousel';
 import { Button } from '@/components/ui/button';
-import APIdata from '@/app/APIdata.json';
+import APIData from '@/app/APIdata.json';
 import { Scroller } from '@/components/Scroller';
-import { usePathname, useRouter } from 'next/navigation';
-import { Header } from '@/components/Header';
-import { Home, LayoutDashboard } from 'lucide-react';
 import { FaqSection } from '@/components/FaqSection';
 
-type Course = (typeof APIdata.coursesPage.recommended)[0];
-
 function chunk<T>(array: T[], size: number): T[][] {
-    if (!array.length) {
-        return [];
-    }
+    if (!array.length) return [];
     const head = array.slice(0, size);
     const tail = array.slice(size);
     return [head, ...chunk(tail, size)];
 }
 
-const CourseSection = ({
-    title,
-    href,
-    children,
-}: {
-    title: string;
-    href: string;
-    children: React.ReactNode;
-}) => (
-    <section>
-        <div className="flex justify-between items-baseline mb-6">
-            <h2 className="text-2xl font-bold text-gray-900">{title}</h2>
-            <Link href={href}>
-                <span className="text-sm font-semibold text-teal-800 hover:underline">See all</span>
-            </Link>
-        </div>
-        {children}
-    </section>
-);
-
-const CoursesCarousel = ({
-    courses,
-    layout = 'default',
-}: {
-    courses: Course[];
-    layout?: 'default' | 'grid';
-}) => {
-    const courseChunks = layout === 'grid' ? chunk(courses, 6) : [];
-    const loop = layout === 'grid' ? courseChunks.length > 1 : courses.length > 3;
-
-    return (
-        <Carousel opts={{ align: 'start', loop }} className="w-full">
-            <CarouselContent className={layout === 'grid' ? '-ml-4' : '-ml-8'}>
-                {layout === 'grid' &&
-                    courseChunks.map((chunk, index) => (
-                        <CarouselItem key={index} className="pl-4">
-                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                                {chunk.map((course) => (
-                                    <CourseCard
-                                        key={course.id}
-                                        id={course.id}
-                                        name={course.name}
-                                        duration={course.duration}
-                                        modules={course.modules}
-                                        progress={0}
-                                        showProgress={false}
-                                    />
-                                ))}
-                            </div>
-                        </CarouselItem>
-                    ))}
-                {layout === 'default' &&
-                    courses.map((course) => (
-                        <CarouselItem key={course.id} className="pl-8 md:basis-1/2 lg:basis-1/3">
-                            <CourseCard
-                                id={course.id}
-                                name={course.name}
-                                duration={course.duration}
-                                modules={course.modules}
-                                progress={course.progress}
-                                showProgress={true}
-                            />
-                        </CarouselItem>
-                    ))}
-            </CarouselContent>
-            <CarouselPrevious className="text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
-            <CarouselNext className="text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
-        </Carousel>
-    );
-};
-
-export default function CoursesPage() {
+export default function HomePage() {
     const [isUserLoggedIn, setIsUserLoggedIn] = React.useState(false);
-
     return (
         <div className="bg-white">
-            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 sm:py-24">
-                <section className="relative text-center flex flex-col items-center">
-                    <div className="absolute top-0 right-0">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                <section className="py-16 sm:py-24 relative text-center flex flex-col items-center">
+                    <div className="absolute top-0 right-0 pt-4 pr-4">
                         <Button
                             variant="outline"
                             onClick={() => setIsUserLoggedIn((prev) => !prev)}
@@ -127,7 +48,6 @@ export default function CoursesPage() {
                                 className="w-6 h-6"
                             />
                         </div>
-
                         <div className="relative inline-flex items-center rounded-full bg-[#bde4e2] p-2">
                             <h1 className="flex items-center gap-4 text-3xl sm:text-4xl font-bold tracking-tight text-[#0f3433]">
                                 <span className="inline-flex items-center gap-2 rounded-full bg-[#007975] text-white px-5 py-3 text-2xl sm:text-3xl">
@@ -140,7 +60,6 @@ export default function CoursesPage() {
                             </h1>
                         </div>
                     </div>
-
                     <p className="mt-8 max-w-3xl mx-auto text-lg text-gray-600 leading-relaxed">
                         Empowering future consultants and tech leaders through comprehensive
                         learning programs in
@@ -151,7 +70,7 @@ export default function CoursesPage() {
                         End-End Non Tech Expertise
                     </p>
                     <div className="mt-8">
-                        <Link href="/courses">
+                        <Link href="/(student)/courses">
                             <span className="inline-block bg-[#007975] text-white font-semibold rounded-full px-8 py-3 hover:bg-[#005f5c] transition-colors duration-300 shadow-md">
                                 Explore Courses
                             </span>
@@ -159,59 +78,116 @@ export default function CoursesPage() {
                     </div>
                 </section>
 
-                {!isUserLoggedIn && (
-                    <section className="mt-24 text-center">
-                        <h2 className="text-2xl md:text-3xl font-medium text-gray-700 mb-8 text-center">
-                            Curated with guidance from our esteemed Alumni
-                        </h2>
+                {!isUserLoggedIn && <Scroller />}
 
-                        <Scroller />
-                    </section>
-                )}
-
-                <div className="space-y-20 mt-24">
-                    {isUserLoggedIn && (
+                <div className="space-y-20 my-24">
+                    {isUserLoggedIn ? (
                         <>
-                            <CourseSection title="Continue Learning" href="/courses/learning">
-                                <CoursesCarousel courses={APIdata.coursesPage.continueLearning} />
-                            </CourseSection>
+                            <section>
+                                <div className="flex justify-between items-baseline mb-6">
+                                    <h2 className="text-2xl font-bold text-gray-900">
+                                        Continue Learning
+                                    </h2>
+                                    <Link href="/courses/learning">
+                                        <span className="text-sm font-semibold text-teal-800 hover:underline">
+                                            See all
+                                        </span>
+                                    </Link>
+                                </div>
+                                <Carousel
+                                    opts={{
+                                        align: 'start',
+                                        loop: APIData.coursesPage.continueLearning.length > 3,
+                                    }}
+                                    className="w-full"
+                                >
+                                    <CarouselContent className="-ml-8">
+                                        {APIData.coursesPage.continueLearning.map((course) => (
+                                            <CarouselItem
+                                                key={course.id}
+                                                className="pl-8 md:basis-1/2 lg:basis-1/3"
+                                            >
+                                                <CourseCard {...course} showProgress={true} />
+                                            </CarouselItem>
+                                        ))}
+                                    </CarouselContent>
+                                    <CarouselPrevious className="text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
+                                    <CarouselNext className="text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
+                                </Carousel>
+                            </section>
 
-                            <CourseSection title="Recommended for you" href="/courses/recommended">
-                                <CoursesCarousel courses={APIdata.coursesPage.recommended} />
-                            </CourseSection>
+                            <section>
+                                <div className="flex justify-between items-baseline mb-6">
+                                    <h2 className="text-2xl font-bold text-gray-900">
+                                        Recommended for you
+                                    </h2>
+                                    <Link href="/courses/recommended">
+                                        <span className="text-sm font-semibold text-teal-800 hover:underline">
+                                            See all
+                                        </span>
+                                    </Link>
+                                </div>
+                                <Carousel
+                                    opts={{
+                                        align: 'start',
+                                        loop: APIData.coursesPage.recommended.length > 3,
+                                    }}
+                                    className="w-full"
+                                >
+                                    <CarouselContent className="-ml-8">
+                                        {APIData.coursesPage.recommended.map((course) => (
+                                            <CarouselItem
+                                                key={course.id}
+                                                className="pl-8 md:basis-1/2 lg:basis-1/3"
+                                            >
+                                                <CourseCard {...course} showProgress={false} />
+                                            </CarouselItem>
+                                        ))}
+                                    </CarouselContent>
+                                    <CarouselPrevious className="text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
+                                    <CarouselNext className="text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
+                                </Carousel>
+                            </section>
                         </>
-                    )}
-
-                    {!isUserLoggedIn && (
-                        <CourseSection title="Featured Courses" href="/courses/featured">
-                            <CoursesCarousel
-                                courses={APIdata.coursesPage.recommended}
-                                layout="grid"
-                            />
-                        </CourseSection>
+                    ) : (
+                        <section>
+                            <div className="flex justify-between items-baseline mb-6">
+                                <h2 className="text-2xl font-bold text-gray-900">
+                                    Featured Courses
+                                </h2>
+                                <Link href="/courses/featured">
+                                    <span className="text-sm font-semibold text-teal-800 hover:underline">
+                                        See all
+                                    </span>
+                                </Link>
+                            </div>
+                            <Carousel opts={{ align: 'start', loop: true }} className="w-full">
+                                <CarouselContent className="-ml-4">
+                                    {chunk(APIData.coursesPage.recommended, 6).map(
+                                        (chunk, index) => (
+                                            <CarouselItem key={index} className="pl-4">
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                                                    {chunk.map((course) => (
+                                                        <CourseCard
+                                                            key={course.id}
+                                                            {...course}
+                                                            showProgress={false}
+                                                        />
+                                                    ))}
+                                                </div>
+                                            </CarouselItem>
+                                        )
+                                    )}
+                                </CarouselContent>
+                                <CarouselPrevious className="text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
+                                <CarouselNext className="text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
+                            </Carousel>
+                        </section>
                     )}
                 </div>
-                {!isUserLoggedIn && <FaqSection />}
+
+                <FaqSection />
             </div>
         </div>
-    );
-}
-
-export function Layout({ children }: { children: React.ReactNode }) {
-    const pathname = usePathname();
-    const router = useRouter();
-
-    return (
-        <>
-            <Header
-                navItems={[
-                    { label: 'Home', path: '/', icon: Home },
-                    { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-                ]}
-                currentPath={pathname}
-                onNavigate={(path) => router.push(path)}
-            />
-            <main>{children}</main>
-        </>
     );
 }

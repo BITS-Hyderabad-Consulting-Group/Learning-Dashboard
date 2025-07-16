@@ -1,0 +1,28 @@
+{
+    "domains": ["Business", "Communication", "Consulting", "Marketing", "Finance"],
+    "statuses": ["active", "inactive", "completed"],
+    "sampleCourseNames": [
+        "Business Communication Skills",
+        "Effective Negotiation",
+        "Marketing Fundamentals",
+        "Consulting Case Prep",
+        "Financial Literacy 101"
+    ],
+    "defaultDescription": "Master essential business and communication skills for the modern workplace.",
+    "course": {
+        "id": "",
+        "name": "",
+        "description": "",
+        "duration": "",
+        "progress": 0,
+        "modules": 0,
+        "attendees": 0,
+        "date_created": "",
+        "thumbnail_url": "",
+        "prereq": "",
+        "badge_name": "",
+        "date_updated": "",
+        "status": "active",
+        "domain": "Business"
+    }
+}
