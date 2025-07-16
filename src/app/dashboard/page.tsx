@@ -82,14 +82,19 @@ export default function Dashboard() {
 
     const [selectedDomain, setSelectedDomain] = useState('all');
     const [currentPage, setCurrentPage] = useState(1);
-    
+
     const [sortOrder, setSortOrder] = useState('a-z');
+    const [searchTerm, setSearchTerm] = useState('');
     const filteredAndSortedCourses = useMemo(() => {
-        const filtered =
+        let filtered =
             selectedDomain === 'all'
                 ? allCourses
                 : allCourses.filter((course) => course.domain === selectedDomain);
-
+        if (searchTerm.trim()) {
+            filtered = filtered.filter((course) =>
+                course.name.toLowerCase().includes(searchTerm.trim().toLowerCase())
+            );
+        }
         return [...filtered].sort((a: DirectoryCourse, b: DirectoryCourse) => {
             switch (sortOrder) {
                 case 'z-a':
@@ -107,62 +112,78 @@ export default function Dashboard() {
                     return a.name.localeCompare(b.name);
             }
         });
-    }, [allCourses, selectedDomain, sortOrder]);
+    }, [allCourses, selectedDomain, sortOrder, searchTerm]);
     const [loggedIn, setLoggedIn] = useState(false);
-    const coursesPerPage = loggedIn ? 6 : 9;
+    const coursesPerPage = loggedIn ? 6 : 12;
     const totalPages = Math.ceil(filteredAndSortedCourses.length / coursesPerPage);
     const currentCoursesToDisplay = filteredAndSortedCourses.slice(
         (currentPage - 1) * coursesPerPage,
         currentPage * coursesPerPage
     );
-    const currentCourses = allCourses.slice(
-    (currentPage - 1) * coursesPerPage,
-    currentPage * coursesPerPage
-    );
-   
-  return (
+
+    return (
         <div className="p-8 space-y-10">
-        <div className="absolute top-30 right-30">
-          <button
-            className="bg-teal-800 text-white px-4 py-2 rounded"
-            onClick={() => {
-              setLoggedIn(!loggedIn);
-              setCurrentPage(1);
-            }}
-          >
-            {loggedIn ? "Logout" : "Login"}
-          </button>
-        </div>
+            <div className="absolute top-30 right-30">
+                <button
+                    className="bg-teal-800 text-white px-4 py-2 rounded"
+                    onClick={() => {
+                        setLoggedIn(!loggedIn);
+                        setCurrentPage(1);
+                    }}
+                >
+                    {loggedIn ? 'Logout' : 'Login'}
+                </button>
+            </div>
 
-        {loggedIn ? (
-          <div className="container mx-auto space-y-15 px-6 py-8 overflow-x-hidden">
-          <h1 className="text-teal-800 text-4xl ml-6 font-semibold">
-            Welcome Back, {user.full_name}!
-          </h1>
-          <section>
-          <h2 className="text-gray-700 text-2xl ml-18 font-semibold mb-8">Continue Learning</h2>
-          <Carousel className="relative mx-auto w-full max-w-[1200px]">
-          <CarouselContent className=" py-4 ml-1 ">
-            {userCoursesWithDetails.map((course) => (
-            <CarouselItem
-              key={course.id}
-              className="basis-1/3 px-2"
-            >
-            <CourseCard {...course} showProgress={true} />
-            </CarouselItem>
-            ))}
-          </CarouselContent>
-        <CarouselPrevious className="text-teal-800 border border-gray-300 bg-white hover:bg-gray-100 hover:border-teal-800" />
-        <CarouselNext className="text-teal-800 border border-gray-300 bg-white hover:bg-gray-100 hover:border-teal-800" />
-        </Carousel>
-        </section>
+            {loggedIn ? (
+                <div className="container mx-auto space-y-15 px-6 py-4 overflow-x-hidden">
+                    <h1 className="text-teal-800 text-4xl font-semibold">
+                        Welcome Back, {user.full_name}!
+                    </h1>
+                    <h2 className="text-gray-700 text-2xl font-semibold mb-8">Continue Learning</h2>
+                    <section>
+                        <div className="container mx-auto px-8">
+                            <Carousel opts={{ loop: true }}>
+                                <CarouselContent className="py-4 -px-1 mx-1">
+                                    {userCoursesWithDetails.map((course) => (
+                                        <CarouselItem key={course.id} className="basis-1/3 px-2">
+                                            <div className="p-2">
+                                                <CourseCard {...course} showProgress={true} />
+                                            </div>
+                                        </CarouselItem>
+                                    ))}
+                                </CarouselContent>
+                                <CarouselPrevious className="text-teal-800 border border-gray-300 bg-white hover:bg-gray-100 hover:border-teal-800" />
+                                <CarouselNext className="text-teal-800 border border-gray-300 bg-white hover:bg-gray-100 hover:border-teal-800" />
+                            </Carousel>
+                        </div>
+                    </section>
+                </div>
+            ) : null}
 
-            <section>
-                <h2 className="text-gray-700 text-2xl mt-12 font-semibold mb-6 pl-18">All Courses</h2>
-                <div className="flex flex-wrap gap-4 mt-8 mb-10 pl-18">
+            {/* Unified All Courses Section */}
+            <section className="container mx-auto px-6 py-8 overflow-x-hidden">
+                <h2 className="text-gray-800 text-2xl font-semibold mb-8 mt-4 text-left">
+                    All Courses
+                </h2>
+                <div className="flex flex-wrap gap-4 mt-4 mb-8 items-center">
+                    <input
+                        type="text"
+                        value={searchTerm}
+                        onChange={(e) => {
+                            setSearchTerm(e.target.value);
+                            setCurrentPage(1);
+                        }}
+                        placeholder="Search courses..."
+                        className="border border-gray-300 shadow-sm rounded-lg px-5 py-2 w-full max-w-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-200 placeholder-gray-400 bg-white hover:border-teal-500 focus:border-teal-600"
+                        aria-label="Search courses"
+                    />
                     <Select onValueChange={setSortOrder} defaultValue="a-z">
                         <SelectTrigger className="w-[200px] text-teal-800 font-semibold">
-                            <SelectValue placeholder="Title: A-to-Z" />
+                            <SelectValue
+                                placeholder="Title: A-to-Z"
+                                className="border border-gray-300 shadow-sm rounded-lg px-5 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-200 hover:border-teal-500 focus:border-teal-600"
+                            />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="a-z" className="text-teal-800 font-semibold">
@@ -194,7 +215,10 @@ export default function Dashboard() {
 
                     <Select onValueChange={setSelectedDomain} defaultValue="all">
                         <SelectTrigger className="w-[200px] text-teal-800 font-semibold">
-                            <SelectValue placeholder="Domain" />
+                            <SelectValue
+                                placeholder="Domain"
+                                className="border border-gray-300 shadow-sm rounded-lg px-5 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-200 hover:border-teal-500 focus:border-teal-600"
+                            />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="all" className="text-teal-800 font-semibold">
@@ -219,7 +243,7 @@ export default function Dashboard() {
                     </Select>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-18">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
                     {currentCoursesToDisplay.map((course) => (
                         <CourseCard key={course.id} {...course} progress={0} showProgress={false} />
                     ))}
@@ -242,60 +266,5 @@ export default function Dashboard() {
                 </Pagination>
             </section>
         </div>
-) : (
-    <div className="overflow-x-hidden">
-      <h2 className="text-gray-800 text-4xl font-semibold mb-12 mt-4 text-center">
-        All Courses
-      </h2>
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 px-24">
-      {currentCourses.map((course) => (
-        <CourseCard key={course.id} progress={0} {...course} showProgress={false} />
-      ))}
-    </div>
-    <Pagination className="mt-8 ml-10">
-       <PaginationContent>
-        <PaginationItem>
-          <PaginationPrevious
-            onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
-          />
-        </PaginationItem>
-
-        {Array.from({ length: Math.min(3, totalPages) }, (_, i) => (
-          <PaginationItem key={i}>
-            <PaginationLink
-              isActive={currentPage === i + 1}
-              onClick={() => setCurrentPage(i + 1)}
-            >
-              {i + 1}
-            </PaginationLink>
-          </PaginationItem>
-        ))}
-
-        {totalPages > 3 && (
-          <div>
-            <PaginationItem>
-              <PaginationEllipsis />
-            </PaginationItem>
-            <PaginationItem>
-              <PaginationLink
-                isActive={currentPage === totalPages}
-                onClick={() => setCurrentPage(totalPages)}
-              >
-                {totalPages}
-              </PaginationLink>
-            </PaginationItem>
-          </div>
-        )}
-
-        <PaginationItem>
-          <PaginationNext
-            onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
-          />
-        </PaginationItem>
-      </PaginationContent>
-    </Pagination>
-    </div>
-    )}
-   </div>
-  );
+    );
 }
