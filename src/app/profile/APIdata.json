@@ -1,49 +1,278 @@
 {
-  "name": "Rithvik Vallivedu",
-  "email": "f20231103@hyderabad.bits-pilani.ac.in",
-  "profileImage": "/api/placeholder/100/100",
-  "joined": "2024-01-15",
-  "xp": 2450,
-  "stats": {
-    "highestStreaks": 15,
-    "highestRank": 3,
-    "coursesCompleted": 8
-  },
-  "courses": [
-    {
-      "id": 1,
-      "name": "Management Consulting",
-      "progress": 10,
-      "currentWeek": "Week 1: Introduction to fundamentals",
-      "modulesCompleted": 10,
-      "totalModules": 30
-    },
-    {
-      "id": 2,
-      "name": "Data Analytics",
-      "progress": 65,
-      "currentWeek": "Week 4: Advanced Analysis",
-      "modulesCompleted": 20,
-      "totalModules": 25
-    }
-  ],
-  "learningStreak": {
-    "currentStreak": 7,
-    "streakData": [
-      { "day": "Mon", "completed": true },
-      { "day": "Tue", "completed": true },
-      { "day": "Wed", "completed": true },
-      { "day": "Thu", "completed": false },
-      { "day": "Fri", "completed": true },
-      { "day": "Sat", "completed": true },
-      { "day": "Sun", "completed": true }
+    "users": [
+        {
+            "id": "user_1",
+            "full_name": "Sashidhar",
+            "email": "sashidhar@example.com",
+            "enrolments": [
+                { "course_id": "course_cons_1" },
+                { "course_id": "course_cons_3" },
+                { "course_id": "course_cons_5" },
+                { "course_id": "course_pm_2" },
+                { "course_id": "course_pm_3" },
+                { "course_id": "course_da_1" },
+                { "course_id": "course_da_4" }
+            ],
+            "learningStreak": {
+                "currentStreak": 10
+            }
+        }
+    ],
+    "courses": [
+        {
+            "id": "course_cons_1",
+            "name": "Consulting Foundations",
+            "domain": "Consulting",
+            "created_at": "2024-01-10T10:00:00Z",
+            "updated_at": "2024-05-20T08:00:00Z",
+            "modules": 8,
+            "duration": "3h 20m",
+            "progress": 60
+        },
+        {
+            "id": "course_cons_3",
+            "name": "Strategy & Frameworks",
+            "domain": "Consulting",
+            "created_at": "2024-02-01T11:00:00Z",
+            "updated_at": "2024-04-15T09:00:00Z",
+            "modules": 6,
+            "duration": "2h 45m",
+            "progress": 80
+        },
+        {
+            "id": "course_cons_5",
+            "name": "Market Sizing Crash Course",
+            "domain": "Consulting",
+            "created_at": "2024-01-20T10:00:00Z",
+            "updated_at": "2024-06-10T09:00:00Z",
+            "modules": 4,
+            "duration": "1h 30m",
+            "progress": 100
+        },
+        {
+            "id": "course_pm_2",
+            "name": "Roadmapping & Strategy",
+            "domain": "Product Management",
+            "created_at": "2024-04-10T11:00:00Z",
+            "updated_at": "2024-06-20T10:00:00Z",
+            "modules": 5,
+            "duration": "2h 00m",
+            "progress": 35
+        },
+        {
+            "id": "course_pm_3",
+            "name": "Metrics & KPIs",
+            "domain": "Product Management",
+            "created_at": "2024-03-12T09:00:00Z",
+            "updated_at": "2024-07-01T08:00:00Z",
+            "modules": 6,
+            "duration": "2h 15m",
+            "progress": 45
+        },
+        {
+            "id": "course_da_1",
+            "name": "Data Analysis with Excel",
+            "domain": "Data Analytics",
+            "created_at": "2024-01-05T10:00:00Z",
+            "updated_at": "2024-05-25T10:00:00Z",
+            "modules": 7,
+            "duration": "2h 30m",
+            "progress": 25
+        },
+        {
+            "id": "course_da_4",
+            "name": "Python for Data Analysis",
+            "domain": "Data Analytics",
+            "created_at": "2024-04-01T13:00:00Z",
+            "updated_at": "2024-06-05T11:00:00Z",
+            "modules": 9,
+            "duration": "4h 00m",
+            "progress": 10
+        }
+    ],
+    "allCourses": [
+        {
+            "id": "course_cons_1",
+            "name": "Consulting Foundations",
+            "domain": "Consulting",
+            "created_at": "2024-01-10T10:00:00Z",
+            "updated_at": "2024-05-20T08:00:00Z",
+            "modules": 8,
+            "duration": "3h 20m"
+        },
+        {
+            "id": "course_cons_2",
+            "name": "Advanced Case Studies",
+            "domain": "Consulting",
+            "created_at": "2024-03-01T09:00:00Z",
+            "updated_at": "2024-06-15T13:00:00Z",
+            "modules": 10,
+            "duration": "5h 00m"
+        },
+        {
+            "id": "course_cons_3",
+            "name": "Strategy & Frameworks",
+            "domain": "Consulting",
+            "created_at": "2024-02-01T11:00:00Z",
+            "updated_at": "2024-04-15T09:00:00Z",
+            "modules": 6,
+            "duration": "2h 45m"
+        },
+        {
+            "id": "course_cons_4",
+            "name": "M&A Case Prep",
+            "domain": "Consulting",
+            "created_at": "2024-05-10T10:00:00Z",
+            "updated_at": "2024-06-25T11:00:00Z",
+            "modules": 7,
+            "duration": "3h 10m"
+        },
+        {
+            "id": "course_cons_5",
+            "name": "Market Sizing Crash Course",
+            "domain": "Consulting",
+            "created_at": "2024-01-20T10:00:00Z",
+            "updated_at": "2024-06-10T09:00:00Z",
+            "modules": 4,
+            "duration": "1h 30m"
+        },
+
+        {
+            "id": "course_pm_1",
+            "name": "Intro to Product Management",
+            "domain": "Product Management",
+            "created_at": "2024-02-15T12:00:00Z",
+            "updated_at": "2024-06-01T14:30:00Z",
+            "modules": 5,
+            "duration": "1h 45m"
+        },
+        {
+            "id": "course_pm_2",
+            "name": "Roadmapping & Strategy",
+            "domain": "Product Management",
+            "created_at": "2024-04-10T11:00:00Z",
+            "updated_at": "2024-06-20T10:00:00Z",
+            "modules": 5,
+            "duration": "2h 00m"
+        },
+        {
+            "id": "course_pm_3",
+            "name": "Metrics & KPIs",
+            "domain": "Product Management",
+            "created_at": "2024-03-12T09:00:00Z",
+            "updated_at": "2024-07-01T08:00:00Z",
+            "modules": 6,
+            "duration": "2h 15m"
+        },
+        {
+            "id": "course_pm_4",
+            "name": "User Interviews & Research",
+            "domain": "Product Management",
+            "created_at": "2024-01-25T14:00:00Z",
+            "updated_at": "2024-05-05T12:00:00Z",
+            "modules": 4,
+            "duration": "1h 10m"
+        },
+        {
+            "id": "course_pm_5",
+            "name": "Technical PM 101",
+            "domain": "Product Management",
+            "created_at": "2024-05-01T10:00:00Z",
+            "updated_at": "2024-06-30T13:00:00Z",
+            "modules": 8,
+            "duration": "3h 30m"
+        },
+
+        {
+            "id": "course_da_1",
+            "name": "Data Analysis with Excel",
+            "domain": "Data Analytics",
+            "created_at": "2024-01-05T10:00:00Z",
+            "updated_at": "2024-05-25T10:00:00Z",
+            "modules": 7,
+            "duration": "2h 30m"
+        },
+        {
+            "id": "course_da_2",
+            "name": "SQL for Analytics",
+            "domain": "Data Analytics",
+            "created_at": "2024-03-12T08:00:00Z",
+            "updated_at": "2024-07-01T09:00:00Z",
+            "modules": 6,
+            "duration": "2h 15m"
+        },
+        {
+            "id": "course_da_3",
+            "name": "Data Visualization Basics",
+            "domain": "Data Analytics",
+            "created_at": "2024-02-20T10:00:00Z",
+            "updated_at": "2024-06-10T14:00:00Z",
+            "modules": 5,
+            "duration": "2h 00m"
+        },
+        {
+            "id": "course_da_4",
+            "name": "Python for Data Analysis",
+            "domain": "Data Analytics",
+            "created_at": "2024-04-01T13:00:00Z",
+            "updated_at": "2024-06-05T11:00:00Z",
+            "modules": 9,
+            "duration": "4h 00m"
+        },
+        {
+            "id": "course_da_5",
+            "name": "A/B Testing & Experimentation",
+            "domain": "Data Analytics",
+            "created_at": "2024-05-15T09:00:00Z",
+            "updated_at": "2024-07-10T15:00:00Z",
+            "modules": 6,
+            "duration": "1h 50m"
+        },
+
+        {
+            "id": "course_extra_1",
+            "name": "Consulting Resume Prep",
+            "domain": "Consulting",
+            "created_at": "2024-01-05T10:00:00Z",
+            "updated_at": "2024-06-01T10:00:00Z",
+            "modules": 3,
+            "duration": "1h 20m"
+        },
+        {
+            "id": "course_extra_2",
+            "name": "PM Mock Interviews",
+            "domain": "Product Management",
+            "created_at": "2024-01-18T12:00:00Z",
+            "updated_at": "2024-06-22T12:00:00Z",
+            "modules": 4,
+            "duration": "1h 40m"
+        },
+        {
+            "id": "course_extra_3",
+            "name": "Excel Tips for Analysts",
+            "domain": "Data Analytics",
+            "created_at": "2024-02-08T11:00:00Z",
+            "updated_at": "2024-07-08T09:00:00Z",
+            "modules": 4,
+            "duration": "1h 25m"
+        },
+        {
+            "id": "course_extra_4",
+            "name": "Consulting Tools 101",
+            "domain": "Consulting",
+            "created_at": "2024-03-01T08:00:00Z",
+            "updated_at": "2024-07-03T10:00:00Z",
+            "modules": 5,
+            "duration": "2h 10m"
+        },
+        {
+            "id": "course_extra_5",
+            "name": "Data Ethics & Privacy",
+            "domain": "Data Analytics",
+            "created_at": "2024-04-14T14:00:00Z",
+            "updated_at": "2024-07-11T16:00:00Z",
+            "modules": 4,
+            "duration": "1h 15m"
+        }
     ]
-  },
-  "leaderboard": [
-    { "id": 1, "name": "Sarah Johnson", "initials": "SJ", "rank": 1, "xp": 3200 },
-    { "id": 2, "name": "Michael Chen", "initials": "MC", "rank": 2, "xp": 2800 },
-    { "id": 3, "name": "Rithvik Vallivedu", "initials": "RV", "rank": 3, "xp": 2450 },
-    { "id": 4, "name": "Emma Wilson", "initials": "EW", "rank": 4, "xp": 2100 },
-    { "id": 5, "name": "David Brown", "initials": "DB", "rank": 5, "xp": 1950 }
-  ]
 }
