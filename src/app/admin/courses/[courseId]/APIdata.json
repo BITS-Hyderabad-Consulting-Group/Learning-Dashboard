@@ -1,0 +1,94 @@
+{
+    "domains": ["Business", "Communication", "Consulting", "Marketing", "Finance"],
+    "statuses": ["active", "inactive", "completed"],
+    "course": {
+        "id": "course_101",
+        "name": "Business Communication Skills",
+        "description": "Master the art of effective business communication, including presentations, email etiquette, and negotiation.",
+        "duration": "4 weeks",
+        "progress": 60,
+        "modules": 12,
+        "attendees": 800,
+        "date_created": "2023-09-10T09:00:00Z",
+        "banner_url": "https://example.com/thumbnails/business-comm.png",
+        "prereq": "None",
+        "badge_name": "Communication Pro",
+        "date_updated": "2024-06-20T08:15:00Z",
+        "status": "active",
+        "domain": "Business",
+        "weeks": [
+            {
+                "title": "Week 1 | Foundations of Communication",
+                "duration": 60,
+                "modules": [
+                    {
+                        "title": "Principles of Effective Communication",
+                        "type": "Article",
+                        "completed": true,
+                        "markedForReview": false
+                    },
+                    {
+                        "title": "Barriers to Communication",
+                        "type": "Video",
+                        "completed": false,
+                        "markedForReview": true
+                    }
+                ]
+            },
+            {
+                "title": "Week 2 | Business Writing & Email Etiquette",
+                "duration": 75,
+                "modules": [
+                    {
+                        "title": "Writing Professional Emails",
+                        "type": "Article",
+                        "completed": false,
+                        "markedForReview": false
+                    },
+                    {
+                        "title": "Common Mistakes in Business Writing",
+                        "type": "Video",
+                        "completed": false,
+                        "markedForReview": false
+                    }
+                ]
+            },
+            {
+                "title": "Week 3 | Presentations & Public Speaking",
+                "duration": 90,
+                "modules": [
+                    {
+                        "title": "Structuring a Business Presentation",
+                        "type": "Article",
+                        "completed": false,
+                        "markedForReview": false
+                    },
+                    {
+                        "title": "Overcoming Stage Fright",
+                        "type": "Video",
+                        "completed": false,
+                        "markedForReview": false
+                    }
+                ]
+            },
+            {
+                "title": "Week 4 | Negotiation & Conflict Resolution",
+                "duration": 80,
+                "modules": [
+                    {
+                        "title": "Negotiation Strategies",
+                        "type": "Article",
+                        "completed": false,
+                        "markedForReview": false
+                    },
+                    {
+                        "title": "Handling Difficult Conversations",
+                        "type": "Video",
+                        "completed": false,
+                        "markedForReview": false
+                    }
+                ]
+            }
+        ]
+    }
+}
