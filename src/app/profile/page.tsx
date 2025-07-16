@@ -1,29 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
+import { CourseCard } from "@/components/CourseCard";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 import userProfile from "@/app/profile/APIdata.json";
+import { CameraIcon } from "lucide-react";
 
 export default function ProfilePage() {
   const router = useRouter();
-  const [user, setUser] = useState<typeof userProfile | null>(null);
-
-  useEffect(() => {
-    // Simulate auth check
-    const isLoggedIn = true; // Replace with real auth logic
-    if (!isLoggedIn) {
-      router.push("/"); // Redirect if not logged in
-    } else {
-      setUser(userProfile); // Use imported JSON data directly
-    }
-  }, [router]);
-
-  if (!user) return (
-    <div className="min-h-screen bg-teal-800 flex items-center justify-center">
-      <div className="text-white text-xl">Loading...</div>
-    </div>
-  );
+  const user = userProfile;
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -46,147 +39,159 @@ export default function ProfilePage() {
   };
 
   return (
-    <div className="min-h-screen py-8 px-4">
+    <div className="min-h-screen bg-gray-100 py-8 px-4">
       <motion.div
-        className="max-w-4xl mx-auto"
+        className="max-w-6xl mx-auto"
         variants={containerVariants}
         initial="hidden"
         animate="visible"
       >
         {/* Header */}
-        <motion.div
-          className="text-center mb-8"
+       <motion.div
+          className="mb-8"
           variants={itemVariants}
         >
-          <div className="bg-teal-800 outline-2 outline-teal-800 text-white py-2 px-4 rounded-t-lg">
-            Header
+          {/* Header Bar */}
+          <div className="bg-teal-800 text-white py-3 px-6 rounded-t-lg">
+            <h1 className="text-lg font-semibold">Header</h1>
           </div>
-          <div className="bg-white outline-teal-800 outline-2 py-4 px-6 rounded-b-lg">
-            <h1 className="text-2xl font-bold text-teal-800 mb-2">Your Profile</h1>
-            <h2 className="text-xl font-semibold text-gray-800">{user.name}</h2>
-            <p className="text-gray-600 flex items-center justify-center gap-2 mt-2">
-              <span>📧</span>
-              {user.email}
-            </p>
+          
+          {/* Profile Section */}
+          <div className="bg-white border-2 border-teal-800 py-6 px-6 rounded-b-lg">
+            <div className="flex items-center gap-4">
+              {/* Profile Picture */}
+              <motion.div
+                className="w-16 h-16 bg-cyan-400 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0"
+                whileHover={{ scale: 1.05 }}
+                transition={{ type: "spring", stiffness: 300 }}
+              >
+                <div className="w-full h-full bg-gradient-to-br from-cyan-400 to-cyan-500 flex items-center justify-center">
+                  <span className="text-white font-bold text-lg">
+                    {user.name.split(' ').map(n => n[0]).join('')}
+                  </span>
+                </div>
+              </motion.div>
+
+              {/* Profile Info */}
+              <div className="flex-1">
+                <h1 className="text-xl font-bold text-gray-800 mb-1">Your Profile</h1>
+                <h2 className="text-lg font-semibold text-gray-700 mb-2">{user.name}</h2>
+                <p className="text-gray-600 flex items-center gap-2">
+                  <span className="text-blue-500">📧</span>
+                  {user.email}
+                </p>
+              </div>
+            </div>
           </div>
         </motion.div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Stats Card */}
-          <motion.div
-            className="bg-teal-200 rounded-lg p-6"
-            variants={itemVariants}
-          >
-            <div className="space-y-4">
-              <div className="border-b border-teal-300 pb-2">
-                <span className="font-semibold text-teal-800">Highest number of streaks:</span>
-                <div className="text-2xl font-bold text-teal-700">{user.stats.highestStreaks}</div>
+        <div className="space-y-6">
+          {/* Top Row - Leaderboard and Streak */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Leaderboard */}
+            <motion.div
+              className="bg-[#B4DEDD] rounded-lg p-6"
+              variants={itemVariants}
+            >
+              <h3 className="text-lg font-bold text-teal-800 mb-4">Leaderboard</h3>
+              <div className="space-y-3">
+                {user.leaderboard.slice(0, 3).map((person) => (
+                  <motion.div
+                    key={person.id}
+                    className={`flex items-center gap-3 p-3 rounded-lg ${
+                      person.name === user.name 
+                        ? 'bg-teal-300 bg-opacity-70' 
+                        : 'bg-white bg-opacity-50'
+                    }`}
+                    whileHover={{ scale: 1.02 }}
+                    transition={{ type: "spring", stiffness: 300 }}
+                  >
+                    <div className="w-10 h-10 bg-teal-600 rounded-full flex items-center justify-center">
+                      <span className="text-white text-sm font-bold">{person.initials}</span>
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-sm font-semibold text-teal-800">{person.name}</div>
+                      <div className="text-xs text-teal-600">{person.xp} XP</div>
+                    </div>
+                    <div className="text-sm font-bold text-teal-700">#{person.rank}</div>
+                  </motion.div>
+                ))}
               </div>
-              <div className="border-b border-teal-300 pb-2">
-                <span className="font-semibold text-teal-800">Highest rank:</span>
-                <div className="text-2xl font-bold text-teal-700">#{user.stats.highestRank}</div>
-              </div>
-              <div>
-                <span className="font-semibold text-teal-800">Number of courses completed:</span>
-                <div className="text-2xl font-bold text-teal-700">{user.stats.coursesCompleted}</div>
-              </div>
-            </div>
-          </motion.div>
+            </motion.div>
 
-          {/* Courses Enrolled */}
-          <motion.div
-            className="bg-teal-200 rounded-lg p-6"
-            variants={itemVariants}
-          >
-            <h3 className="text-lg font-bold text-teal-800 mb-4">Courses Enrolled</h3>
-            <div className="space-y-4">
-              {user.courses.map((course) => (
-                <motion.div
-                  key={course.id}
-                  className="bg-white bg-opacity-50 rounded-lg p-4"
-                  whileHover={{ scale: 1.02 }}
-                  transition={{ type: "spring", stiffness: 300 }}
-                >
-                  <div className="flex justify-between items-start mb-2">
-                    <h4 className="font-semibold text-teal-800">{course.name}</h4>
-                    <span className="text-sm font-bold text-teal-600">{course.progress}%</span>
-                  </div>
-                  <p className="text-sm text-teal-700 mb-2">{course.currentWeek}</p>
-                  <div className="text-xs text-teal-600">
-                    {course.modulesCompleted}/{course.totalModules} modules completed
-                  </div>
-                  <div className="w-full bg-teal-100 rounded-full h-2 mt-2">
-                    <motion.div
-                      className="bg-teal-600 h-2 rounded-full"
-                      initial={{ width: 0 }}
-                      animate={{ width: `${course.progress}%` }}
-                      transition={{ duration: 1, delay: 0.5 }}
-                    />
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* Learning Streak & Leaderboard */}
-          <div className="space-y-6">
             {/* Learning Streak */}
             <motion.div
-              className="bg-teal-200 rounded-lg p-6"
+              className="bg-[#B4DEDD] rounded-lg p-6"
               variants={itemVariants}
             >
               <h3 className="text-lg font-bold text-teal-800 mb-4">Learning Streak</h3>
-              <div className="flex justify-center">
-                <div className="grid grid-cols-1 gap-2">
+              <div className="flex flex-col mb-4">
+                <div className="flex justify-center gap-2">
                   {[...Array(3)].map((_, index) => (
                     <motion.div
                       key={index}
                       className="text-center"
-                      whileHover={{ scale: 1.1 }}
+                      whileHover={{ scale: 1.2 }}
                       transition={{ type: "spring", stiffness: 300 }}
                     >
-                      <div className={`text-3xl ${index < user.learningStreak.currentStreak ? 'text-teal-600' : 'text-gray-400'}`}>
+                      <div className={`text-4xl ${index < Math.min(user.learningStreak.currentStreak, 3) ? 'text-yellow-400' : 'text-teal-600'}`}>
                         {index === 0 ? '⭐' : '★'}
                       </div>
                     </motion.div>
                   ))}
                 </div>
               </div>
-              <div className="text-center mt-4">
+              <div className="text-center flex flex-col">
                 <div className="text-sm text-teal-700">
                   Current streak: <span className="font-bold">{user.learningStreak.currentStreak} days</span>
                 </div>
               </div>
-            </motion.div>
-
-            {/* Leaderboard */}
-            <motion.div
-              className="bg-teal-200 rounded-lg p-6"
-              variants={itemVariants}
-            >
-              <h3 className="text-lg font-bold text-teal-800 mb-4">Leaderboard</h3>
-              <div className="space-y-3">
-                {user.leaderboard.slice(0, 3).map((person, index) => (
-                  <motion.div
-                    key={person.id}
-                    className={`flex items-center gap-3 p-2 rounded ${
-                      person.name === user.name ? 'bg-teal-300' : 'bg-white bg-opacity-50'
-                    }`}
-                    whileHover={{ scale: 1.02 }}
-                    transition={{ type: "spring", stiffness: 300 }}
-                  >
-                    <div className="w-8 h-8 bg-teal-600 rounded-full flex items-center justify-center">
-                      <span className="text-white text-sm font-bold">{person.initials}</span>
-                    </div>
-                    <div className="flex-1">
-                      <div className="text-sm font-semibold text-teal-800">{person.name}</div>
-                    </div>
-                    <div className="text-xs text-teal-600">#{person.rank}</div>
-                  </motion.div>
-                ))}
+              
+              {/* Stats Section */}
+              <div className="mt-6 space-y-3 flex flex-col">
+                <div className="text-center">
+                  <span className="font-semibold text-teal-800 block text-sm">Highest streaks:</span>
+                  <div className="text-2xl font-bold text-teal-700">{user.stats.highestStreaks}</div>
+                </div>
+                
+                <div className="text-center">
+                  <span className="font-semibold text-teal-800 block text-sm">Highest rank:</span>
+                  <div className="text-2xl font-bold text-teal-700">#{user.stats.highestRank}</div>
+                </div>
+                
+                <div className="text-center">
+                  <span className="font-semibold text-teal-800 block text-sm">Courses completed:</span>
+                  <div className="text-2xl font-bold text-teal-700">{user.stats.coursesCompleted}</div>
+                </div>
               </div>
             </motion.div>
           </div>
+
+          {/* Bottom Row - Courses Carousel */}
+          <motion.div
+            className="bg-[#B4DEDD] rounded-lg p-6"
+            variants={itemVariants}
+          >
+            <h3 className="text-lg font-bold text-teal-800 mb-6">Courses Enrolled</h3>
+            <Carousel className="w-full max-w-5xl mx-auto">
+              <CarouselContent className="-ml-2 md:-ml-4">
+                {user.courses.map((course) => (
+                  <CarouselItem key={course.id} className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/3">
+                    <CourseCard
+                      id={course.id.toString()}
+                      name={course.name}
+                      duration={course.currentWeek}
+                      modules={course.totalModules}
+                      progress={course.progress}
+                      showProgress={true}
+                    />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious />
+              <CarouselNext />
+            </Carousel>
+          </motion.div>
         </div>
       </motion.div>
     </div>
