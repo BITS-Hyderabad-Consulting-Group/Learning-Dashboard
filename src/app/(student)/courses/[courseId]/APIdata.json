@@ -1,80 +1,82 @@
 {
-  "title": "Management Consulting",
-  "description": "Learn the fundamentals of consulting, frameworks, client interactions, and real-world applications.",
-  "modulesCount": 24,
-  "totalDuration": 180,
-  "modulesCompleted": 8,
-  "weeksCompleted": 3,
-  "markedForReview": 8,
-  "weeks": [
-    {
-      "title": "Week 1 | Introduction and Fundamentals",
-      "duration": 45,
-      "modules": [
+    "title": "Management Consulting",
+    "description": "Learn the fundamentals of consulting, frameworks, client interactions, and real-world applications.",
+    "modulesCount": 24,
+    "totalDuration": 180,
+    "modulesCompleted": 8,
+    "weeksCompleted": 3,
+    "markedForReview": 8,
+    "weeks": [
         {
-          "title": "What is Management Consulting?",
-          "type": "Article",
-          "completed": true,
-          "markedForReview": false
+            "title": "Week 1 | Introduction and Fundamentals",
+            "duration": 45,
+            "modules": [
+                {
+                    "title": "What is Management Consulting?",
+                    "type": "Article",
+                    "completed": true,
+                    "markedForReview": false
+                },
+                {
+                    "title": "Timeline of a Consultant",
+                    "type": "Video",
+                    "completed": true,
+                    "markedForReview": true
+                },
+                {
+                    "title": "Assignment 1",
+                    "type": "Evaluative",
+                    "completed": true,
+                    "markedForReview": true
+                }
+            ]
         },
         {
-          "title": "Timeline of a Consultant",
-          "type": "Video",
-          "completed": true,
-          "markedForReview": true
+            "title": "Week 2 | Frameworks",
+            "duration": 95,
+            "modules": [
+                {
+                    "title": "What is Frameworks?",
+                    "type": "Article",
+                    "completed": true,
+                    "markedForReview": false
+                },
+                {
+                    "title": "Assignment 1",
+                    "type": "Evaluative",
+                    "completed": false,
+                    "markedForReview": true
+                }
+            ]
         },
         {
-          "title": "Assignment 1",
-          "type": "Evaluative",
-          "completed": true,
-          "markedForReview": true
-        }
-      ]
-    },
-    {
-      "title": "Week 2 | Frameworks",
-      "duration": 95,
-      "modules": [
-        {
-          "title": "What is Frameworks?",
-          "type": "Article",
-          "completed": true,
-          "markedForReview": false
+            "title": "Milestone Project I",
+            "duration": 35,
+            "modules": []
         },
         {
-          "title": "Assignment 1",
-          "type": "Evaluative",
-          "completed": false,
-          "markedForReview": true
-        }
-      ]
-    },
-    {
-      "title": "Milestone Project I",
-      "duration": 35,
-      "modules": []
-    },
-    {
-      "title": "Week 3 | Client Interaction",
-      "duration": 60,
-      "modules": [{
-          "title": "Client Interaction",
-          "type": "Article",
-          "completed": true,
-          "markedForReview": false
-        }]
-    },
-    {
-      "title": "Week 4 | Case Interview",
-      "duration": 50,
-      "modules": [
+            "title": "Week 3 | Client Interaction",
+            "duration": 60,
+            "modules": [
+                {
+                    "title": "Client Interaction",
+                    "type": "Article",
+                    "completed": true,
+                    "markedForReview": false
+                }
+            ]
+        },
         {
-          "title": "Case Interviews",
-          "type": "Article",
-          "completed": true,
-          "markedForReview": false
+            "title": "Week 4 | Case Interview",
+            "duration": 50,
+            "modules": [
+                {
+                    "title": "Case Interviews",
+                    "type": "Article",
+                    "completed": true,
+                    "markedForReview": false
+                }
+            ]
         }
-      ]
-    }
-  ]
+    ]
 }
