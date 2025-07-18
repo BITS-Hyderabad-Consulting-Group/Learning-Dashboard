@@ -1,30 +1,10 @@
+'use client';
+
+import { useState, useEffect, useCallback } from 'react';
 import WeekList from '@/components/WeekList';
 import { Card, CardContent } from '@/components/ui/card';
 import { BookOpen, Clock } from 'lucide-react';
-
-interface Module {
-    title: string;
-    type: string;
-    completed: boolean;
-    markedForReview: boolean;
-}
-
-interface Week {
-    title: string;
-    duration: number; // in minutes (converted to "X hr Y min" format)
-    modules: Module[];
-}
-
-interface CourseData {
-    title: string;
-    description: string;
-    modulesCount: number;
-    totalDuration: number;
-    modulesCompleted: number;
-    weeksCompleted: number;
-    markedForReview: number;
-    weeks: Week[];
-}
+import { CourseData } from '@/types/course';
 
 //Convert the total duration from minutes to "X hr Y min" format
 function formatDuration(minutes: number): string {
@@ -34,9 +14,59 @@ function formatDuration(minutes: number): string {
 }
 
 //Main component to display the course page
-export default async function CoursePage() {
-    // Load the JSON data
-    const data: CourseData = await import('./APIdata.json').then((mod) => mod.default);
+export default function CoursePage({ params }: { params: { courseId: string } }) {
+    const { courseId } = params;
+    const [data, setData] = useState<CourseData | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    const fetchCourseData = useCallback(async () => {
+        setLoading(true);
+        try {
+            const response = await fetch(`/api/courses/${courseId}`, {
+                cache: 'no-store',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to fetch course data: ${response.status}`);
+            }
+
+            const courseData = await response.json();
+            setData(courseData);
+        } catch (error) {
+            console.error('Error fetching course data:', error);
+            // Set fallback data on error
+            setData({
+                title: 'Course Not Found',
+                description:
+                    'Unable to load course data. Please check your connection and try again.',
+                modulesCount: 0,
+                totalDuration: 0,
+                modulesCompleted: 0,
+                weeksCompleted: 0,
+                markedForReview: 0,
+                weeks: [],
+            });
+        } finally {
+            setLoading(false);
+        }
+    }, [courseId]);
+
+    useEffect(() => {
+        fetchCourseData();
+    }, [fetchCourseData]);
+
+    if (loading || !data) {
+        return (
+            <main className="max-w-6xl mx-auto p-4">
+                <div className="flex items-center justify-center h-64">
+                    <div className="text-lg text-gray-600">Loading course data...</div>
+                </div>
+            </main>
+        );
+    }
 
     return (
         <main className="max-w-6xl mx-auto p-4">
