@@ -1,6 +1,7 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { supabase } from "@/lib/supabase";
 import { CourseCard } from '@/components/CourseCard';
 import combinedData from '@/app/dashboard/APIdata.json';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -85,6 +86,17 @@ export default function Dashboard() {
 
     const [sortOrder, setSortOrder] = useState('a-z');
     const [searchTerm, setSearchTerm] = useState('');
+useEffect(() => {
+  const getUser = async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (user) {
+     // console.log('User data:', user);
+      alert(`Welcome ${user.email}!`);
+    }
+  };
+  getUser();
+}, []);
+
     const filteredAndSortedCourses = useMemo(() => {
         let filtered =
             selectedDomain === 'all'
