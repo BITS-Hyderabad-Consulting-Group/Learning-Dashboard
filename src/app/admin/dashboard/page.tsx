@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { useUser } from '@/context/UserContext';
 import { CourseCard } from '@/components/CourseCard';
 import combinedData from '@/app/admin/dashboard/APIdata.json';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
@@ -28,6 +29,8 @@ import {
     PaginationPrevious,
 } from '@/components/ui/pagination';
 import { Button } from '@/components/ui/button';
+import { signInWithGoogle } from '@/lib/auth';
+import { FcGoogle } from 'react-icons/fc';
 
 type EnrolledCourse = (typeof combinedData.courses)[0];
 
@@ -68,17 +71,17 @@ const renderPageNumbers = (
 
 export default function Dashboard() {
     const { allCourses, courses: enrolledCoursesData, users: userData } = combinedData;
-    const user: User = userData[0];
+    const demoUser: User = userData[0];
 
     const enrolledCoursesById = useMemo(() => {
         return new Map(enrolledCoursesData.map((course) => [course.id, course]));
     }, [enrolledCoursesData]);
 
     const userCoursesWithDetails = useMemo(() => {
-        return user.enrolments
+        return demoUser.enrolments
             .map((enrol) => enrolledCoursesById.get(enrol.course_id))
             .filter((course): course is EnrolledCourse => course !== undefined);
-    }, [user.enrolments, enrolledCoursesById]);
+    }, [demoUser.enrolments, enrolledCoursesById]);
 
     const [selectedDomain, setSelectedDomain] = useState('all');
     const [currentPage, setCurrentPage] = useState(1);
@@ -108,8 +111,7 @@ export default function Dashboard() {
             }
         });
     }, [allCourses, selectedDomain, sortOrder]);
-    const [loggedIn, setLoggedIn] = useState(false);
-    const coursesPerPage = loggedIn ? 6 : 9;
+    const coursesPerPage = 6;
     const totalPages = Math.ceil(filteredAndSortedCourses.length / coursesPerPage);
     const currentCoursesToDisplay = filteredAndSortedCourses.slice(
         (currentPage - 1) * coursesPerPage,
@@ -120,24 +122,61 @@ export default function Dashboard() {
         currentPage * coursesPerPage
     );
 
+    const { user, signOut, isLoading } = useUser();
+
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="text-2xl font-semibold text-teal-800">Loading...</div>
+            </div>
+        );
+    }
+
+    if (!user) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="text-center">
+                    <h1 className="text-2xl font-semibold text-gray-800 mb-4">
+                        Please log in to continue
+                    </h1>
+                    <button
+                        onClick={() => (window.location.href = '/')}
+                        className="bg-teal-600 text-white px-6 py-2 rounded-lg hover:bg-teal-700 transition-colors"
+                    >
+                        Sign In
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
     return (
         <div className="p-8 space-y-10">
             <div className="absolute top-30 right-30">
                 <button
-                    className="bg-teal-800 text-white px-4 py-2 rounded"
-                    onClick={() => {
-                        setLoggedIn(!loggedIn);
-                        setCurrentPage(1);
+                    className="bg-teal-800 text-white px-4 py-2 rounded flex items-center gap-2 hover:bg-teal-900 transition-colors"
+                    onClick={async () => {
+                        try {
+                            const { error } = await signInWithGoogle();
+                            if (error) {
+                                console.error('Error signing in with Google:', error);
+                                alert('Error signing in with Google. Please try again.');
+                            }
+                        } catch (error) {
+                            console.error('Unexpected error:', error);
+                            alert('An unexpected error occurred. Please try again.');
+                        }
                     }}
                 >
-                    {loggedIn ? 'Logout' : 'Login'}
+                    <FcGoogle className="text-xl" />
+                    Sign in with Google
                 </button>
             </div>
 
-            {loggedIn ? (
+            {user ? (
                 <div className="container mx-auto space-y-15 px-6 py-8 overflow-x-hidden">
                     <h1 className="text-teal-800 text-4xl ml-6 font-semibold">
-                        Welcome Back, {user.full_name}!
+                        Welcome Back, {user.full_name || 'Admin'}!
                     </h1>
                     <section>
                         <h2 className="text-gray-700 text-2xl ml-18 font-semibold mb-8">

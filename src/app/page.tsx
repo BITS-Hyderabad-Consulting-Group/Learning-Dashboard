@@ -30,14 +30,14 @@ export default function HomePage() {
         <div className="bg-white">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <section className="py-16 sm:py-24 relative text-center flex flex-col items-center">
-                    <div className="absolute top-0 right-0 pt-4 pr-4">
+                    {/* <div className="absolute top-0 right-0 pt-4 pr-4">
                         <Button
                             variant="outline"
                             onClick={() => setIsUserLoggedIn((prev) => !prev)}
                         >
                             {isUserLoggedIn ? 'Simulate Log Out' : 'Simulate Log In'}
                         </Button>
-                    </div>
+                    </div> */}
                     <div className="relative inline-block">
                         <div className="absolute -top-2 -left-4 transform -rotate-12">
                             <Image
