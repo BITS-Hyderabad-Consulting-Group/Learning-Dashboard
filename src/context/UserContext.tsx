@@ -1,10 +1,10 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import type { Session, User } from '@supabase/supabase-js'; // Import Supabase types
-import { UserContextType } from '@/types/auth';
+import type { User } from '@supabase/supabase-js';
+import { UserContextType, UserRole } from '@/types/auth';
 import { supabase } from '@/lib/supabase';
-import { useRouter } from 'next/navigation'; // Import useRouter
+import { useRouter } from 'next/navigation';
 
 export const UserContext = createContext<UserContextType | undefined>(undefined);
 
@@ -19,7 +19,7 @@ export const useUser = () => {
 export function UserProvider({ children }: { children: React.ReactNode }) {
     const [user, setUser] = useState<UserContextType['user']>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const router = useRouter(); // Use router for navigation
+    const router = useRouter();
 
     useEffect(() => {
         const {
@@ -28,6 +28,7 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
             if (event === 'SIGNED_OUT' || !session) {
                 setUser(null);
                 setIsLoading(false);
+                router.push('/');
                 return;
             }
 
@@ -39,19 +40,19 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
                 .eq('id', authUser.id)
                 .single();
 
-            if (error || !profile) {
-                console.error('Error fetching profile:', error);
+            if (error) {
+                console.error('Error fetching user profile:', error);
                 setUser(null);
-            } else {
+            } else if (profile) {
                 setUser({
                     id: profile.id,
                     email: authUser.email!,
-                    role: profile.role,
-                    name: profile.full_name || authUser.email?.split('@')[0] || '',
+                    role: profile.role as UserRole,
                     xp: profile.xp ?? 0,
-                    biodata: profile.biodata ?? undefined,
-                    createdAt: new Date(profile.created_at),
+                    biodata: profile.biodata,
+                    createdAt: profile.created_at ? new Date(profile.created_at) : new Date(),
                     updatedAt: profile.updated_at ? new Date(profile.updated_at) : undefined,
+                    name: profile.full_name || authUser.email?.split('@')[0] || '',
                 });
             }
             setIsLoading(false);
@@ -60,44 +61,34 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
         return () => {
             subscription.unsubscribe();
         };
-    }, []);
+    }, [router]);
 
     const signInWithGoogle = async () => {
         try {
+            const redirectTo = process.env.NEXT_PUBLIC_SITE_URL
+                ? `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard`
+                : '/dashboard';
             const { error } = await supabase.auth.signInWithOAuth({
                 provider: 'google',
-                options: {
-                    redirectTo: `${window.location.origin}/dashboard`,
-                },
+                options: { redirectTo },
             });
 
             if (error) throw error;
         } catch (error) {
             console.error('Error signing in with Google:', error);
-            throw error;
         }
     };
 
     const signOut = async () => {
         try {
             const { error } = await supabase.auth.signOut();
-            if (error) {
-                console.error('Error signing out:', error);
-                throw error;
-            }
-            router.push('/');
+            if (error) throw error;
         } catch (error) {
             console.error('Error during sign-out:', error);
-            throw error;
         }
     };
 
-    const value = {
-        user,
-        isLoading,
-        signInWithGoogle,
-        signOut,
-    };
+    const value = { user, isLoading, signInWithGoogle, signOut };
 
     return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
 }
