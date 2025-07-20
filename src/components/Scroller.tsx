@@ -39,15 +39,14 @@ const ScrollerRow = ({
             {[...companies, ...companies].map((company, index) => (
                 <div
                     key={`${company.id}-${index}`}
-                    className="flex-shrink-0 w-40 h-20 flex items-center justify-center"
+                    className="flex-shrink-0 w-40 h-20 flex items-center relative justify-center"
                     aria-hidden={index >= companies.length}
                 >
                     <Image
                         src={company.logoSrc}
                         alt={company.name}
-                        width={120}
-                        height={40}
-                        className="h-10 w-auto object-contain  transition-all hover:opacity-75"
+                        fill
+                        className="p-4 object-contain transition-all grayscale hover:grayscale-0"
                     />
                 </div>
             ))}
@@ -65,6 +64,10 @@ export const Scroller = () => {
 
     return (
         <div className="w-full flex flex-col gap-8">
+            <p className="text-xl text-gray-600 text-center mb-4">
+                Inspired by <span className="font-semibold">BHCG Alumni</span> employed at Top
+                Companies!
+            </p>
             <div
                 className="w-full overflow-hidden"
                 style={{
@@ -72,7 +75,7 @@ export const Scroller = () => {
                         'linear-gradient(to right, transparent, black 20%, black 80%, transparent)',
                 }}
             >
-                <ScrollerRow companies={topRowCompanies} duration={120} direction="left" />
+                <ScrollerRow companies={topRowCompanies} duration={150} direction="left" />
             </div>
 
             <div
@@ -82,7 +85,7 @@ export const Scroller = () => {
                         'linear-gradient(to right, transparent, black 20%, black 80%, transparent)',
                 }}
             >
-                <ScrollerRow companies={bottomRowCompanies} duration={120} direction="right" />
+                <ScrollerRow companies={bottomRowCompanies} duration={150} direction="right" />
             </div>
         </div>
     );

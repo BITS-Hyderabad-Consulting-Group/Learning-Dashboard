@@ -1,9 +1,9 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { useUser } from '@/context/UserContext';
 import { CourseCard } from '@/components/CourseCard';
 import combinedData from '@/app/dashboard/APIdata.json';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {
     Carousel,
     CarouselContent,
@@ -29,11 +29,19 @@ import {
 } from '@/components/ui/pagination';
 import { Button } from '@/components/ui/button';
 
-type EnrolledCourse = (typeof combinedData.courses)[0];
+interface BaseCourse {
+    id: string;
+    name: string;
+    domain: string;
+    modules: number;
+    duration: string;
+    created_at?: string;
+    updated_at?: string;
+}
 
-type DirectoryCourse = (typeof combinedData.allCourses)[0];
-
-type User = (typeof combinedData.users)[0];
+interface Course extends BaseCourse {
+    progress: number;
+}
 
 const renderPageNumbers = (
     currentPage: number,
@@ -67,106 +75,134 @@ const renderPageNumbers = (
 };
 
 export default function Dashboard() {
-    const { allCourses, courses: enrolledCoursesData, users: userData } = combinedData;
-    const user: User = userData[0];
-
-    const enrolledCoursesById = useMemo(() => {
-        return new Map(enrolledCoursesData.map((course) => [course.id, course]));
-    }, [enrolledCoursesData]);
-
-    const userCoursesWithDetails = useMemo(() => {
-        return user.enrolments
-            .map((enrol) => enrolledCoursesById.get(enrol.course_id))
-            .filter((course): course is EnrolledCourse => course !== undefined);
-    }, [user.enrolments, enrolledCoursesById]);
+    const { user, isLoading } = useUser();
+    const { allCourses, courses: enrolledCoursesData } = combinedData;
 
     const [selectedDomain, setSelectedDomain] = useState('all');
     const [currentPage, setCurrentPage] = useState(1);
-
     const [sortOrder, setSortOrder] = useState('a-z');
     const [searchTerm, setSearchTerm] = useState('');
+
+    const isLoggedInLearner = user?.role === 'learner';
+
+    const userCourses: Course[] = useMemo(() => {
+        if (!isLoggedInLearner) return [];
+        return enrolledCoursesData.map((course) => ({
+            ...course,
+            progress: course.progress || 0,
+        }));
+    }, [isLoggedInLearner, enrolledCoursesData]);
+
+    const coursesWithProgress = useMemo(() => {
+        return userCourses.map((course) => ({
+            ...course,
+            progress: course.progress || 0,
+        }));
+    }, [userCourses]);
+
     const filteredAndSortedCourses = useMemo(() => {
-        let filtered =
-            selectedDomain === 'all'
-                ? allCourses
-                : allCourses.filter((course) => course.domain === selectedDomain);
+        let filtered = allCourses;
+
+        if (selectedDomain !== 'all') {
+            filtered = filtered.filter((course) => course.domain === selectedDomain);
+        }
+
         if (searchTerm.trim()) {
             filtered = filtered.filter((course) =>
                 course.name.toLowerCase().includes(searchTerm.trim().toLowerCase())
             );
         }
-        return [...filtered].sort((a: DirectoryCourse, b: DirectoryCourse) => {
+
+        return [...filtered].sort((a, b) => {
             switch (sortOrder) {
                 case 'z-a':
                     return b.name.localeCompare(a.name);
                 case 'created-asc':
-                    return new Date(a.created_at).getTime() - new Date(b.created_at).getTime();
+                    return (
+                        new Date(a.created_at || '').getTime() -
+                        new Date(b.created_at || '').getTime()
+                    );
                 case 'created-desc':
-                    return new Date(b.created_at).getTime() - new Date(a.created_at).getTime();
-                case 'updated-asc':
-                    return new Date(a.updated_at).getTime() - new Date(b.updated_at).getTime();
-                case 'updated-desc':
-                    return new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime();
+                    return (
+                        new Date(b.created_at || '').getTime() -
+                        new Date(a.created_at || '').getTime()
+                    );
                 case 'a-z':
                 default:
                     return a.name.localeCompare(b.name);
             }
         });
     }, [allCourses, selectedDomain, sortOrder, searchTerm]);
-    const [loggedIn, setLoggedIn] = useState(false);
-    const coursesPerPage = loggedIn ? 6 : 12;
+
+    const coursesPerPage = isLoggedInLearner ? 6 : 12;
     const totalPages = Math.ceil(filteredAndSortedCourses.length / coursesPerPage);
     const currentCoursesToDisplay = filteredAndSortedCourses.slice(
         (currentPage - 1) * coursesPerPage,
         currentPage * coursesPerPage
     );
 
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="text-2xl font-semibold text-teal-800">Loading...</div>
+            </div>
+        );
+    }
+
     return (
         <div className="p-8 space-y-10">
-            <div className="absolute top-30 right-30">
-                <button
-                    className="bg-teal-800 text-white px-4 py-2 rounded"
-                    onClick={() => {
-                        setLoggedIn(!loggedIn);
-                        setCurrentPage(1);
-                    }}
-                >
-                    {loggedIn ? 'Logout' : 'Login'}
-                </button>
+            {/* Header */}
+            <div className="container mx-auto space-y-6 px-6">
+                <h1 className="text-teal-800 text-4xl font-semibold">
+                    Welcome back,{' '}
+                    {user?.name
+                        ? user.name
+                              .split(' ')
+                              .map(
+                                  (part: string) =>
+                                      part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
+                              )
+                              .join(' ')
+                        : 'Guest'}
+                    !
+                </h1>
+                <h2 className="text-gray-700 text-xl">
+                    {isLoggedInLearner
+                        ? 'Continue your learning journey'
+                        : 'Explore our latest learning tracks'}
+                </h2>
             </div>
 
-            {loggedIn ? (
-                <div className="container mx-auto space-y-15 px-6 py-4 overflow-x-hidden">
-                    <h1 className="text-teal-800 text-4xl font-semibold">
-                        Welcome Back, {user.full_name}!
-                    </h1>
-                    <h2 className="text-gray-700 text-2xl font-semibold mb-8">Continue Learning</h2>
-                    <section>
-                        <div className="container mx-auto px-8">
-                            <Carousel opts={{ loop: true }}>
-                                <CarouselContent className="py-4 -px-1 mx-1">
-                                    {userCoursesWithDetails.map((course) => (
-                                        <CarouselItem key={course.id} className="basis-1/3 px-2">
-                                            <div className="p-2">
-                                                <CourseCard {...course} showProgress={true} />
-                                            </div>
-                                        </CarouselItem>
-                                    ))}
-                                </CarouselContent>
-                                <CarouselPrevious className="text-teal-800 border border-gray-300 bg-white hover:bg-gray-100 hover:border-teal-800" />
-                                <CarouselNext className="text-teal-800 border border-gray-300 bg-white hover:bg-gray-100 hover:border-teal-800" />
-                            </Carousel>
-                        </div>
-                    </section>
-                </div>
-            ) : null}
+            {/* Continue Learning Carousel */}
+            {isLoggedInLearner && (
+                <section className="container mx-auto px-6">
+                    <h2 className="text-gray-800 text-2xl font-semibold mb-6">Continue Learning</h2>
+                    {coursesWithProgress.length > 0 ? (
+                        <Carousel>
+                            <CarouselContent className="py-4">
+                                {coursesWithProgress.slice(0, 6).map((course) => (
+                                    <CarouselItem key={course.id} className="basis-1/3 pl-4">
+                                        <CourseCard {...course} showProgress />
+                                    </CarouselItem>
+                                ))}
+                            </CarouselContent>
+                            <CarouselPrevious className="text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
+                            <CarouselNext className="text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
+                        </Carousel>
+                    ) : (
+                        <p className="text-gray-500 text-center py-8">
+                            You haven’t enrolled in any courses yet.
+                        </p>
+                    )}
+                </section>
+            )}
 
-            {/* Unified All Courses Section */}
-            <section className="container mx-auto px-6 py-8 overflow-x-hidden">
-                <h2 className="text-gray-800 text-2xl font-semibold mb-8 mt-4 text-left">
-                    All Courses
-                </h2>
-                <div className="flex flex-wrap gap-4 mt-4 mb-8 items-center">
+            {/* Available/All Courses */}
+            <section className="container mx-auto px-6 py-8">
+                <h2 className="text-gray-800 text-2xl font-semibold mb-6">Available Courses</h2>
+
+                {/* Filters */}
+                <div className="flex flex-wrap gap-4 mb-8">
                     <input
                         type="text"
                         value={searchTerm}
@@ -175,95 +211,70 @@ export default function Dashboard() {
                             setCurrentPage(1);
                         }}
                         placeholder="Search courses..."
-                        className="border border-gray-300 shadow-sm rounded-lg px-5 py-2 w-full max-w-xs text-gray-800 focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-200 placeholder-gray-400 bg-white hover:border-teal-500 focus:border-teal-600"
-                        aria-label="Search courses"
+                        className="border border-gray-300 shadow-sm rounded-lg px-5 py-2 w-full max-w-xs"
                     />
+
                     <Select onValueChange={setSortOrder} defaultValue="a-z">
-                        <SelectTrigger className="w-[200px] text-teal-800 font-semibold">
-                            <SelectValue
-                                placeholder="Title: A-to-Z"
-                                className="border border-gray-300 shadow-sm rounded-lg px-5 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-200 hover:border-teal-500 focus:border-teal-600"
-                            />
+                        <SelectTrigger className="border border-gray-300 shadow-sm rounded-lg px-5 py-5 h-full w-full max-w-xs">
+                            <SelectValue placeholder="Sort by" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="a-z" className="text-teal-800 font-semibold">
-                                Title: A-to-Z
-                            </SelectItem>
-                            <SelectItem value="z-a" className="text-teal-800 font-semibold">
-                                Title: Z-to-A
-                            </SelectItem>
-                            <SelectItem value="created-asc" className="text-teal-800 font-semibold">
-                                Date Created : Oldest
-                            </SelectItem>
-                            <SelectItem
-                                value="created-desc"
-                                className="text-teal-800 font-semibold"
-                            >
-                                Date Created : Newest
-                            </SelectItem>
-                            <SelectItem value="updated-asc" className="text-teal-800 font-semibold">
-                                Date Updated: Oldest
-                            </SelectItem>
-                            <SelectItem
-                                value="updated-desc"
-                                className="text-teal-800 font-semibold"
-                            >
-                                Date Updated : Newest
-                            </SelectItem>
+                            <SelectItem value="a-z">Title: A-Z</SelectItem>
+                            <SelectItem value="z-a">Title: Z-A</SelectItem>
+                            <SelectItem value="created-desc">Newest First</SelectItem>
+                            <SelectItem value="created-asc">Oldest First</SelectItem>
                         </SelectContent>
                     </Select>
 
                     <Select onValueChange={setSelectedDomain} defaultValue="all">
-                        <SelectTrigger className="w-[200px] text-teal-800 font-semibold">
-                            <SelectValue
-                                placeholder="Domain"
-                                className="border border-gray-300 shadow-sm rounded-lg px-5 py-2 bg-white focus:outline-none focus:ring-2 focus:ring-teal-500 transition-all duration-200 hover:border-teal-500 focus:border-teal-600"
-                            />
+                        <SelectTrigger className="border border-gray-300 shadow-sm rounded-lg px-5 py-5 h-full w-full max-w-xs">
+                            <SelectValue placeholder="Filter by Domain" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="all" className="text-teal-800 font-semibold">
-                                All Domains
-                            </SelectItem>
-                            <SelectItem value="Consulting" className="text-teal-800 font-semibold">
-                                Consulting
-                            </SelectItem>
-                            <SelectItem
-                                value="Product Management"
-                                className="text-teal-800 font-semibold"
-                            >
-                                Product Management
-                            </SelectItem>
-                            <SelectItem
-                                value="Data Analytics"
-                                className="text-teal-800 font-semibold"
-                            >
-                                Data Analytics
-                            </SelectItem>
+                            <SelectItem value="all">All Domains</SelectItem>
+                            <SelectItem value="Consulting">Consulting</SelectItem>
+                            <SelectItem value="Product Management">Product Management</SelectItem>
+                            <SelectItem value="Data Analytics">Data Analytics</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {/* Course Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 lg:gap-4">
                     {currentCoursesToDisplay.map((course) => (
-                        <CourseCard key={course.id} {...course} progress={0} showProgress={false} />
+                        <CourseCard
+                            key={course.id}
+                            {...course}
+                            progress={
+                                'progress' in course && typeof (course as any).progress === 'number'
+                                    ? (course as { progress: number }).progress
+                                    : 0
+                            }
+                            showProgress={false}
+                        />
                     ))}
                 </div>
 
-                <Pagination className="mt-12">
-                    <PaginationContent>
-                        <PaginationItem>
-                            <PaginationPrevious
-                                onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                            />
-                        </PaginationItem>
-                        {renderPageNumbers(currentPage, totalPages, setCurrentPage)}
-                        <PaginationItem>
-                            <PaginationNext
-                                onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
-                            />
-                        </PaginationItem>
-                    </PaginationContent>
-                </Pagination>
+                {/* Pagination */}
+                {totalPages > 1 && (
+                    <Pagination className="mt-8">
+                        <PaginationContent>
+                            <PaginationItem>
+                                <PaginationPrevious
+                                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                                />
+                            </PaginationItem>
+                            {renderPageNumbers(currentPage, totalPages, setCurrentPage)}
+                            <PaginationItem>
+                                <PaginationNext
+                                    onClick={() =>
+                                        setCurrentPage((p) => Math.min(totalPages, p + 1))
+                                    }
+                                />
+                            </PaginationItem>
+                        </PaginationContent>
+                    </Pagination>
+                )}
             </section>
         </div>
     );

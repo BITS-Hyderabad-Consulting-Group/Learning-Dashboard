@@ -1,48 +1,78 @@
-"use client";
+'use client';
 
-import React, { useState } from "react";
-import { usePathname, useRouter } from "next/navigation";
+import React from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import { useUser } from '@/context/UserContext';
 
-import { Header } from "../components/Header";
-import Footer from "../components/Footer";
+import { Header } from '../components/Header';
+import Footer from '../components/Footer';
 
-import { Home, LayoutDashboard, User } from "lucide-react";
-import { FcGoogle } from "react-icons/fc";
+import { Home, LayoutDashboard, User as UserIcon } from 'lucide-react';
+import { FcGoogle } from 'react-icons/fc';
 
 export const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const pathname = usePathname();
-  const router = useRouter();
+    const { user, isLoading, signInWithGoogle, signOut } = useUser();
+    const pathname = usePathname();
+    const router = useRouter();
 
-  const navItems = [
-    { label: "Home", path: "/", icon: Home },
-    { label: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
-    isLoggedIn
-      ? { label: "Profile", path: "/profile", icon: User }
-      : {
-          label: "Login",
-          path: "#",
-          icon: FcGoogle,
-          isButton: true,
-          onClick: () => setIsLoggedIn(true),
-        },
-  ].filter(Boolean);
+    const handleGoogleSignIn = async () => {
+        try {
+            await signInWithGoogle();
+        } catch (error) {
+            console.error('Error signing in with Google:', error);
+            alert('Error signing in with Google. Please try again.');
+        }
+    };
 
-  const handleNavigation = (path: string) => {
-    router.push(path);
-  };
+    const handleSignOut = async () => {
+        try {
+            await signOut();
+        } catch (error) {
+            console.error('Error signing out:', error);
+            alert('Error signing out. Please try again.');
+        }
+    };
 
-  return (
-    <div className="flex flex-col min-h-screen">
-      <Header
-        navItems={navItems}
-        currentPath={pathname}
-        onNavigate={handleNavigation}
-      />
+    const navItems = [
+        { label: 'Home', path: '/', icon: Home },
+        { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+        user ? { label: 'Profile', path: '/profile', icon: UserIcon } : null,
+        !user
+            ? {
+                  label: 'Login',
+                  path: '#',
+                  icon: FcGoogle,
+                  isButton: true,
+                  onClick: handleGoogleSignIn,
+              }
+            : null,
+    ].filter(Boolean);
 
-      <main className="flex-grow">{children}</main>
+    const handleNavigation = (path: string) => {
+        router.push(path);
+    };
 
-      <Footer />
-    </div>
-  );
+    if (isLoading) {
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                <div className="text-lg">Loading...</div>
+            </div>
+        );
+    }
+
+    return (
+        <div className="flex flex-col min-h-screen">
+            <Header
+                navItems={navItems.filter(
+                    (item): item is NonNullable<typeof item> => item !== null
+                )}
+                currentPath={pathname}
+                onNavigate={handleNavigation}
+            />
+
+            <main className="flex-grow">{children}</main>
+
+            <Footer />
+        </div>
+    );
 };

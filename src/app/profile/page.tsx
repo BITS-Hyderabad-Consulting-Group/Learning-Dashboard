@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/carousel';
 import userProfile from '@/app/profile/APIdata.json';
 
+
 export default function ProfilePage() {
     const router = useRouter();
     const user = userProfile;
@@ -29,7 +30,6 @@ export default function ProfilePage() {
             },
         },
     };
-
     const itemVariants = {
         hidden: { y: 20, opacity: 0 },
         visible: {
