@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
-import toast from 'react-hot-toast';
+import { toast } from 'sonner';
 import { useUser } from '@/context/UserContext';
 import WeekList from '@/components/WeekList';
 
@@ -112,7 +112,6 @@ export default function CoursePage({ params }: { params: { courseId: string } })
 
     return (
         <>
-            {/* Success toast handled by react-hot-toast */}
             <main className="max-w-6xl mx-auto p-4">
                 {/* Top: Course Info + Outcomes */}
                 <div className="flex flex-col md:flex-row gap-6 mb-8 items-stretch md:items-stretch">
