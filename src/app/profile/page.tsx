@@ -47,9 +47,9 @@ export default function ProfilePage() {
 
     return (
         <div className="min-h-screen bg-gray-100 py-8 px-4">
-            {/* Combined Header + Profile Card */}
+            {/* Combined Header + Profile Card - Same Width as Main Content */}
             <motion.div
-                className="max-w-4xl mx-auto mb-8"
+                className="max-w-7xl mx-auto mb-8"
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
@@ -59,71 +59,82 @@ export default function ProfilePage() {
                     variants={itemVariants}
                 >
                     {/* Header Bar */}
-                    <div className="bg-teal-800 text-white py-4 px-6">
+                    <div className="bg-teal-800 text-white py-4 px-8">
                         <h1 className="text-xl font-semibold">Your Profile</h1>
                     </div>
 
-                    {/* Profile Info Section */}
-                    <div className="py-8 px-6">
-                        <div className="flex items-center gap-6">
-                            {/* Profile Picture */}
-                            <motion.div
-                                className="w-24 h-24 bg-cyan-400 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0"
-                                whileHover={{ scale: 1.05 }}
-                                transition={{ type: 'spring', stiffness: 300 }}
-                            >
-                                <div className="w-full h-full bg-gradient-to-br from-cyan-400 to-cyan-500 flex items-center justify-center">
-                                    <span className="text-white font-bold text-2xl">
-                                        {user.name
-                                            .split(' ')
-                                            .map((n) => n[0])
-                                            .join('')}
-                                    </span>
-                                </div>
-                            </motion.div>
+                    {/* Profile Info Section - Improved Layout */}
+                    <div className="py-8 px-8">
+                        <div className="flex items-center justify-between gap-8">
+                            {/* Left Side - Profile Picture and Basic Info */}
+                            <div className="flex items-center gap-6">
+                                {/* Profile Picture */}
+                                <motion.div
+                                    className="w-28 h-28 bg-cyan-400 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0"
+                                    whileHover={{ scale: 1.05 }}
+                                    transition={{ type: 'spring', stiffness: 300 }}
+                                >
+                                    <div className="w-full h-full bg-gradient-to-br from-cyan-400 to-cyan-500 flex items-center justify-center">
+                                        <span className="text-white font-bold text-3xl">
+                                            {user.name
+                                                .split(' ')
+                                                .map((n) => n[0])
+                                                .join('')}
+                                        </span>
+                                    </div>
+                                </motion.div>
 
-                            {/* Profile Details */}
-                            <div className="flex-1">
-                                <h2 className="text-2xl font-bold text-gray-800 mb-3">
-                                    {user.name}
-                                </h2>
-                                <div className="space-y-2">
-                                    {/* Role - With Briefcase Icon */}
-                                    {user.role && (
+                                {/* Name and Primary Info */}
+                                <div>
+                                    <h2 className="text-3xl font-bold text-gray-800 mb-4">
+                                        {user.name}
+                                    </h2>
+                                    <div className="grid grid-cols-2 gap-x-6 gap-y-2">
+                                        {/* Role */}
+                                        {user.role && (
+                                            <p className="text-gray-600 flex items-center gap-2">
+                                                <Briefcase className="w-4 h-4 text-gray-500" />
+                                                <span className="font-medium">{user.role}</span>
+                                            </p>
+                                        )}
+                                        {/* XP */}
                                         <p className="text-gray-600 flex items-center gap-2">
-                                            <Briefcase className="w-4 h-4 text-gray-500" />
-                                            <span className="font-medium">{user.role}</span>
+                                            <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                                            <span className="font-semibold">{user.xp} XP</span>
                                         </p>
-                                    )}
-                                    {/* Email - With Mail Icon */}
-                                    <p className="text-gray-600 flex items-center gap-2">
-                                        <Mail className="w-4 h-4 text-gray-600" />
-                                        <span>{user.email}</span>
-                                    </p>
-                                    {/* Joined Date - With Calendar Icon */}
-                                    <p className="text-gray-600 flex items-center gap-2">
-                                        <Calendar className="w-4 h-4 text-gray-600" />
-                                        <span>{user.joined}</span>
-                                    </p>
-                                    {/* XP - With Star Icon */}
-                                    <p className="text-gray-600 flex items-center gap-2">
-                                        <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                                        <span className="font-semibold">{user.xp} XP</span>
-                                    </p>
+                                        {/* Email */}
+                                        <p className="text-gray-600 flex items-center gap-2">
+                                            <Mail className="w-4 h-4 text-gray-600" />
+                                            <span>{user.email}</span>
+                                        </p>
+                                        {/* Joined Date */}
+                                        <p className="text-gray-600 flex items-center gap-2">
+                                            <Calendar className="w-4 h-4 text-gray-600" />
+                                            <span>Member since {user.joined}</span>
+                                        </p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            {/* Right Side - Stats or Additional Info */}
+                            <div className="flex flex-col items-end text-right">
+                                <div className="bg-teal-50 rounded-lg p-4 border border-teal-200">
+                                    <div className="text-2xl font-bold text-teal-800">{user.xp}</div>
+                                    <div className="text-sm text-teal-600">Total XP</div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Bio Section - With FileText Icon */}
+                        {/* Bio Section - Full Width Below */}
                         {user.bio && (
-                            <div className="mt-6 pt-6 border-t border-gray-200">
-                                <div className="flex items-start gap-2">
-                                    <FileText className="w-4 h-4 text-gray-500 mt-1 flex-shrink-0" />
-                                    <div>
-                                        <h4 className="text-sm font-semibold text-gray-700 mb-1">
-                                            Bio
+                            <div className="mt-8 pt-6 border-t border-gray-200">
+                                <div className="flex items-start gap-3">
+                                    <FileText className="w-5 h-5 text-gray-500 mt-1 flex-shrink-0" />
+                                    <div className="flex-1">
+                                        <h4 className="text-base font-semibold text-gray-700 mb-2">
+                                            About
                                         </h4>
-                                        <p className="text-gray-600 text-sm leading-relaxed">
+                                        <p className="text-gray-600 leading-relaxed max-w-3xl">
                                             {user.bio}
                                         </p>
                                     </div>
@@ -134,7 +145,7 @@ export default function ProfilePage() {
                 </motion.div>
             </motion.div>
 
-            {/* Main Content Area - Full Width, Not Restricted by Header */}
+            {/* Main Content Area - Same Width as Header */}
             <motion.div
                 className="max-w-7xl mx-auto"
                 variants={containerVariants}
