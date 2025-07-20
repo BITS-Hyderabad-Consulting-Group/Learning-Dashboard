@@ -9,8 +9,14 @@ import {
     CarouselNext,
     CarouselPrevious,
 } from '@/components/ui/carousel';
+import { 
+    Briefcase, 
+    Mail, 
+    Calendar, 
+    Star, 
+    FileText 
+} from 'lucide-react';
 import userProfile from '@/app/profile/APIdata.json';
-
 
 export default function ProfilePage() {
     const router = useRouter();
@@ -82,34 +88,37 @@ export default function ProfilePage() {
                                     {user.name}
                                 </h2>
                                 <div className="space-y-2">
-                                    {/* Role - Added here */}
+                                    {/* Role - With Briefcase Icon */}
                                     {user.role && (
                                         <p className="text-gray-600 flex items-center gap-2">
-                                            <span>💼</span>
+                                            <Briefcase className="w-4 h-4 text-gray-500" />
                                             <span className="font-medium">{user.role}</span>
                                         </p>
                                     )}
+                                    {/* Email - With Mail Icon */}
                                     <p className="text-gray-600 flex items-center gap-2">
-                                        <span>📧</span>
+                                        <Mail className="w-4 h-4 text-gray-600" />
                                         <span>{user.email}</span>
                                     </p>
-                                    <p className="text-gray-400 flex items-center gap-2">
-                                        <span>🗓️</span>
+                                    {/* Joined Date - With Calendar Icon */}
+                                    <p className="text-gray-600 flex items-center gap-2">
+                                        <Calendar className="w-4 h-4 text-gray-600" />
                                         <span>{user.joined}</span>
                                     </p>
+                                    {/* XP - With Star Icon */}
                                     <p className="text-gray-600 flex items-center gap-2">
-                                        <span className="text-yellow-500">⭐</span>
+                                        <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
                                         <span className="font-semibold">{user.xp} XP</span>
                                     </p>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Bio Section - Added below the existing flex container */}
+                        {/* Bio Section - With FileText Icon */}
                         {user.bio && (
                             <div className="mt-6 pt-6 border-t border-gray-200">
                                 <div className="flex items-start gap-2">
-                                    <span className="text-gray-500 mt-1">📝</span>
+                                    <FileText className="w-4 h-4 text-gray-500 mt-1 flex-shrink-0" />
                                     <div>
                                         <h4 className="text-sm font-semibold text-gray-700 mb-1">
                                             Bio
