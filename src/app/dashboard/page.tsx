@@ -61,39 +61,50 @@ const renderPageNumbers = (
 };
 
 export default function Dashboard() {
-    const { user, isLoading } = useUser();
+    const { user, profile, loading: isUserLoading } = useUser();
+
     const [enrolledCourses, setEnrolledCourses] = useState<EnrolledCourse[]>([]);
     const [availableCourses, setAvailableCourses] = useState<AvailableCourse[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [sortOrder, setSortOrder] = useState('a-z');
     const [searchTerm, setSearchTerm] = useState('');
-    const [loading, setLoading] = useState(true);
 
-    const isLoggedInLearner = user?.role === 'learner';
+    const [isCoursesLoading, setIsCoursesLoading] = useState(true);
+
+    const isLoggedInLearner = profile?.role === 'learner';
 
     useEffect(() => {
-        if (user === undefined) return; // still loading user context
-        if (!user?.id) {
-            setLoading(false); // guest: no loading
-            setEnrolledCourses([]);
-            setAvailableCourses([]);
+        if (isUserLoading) {
             return;
         }
-        setLoading(true);
+
+        if (!user) {
+            setEnrolledCourses([]);
+            setAvailableCourses([]);
+            setIsCoursesLoading(false);
+            return;
+        }
+
+        setIsCoursesLoading(true);
         fetch(`/api/dashboard?userId=${user.id}`)
             .then((res) => res.json())
             .then((data) => {
                 setEnrolledCourses(data.enrolledCourses || []);
                 setAvailableCourses(data.availableCourses || []);
-                setLoading(false);
             })
-            .catch(() => setLoading(false));
-    }, [user]);
+            .catch((error) => {
+                console.error('Failed to fetch dashboard data:', error);
 
-    // Continue Learning: enrolled courses
+                setEnrolledCourses([]);
+                setAvailableCourses([]);
+            })
+            .finally(() => {
+                setIsCoursesLoading(false);
+            });
+    }, [user, isUserLoading]);
+
     const coursesWithProgress = useMemo(() => enrolledCourses, [enrolledCourses]);
 
-    // Available Courses: all courses
     const filteredAndSortedCourses = useMemo(() => {
         let filtered = availableCourses;
         if (searchTerm.trim()) {
@@ -119,7 +130,7 @@ export default function Dashboard() {
         currentPage * coursesPerPage
     );
 
-    if (isLoading || loading) {
+    if (isUserLoading || isCoursesLoading) {
         return (
             <div className="flex items-center justify-center min-h-screen">
                 <div className="text-2xl font-semibold text-teal-800">Loading...</div>
@@ -133,8 +144,8 @@ export default function Dashboard() {
             <div className="container mx-auto space-y-6 px-6">
                 <h1 className="text-teal-800 text-4xl font-semibold">
                     Welcome back,{' '}
-                    {user?.name
-                        ? user.name
+                    {profile?.full_name
+                        ? profile.full_name
                               .split(' ')
                               .map(
                                   (part: string) =>

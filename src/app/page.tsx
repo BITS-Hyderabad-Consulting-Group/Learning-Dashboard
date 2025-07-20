@@ -181,11 +181,11 @@ export default function HomePage() {
                                 </Link>
                             </div>
                             <Carousel opts={{ align: 'start', loop: true }} className="w-full">
-                                <CarouselContent className="-ml-4">
+                                <CarouselContent className="">
                                     {APIData.coursesPage.recommended.map((course) => (
                                         <CarouselItem
                                             key={course.id}
-                                            className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4"
+                                            className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3 "
                                         >
                                             <CourseCard {...course} showProgress={false} />
                                         </CarouselItem>
