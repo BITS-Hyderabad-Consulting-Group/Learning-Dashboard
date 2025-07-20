@@ -68,16 +68,11 @@ export default function Dashboard() {
     const [sortOrder, setSortOrder] = useState('a-z');
     const [searchTerm, setSearchTerm] = useState('');
     const [loading, setLoading] = useState(true);
-    const [mounted, setMounted] = useState(false);
 
     const isLoggedInLearner = user?.role === 'learner';
 
     useEffect(() => {
-        setMounted(true);
-    }, []);
-
-    useEffect(() => {
-        if (!mounted || !user?.id) return;
+        if (!user?.id) return;
         setLoading(true);
         fetch(`/api/dashboard?userId=${user.id}`)
             .then((res) => res.json())
@@ -87,7 +82,7 @@ export default function Dashboard() {
                 setLoading(false);
             })
             .catch(() => setLoading(false));
-    }, [mounted, user?.id]);
+    }, [user?.id]);
 
     // Continue Learning: enrolled courses
     const coursesWithProgress = useMemo(() => enrolledCourses, [enrolledCourses]);
@@ -118,7 +113,7 @@ export default function Dashboard() {
         currentPage * coursesPerPage
     );
 
-    if (!mounted || isLoading || loading) {
+    if (isLoading || loading) {
         return (
             <div className="flex items-center justify-center min-h-screen">
                 <div className="text-2xl font-semibold text-teal-800">Loading...</div>
