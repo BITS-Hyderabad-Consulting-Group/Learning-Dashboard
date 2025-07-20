@@ -19,6 +19,7 @@ interface Week {
 
 interface Props {
     weeks: Week[];
+    enrolled?: boolean;
 }
 
 function formatDuration(minutes: number): string {
@@ -27,7 +28,7 @@ function formatDuration(minutes: number): string {
     return hrs > 0 ? `${hrs} hr ${mins} min` : `${mins} min`;
 }
 
-export default function WeekList({ weeks }: Props) {
+export default function WeekList({ weeks, enrolled = true }: Props) {
     const [openIndex, setOpenIndex] = useState<number | null>(null);
     const [moduleStates, setModuleStates] = useState<{
         [moduleId: string]: { completed: boolean; markedForReview: boolean };
@@ -89,9 +90,9 @@ export default function WeekList({ weeks }: Props) {
                 const isOpen = openIndex === index;
 
                 return (
-                    <div key={index} className="relative sm:pl-8">
+                    <div key={index} className="relative">
                         {/* Vertical solid line connecting circles - hidden on mobile */}
-                        {index < weeks.length - 1 && (
+                        {/* {index < weeks.length - 1 && (
                             <div
                                 className={`absolute left-2.5 top-11 w-0.5 bg-[#007C6A] z-0 transition-all duration-200 hidden sm:block`}
                                 style={{
@@ -104,14 +105,14 @@ export default function WeekList({ weeks }: Props) {
                                         : '72px',
                                 }}
                             />
-                        )}
+                        )} */}
 
                         {/* Circle - hidden on mobile */}
-                        <div className="absolute left-0 top-5 w-6 h-6 rounded-full border-4 border-[#007C6A] bg-white z-10 hidden sm:flex items-center justify-center">
+                        {/* <div className="absolute left-0 top-5 w-6 h-6 rounded-full border-4 border-[#007C6A] bg-white z-10 hidden sm:flex items-center justify-center">
                             {isOpen ? (
                                 <div className="w-2.5 h-2.5 bg-[#007C6A] rounded-full" />
                             ) : null}
-                        </div>
+                        </div> */}
 
                         <button
                             onClick={() => setOpenIndex(isOpen ? null : index)}
@@ -190,7 +191,15 @@ export default function WeekList({ weeks }: Props) {
                                                 <div className="flex justify-between items-center py-3 sm:py-3 text-sm text-[#065F5F]">
                                                     {/* Title */}
                                                     <p className="font-medium flex-1 pr-2">
-                                                        {mod.title}
+                                                        {enrolled ? (
+                                                            <span className="cursor-pointer text-[#065F5F]">
+                                                                {mod.title}
+                                                            </span>
+                                                        ) : (
+                                                            <span className="text-gray-400 cursor-not-allowed select-none">
+                                                                {mod.title}
+                                                            </span>
+                                                        )}
                                                     </p>
 
                                                     {/* Type, Status, Review */}
@@ -214,15 +223,22 @@ export default function WeekList({ weeks }: Props) {
                                                         {/* Status Toggle Button */}
                                                         <div className="flex justify-center">
                                                             <button
-                                                                onClick={() =>
-                                                                    mod.id &&
-                                                                    updateModuleStatus(
-                                                                        mod.id,
-                                                                        !currentState.completed
-                                                                    )
+                                                                tabIndex={enrolled ? 0 : -1}
+                                                                onClick={
+                                                                    enrolled && mod.id
+                                                                        ? () =>
+                                                                              updateModuleStatus(
+                                                                                  mod.id as string,
+                                                                                  !currentState.completed
+                                                                              )
+                                                                        : undefined
                                                                 }
-                                                                disabled={!mod.id}
-                                                                className="w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-200 disabled:opacity-50"
+                                                                disabled={!mod.id || !enrolled}
+                                                                className={`w-5 h-5 rounded-full border-2 flex items-center justify-center transition-all duration-200 ${
+                                                                    !enrolled
+                                                                        ? 'opacity-50 cursor-not-allowed'
+                                                                        : ''
+                                                                }`}
                                                                 style={{
                                                                     backgroundColor:
                                                                         currentState.completed
@@ -233,6 +249,7 @@ export default function WeekList({ weeks }: Props) {
                                                                             ? '#007C6A'
                                                                             : '#d1d5db',
                                                                 }}
+                                                                aria-disabled={!enrolled}
                                                             >
                                                                 {currentState.completed && (
                                                                     <CheckCheck className="w-3 h-3 text-white" />
@@ -243,15 +260,23 @@ export default function WeekList({ weeks }: Props) {
                                                         {/* Review Toggle Button */}
                                                         <div className="flex justify-center">
                                                             <button
-                                                                onClick={() =>
-                                                                    mod.id &&
-                                                                    updateReviewStatus(
-                                                                        mod.id,
-                                                                        !currentState.markedForReview
-                                                                    )
+                                                                tabIndex={enrolled ? 0 : -1}
+                                                                onClick={
+                                                                    enrolled && mod.id
+                                                                        ? () =>
+                                                                              updateReviewStatus(
+                                                                                  mod.id as string,
+                                                                                  !currentState.markedForReview
+                                                                              )
+                                                                        : undefined
                                                                 }
-                                                                disabled={!mod.id}
-                                                                className="transition-colors duration-200 disabled:opacity-50"
+                                                                disabled={!mod.id || !enrolled}
+                                                                className={`transition-colors duration-200 ${
+                                                                    !enrolled
+                                                                        ? 'opacity-50 cursor-not-allowed'
+                                                                        : ''
+                                                                }`}
+                                                                aria-disabled={!enrolled}
                                                             >
                                                                 <Bookmark
                                                                     className={`w-5 h-5 ${

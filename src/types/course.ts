@@ -1,3 +1,23 @@
+// Dashboard and API types
+export type EnrolledCourse = {
+    id: string;
+    title: string;
+    modules: number;
+    duration: string;
+    progress: number;
+};
+
+export type AvailableCourse = {
+    id: string;
+    title: string;
+    modules: number;
+    duration: string;
+};
+
+export type CourseRow = { id: string; title: string };
+export type WeekRow = { id: string; course_id: string };
+export type ModuleRow = { id: string; week_id: string };
+export type EnrollRow = { course_id: string; courses: CourseRow | CourseRow[] | null };
 export interface Module {
     id?: string; // Add module ID for API calls
     title: string;

@@ -1,9 +1,8 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useUser } from '@/context/UserContext';
 import { CourseCard } from '@/components/CourseCard';
-import combinedData from '@/app/dashboard/APIdata.json';
 import {
     Carousel,
     CarouselContent,
@@ -22,26 +21,13 @@ import {
     Pagination,
     PaginationContent,
     PaginationItem,
-    PaginationLink,
     PaginationEllipsis,
     PaginationNext,
     PaginationPrevious,
 } from '@/components/ui/pagination';
 import { Button } from '@/components/ui/button';
 
-interface BaseCourse {
-    id: string;
-    name: string;
-    domain: string;
-    modules: number;
-    duration: string;
-    created_at?: string;
-    updated_at?: string;
-}
-
-interface Course extends BaseCourse {
-    progress: number;
-}
+import type { EnrolledCourse, AvailableCourse } from '@/types/course';
 
 const renderPageNumbers = (
     currentPage: number,
@@ -76,63 +62,54 @@ const renderPageNumbers = (
 
 export default function Dashboard() {
     const { user, isLoading } = useUser();
-    const { allCourses, courses: enrolledCoursesData } = combinedData;
-
-    const [selectedDomain, setSelectedDomain] = useState('all');
+    const [enrolledCourses, setEnrolledCourses] = useState<EnrolledCourse[]>([]);
+    const [availableCourses, setAvailableCourses] = useState<AvailableCourse[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [sortOrder, setSortOrder] = useState('a-z');
     const [searchTerm, setSearchTerm] = useState('');
+    const [loading, setLoading] = useState(true);
+    const [mounted, setMounted] = useState(false);
 
     const isLoggedInLearner = user?.role === 'learner';
 
-    const userCourses: Course[] = useMemo(() => {
-        if (!isLoggedInLearner) return [];
-        return enrolledCoursesData.map((course) => ({
-            ...course,
-            progress: course.progress || 0,
-        }));
-    }, [isLoggedInLearner, enrolledCoursesData]);
+    useEffect(() => {
+        setMounted(true);
+    }, []);
 
-    const coursesWithProgress = useMemo(() => {
-        return userCourses.map((course) => ({
-            ...course,
-            progress: course.progress || 0,
-        }));
-    }, [userCourses]);
+    useEffect(() => {
+        if (!mounted || !user?.id) return;
+        setLoading(true);
+        fetch(`/api/dashboard?userId=${user.id}`)
+            .then((res) => res.json())
+            .then((data) => {
+                setEnrolledCourses(data.enrolledCourses || []);
+                setAvailableCourses(data.availableCourses || []);
+                setLoading(false);
+            })
+            .catch(() => setLoading(false));
+    }, [mounted, user?.id]);
 
+    // Continue Learning: enrolled courses
+    const coursesWithProgress = useMemo(() => enrolledCourses, [enrolledCourses]);
+
+    // Available Courses: all courses
     const filteredAndSortedCourses = useMemo(() => {
-        let filtered = allCourses;
-
-        if (selectedDomain !== 'all') {
-            filtered = filtered.filter((course) => course.domain === selectedDomain);
-        }
-
+        let filtered = availableCourses;
         if (searchTerm.trim()) {
             filtered = filtered.filter((course) =>
-                course.name.toLowerCase().includes(searchTerm.trim().toLowerCase())
+                course.title.toLowerCase().includes(searchTerm.trim().toLowerCase())
             );
         }
-
         return [...filtered].sort((a, b) => {
             switch (sortOrder) {
                 case 'z-a':
-                    return b.name.localeCompare(a.name);
-                case 'created-asc':
-                    return (
-                        new Date(a.created_at || '').getTime() -
-                        new Date(b.created_at || '').getTime()
-                    );
-                case 'created-desc':
-                    return (
-                        new Date(b.created_at || '').getTime() -
-                        new Date(a.created_at || '').getTime()
-                    );
+                    return b.title.localeCompare(a.title);
                 case 'a-z':
                 default:
-                    return a.name.localeCompare(b.name);
+                    return a.title.localeCompare(b.title);
             }
         });
-    }, [allCourses, selectedDomain, sortOrder, searchTerm]);
+    }, [availableCourses, sortOrder, searchTerm]);
 
     const coursesPerPage = isLoggedInLearner ? 6 : 12;
     const totalPages = Math.ceil(filteredAndSortedCourses.length / coursesPerPage);
@@ -141,7 +118,7 @@ export default function Dashboard() {
         currentPage * coursesPerPage
     );
 
-    if (isLoading) {
+    if (!mounted || isLoading || loading) {
         return (
             <div className="flex items-center justify-center min-h-screen">
                 <div className="text-2xl font-semibold text-teal-800">Loading...</div>
@@ -182,7 +159,14 @@ export default function Dashboard() {
                             <CarouselContent className="py-4">
                                 {coursesWithProgress.slice(0, 6).map((course) => (
                                     <CarouselItem key={course.id} className="basis-1/3 pl-4">
-                                        <CourseCard {...course} showProgress />
+                                        <CourseCard
+                                            id={course.id}
+                                            name={course.title}
+                                            modules={course.modules}
+                                            duration={course.duration}
+                                            progress={course.progress}
+                                            showProgress
+                                        />
                                     </CarouselItem>
                                 ))}
                             </CarouselContent>
@@ -225,18 +209,6 @@ export default function Dashboard() {
                             <SelectItem value="created-asc">Oldest First</SelectItem>
                         </SelectContent>
                     </Select>
-
-                    <Select onValueChange={setSelectedDomain} defaultValue="all">
-                        <SelectTrigger className="border border-gray-300 shadow-sm rounded-lg px-5 py-5 h-full w-full max-w-xs">
-                            <SelectValue placeholder="Filter by Domain" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            <SelectItem value="all">All Domains</SelectItem>
-                            <SelectItem value="Consulting">Consulting</SelectItem>
-                            <SelectItem value="Product Management">Product Management</SelectItem>
-                            <SelectItem value="Data Analytics">Data Analytics</SelectItem>
-                        </SelectContent>
-                    </Select>
                 </div>
 
                 {/* Course Grid */}
@@ -244,12 +216,11 @@ export default function Dashboard() {
                     {currentCoursesToDisplay.map((course) => (
                         <CourseCard
                             key={course.id}
-                            {...course}
-                            progress={
-                                'progress' in course && typeof (course as any).progress === 'number'
-                                    ? (course as { progress: number }).progress
-                                    : 0
-                            }
+                            id={course.id}
+                            name={course.title}
+                            modules={course.modules}
+                            duration={course.duration}
+                            progress={0}
                             showProgress={false}
                         />
                     ))}

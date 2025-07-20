@@ -64,8 +64,19 @@ export async function GET(request: NextRequest, { params }: { params: { courseId
         // Fetch user progress if user is logged in
         let userProgress: UserProgress = {};
         let userModuleReviews: { [moduleId: string]: boolean } = {};
+        let enrolled = false;
 
         if (userId) {
+            // Check if user is enrolled in this course
+            const { data: enrollmentData, error: enrollmentError } = await supabase
+                .from('user_course_enrollments')
+                .select('id')
+                .eq('user_id', userId)
+                .eq('course_id', courseId)
+                .single();
+            if (!enrollmentError && enrollmentData) {
+                enrolled = true;
+            }
             // Fetch user completion progress
             const { data: progressData, error: progressError } = await supabase
                 .from('user_module_progress')
@@ -164,7 +175,29 @@ export async function GET(request: NextRequest, { params }: { params: { courseId
         ).length;
 
         // Format response to match the expected structure
-        const response = {
+        interface CourseResponse {
+            title: string;
+            description: string;
+            modulesCount: number;
+            totalDuration: number;
+            modulesCompleted: number;
+            weeksCompleted: number;
+            markedForReview: number;
+            weeks: {
+                title: string;
+                duration: number;
+                modules: {
+                    id: string;
+                    title: string;
+                    type: string;
+                    completed: boolean;
+                    markedForReview: boolean;
+                }[];
+            }[];
+            enrolled?: boolean;
+        }
+
+        const response: CourseResponse = {
             title: course.title,
             description: course.description,
             modulesCount,
@@ -174,6 +207,10 @@ export async function GET(request: NextRequest, { params }: { params: { courseId
             markedForReview,
             weeks: transformedWeeks,
         };
+        // Add enrolled boolean if userId was provided
+        if (userId) {
+            response.enrolled = enrolled;
+        }
 
         return NextResponse.json(response);
     } catch (error) {
