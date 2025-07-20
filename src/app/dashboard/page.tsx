@@ -72,7 +72,13 @@ export default function Dashboard() {
     const isLoggedInLearner = user?.role === 'learner';
 
     useEffect(() => {
-        if (!user?.id) return;
+        if (user === undefined) return; // still loading user context
+        if (!user?.id) {
+            setLoading(false); // guest: no loading
+            setEnrolledCourses([]);
+            setAvailableCourses([]);
+            return;
+        }
         setLoading(true);
         fetch(`/api/dashboard?userId=${user.id}`)
             .then((res) => res.json())
@@ -82,7 +88,7 @@ export default function Dashboard() {
                 setLoading(false);
             })
             .catch(() => setLoading(false));
-    }, [user?.id]);
+    }, [user]);
 
     // Continue Learning: enrolled courses
     const coursesWithProgress = useMemo(() => enrolledCourses, [enrolledCourses]);
