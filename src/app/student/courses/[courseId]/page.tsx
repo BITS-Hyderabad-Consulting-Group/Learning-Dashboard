@@ -7,8 +7,10 @@ import WeekList from '@/components/WeekList';
 
 import { CourseData } from '@/types/course';
 
-export default function CoursePage({ params }: { params: { courseId: string } }) {
-    const { courseId } = params;
+import { use } from 'react';
+
+export default function CoursePage({ params }: { params: Promise<{ courseId: string }> }) {
+    const { courseId } = use(params);
     const [data, setData] = useState<CourseData | null>(null);
     const [loading, setLoading] = useState(true);
     const [activeLearners, setActiveLearners] = useState<number | null>(null);
@@ -20,7 +22,7 @@ export default function CoursePage({ params }: { params: { courseId: string } })
     const fetchCourseData = useCallback(async () => {
         setLoading(true);
         try {
-            let url = `/api/courses/${courseId}`;
+            let url = `/api/student/courses/${courseId}`;
             if (user && user.id) {
                 url += `?userId=${user.id}`;
             }
@@ -38,6 +40,7 @@ export default function CoursePage({ params }: { params: { courseId: string } })
             const courseData = await response.json();
             setData(courseData);
             setEnrolled(!!courseData.enrolled);
+            setActiveLearners(courseData.activeLearners ?? null);
         } catch (error) {
             console.error('Error fetching course data:', error);
             setData({
@@ -52,29 +55,19 @@ export default function CoursePage({ params }: { params: { courseId: string } })
                 weeks: [],
             });
             setEnrolled(false);
+            setActiveLearners(null);
         } finally {
             setLoading(false);
         }
     }, [courseId, user]);
 
-    // Fetch active learners count
-    const fetchActiveLearners = useCallback(async () => {
-        try {
-            const response = await fetch(`/api/student/courses/${courseId}`);
-            if (!response.ok) throw new Error('Failed to fetch active learners');
-            const { activeLearners } = await response.json();
-            setActiveLearners(activeLearners);
-        } catch {
-            setActiveLearners(null);
-        }
-    }, [courseId]);
+    // No need for separate fetchActiveLearners, handled in fetchCourseData
 
     useEffect(() => {
         if (!userLoading) {
             fetchCourseData();
-            fetchActiveLearners();
         }
-    }, [fetchCourseData, fetchActiveLearners, userLoading]);
+    }, [fetchCourseData, userLoading]);
 
     const handleEnrol = async () => {
         if (!user || !user.id) return;

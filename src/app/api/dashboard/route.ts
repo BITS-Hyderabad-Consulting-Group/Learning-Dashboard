@@ -3,8 +3,8 @@ import { createClient } from '@supabase/supabase-js';
 import type { CourseRow, WeekRow, ModuleRow, EnrollRow } from '@/types/course';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-const supabase = createClient(supabaseUrl!, supabaseAnonKey!);
+const supabaseServiceRoleKey = process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY;
+const supabase = createClient(supabaseUrl!, supabaseServiceRoleKey!);
 
 // GET /api/dashboard?userId=xxx
 export async function GET(req: Request) {
