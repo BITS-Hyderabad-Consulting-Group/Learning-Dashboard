@@ -5,8 +5,7 @@ export interface UserContextType {
         id: string;
         email: string;
         role: UserRole;
-        name?: string;
-        full_name?: string; // Added full_name property
+        name: string;
     } | null;
     isLoading: boolean;
     signInWithGoogle: () => Promise<void>;

@@ -1,9 +1,8 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { supabase } from '@/lib/supabase';
-import { User } from '@supabase/supabase-js';
+import { useUser } from '@/context/UserContext';
 
 import { Header } from '../components/Header';
 import Footer from '../components/Footer';
@@ -12,63 +11,25 @@ import { Home, LayoutDashboard, User as UserIcon } from 'lucide-react';
 import { FcGoogle } from 'react-icons/fc';
 
 export const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
-    const [user, setUser] = useState<User | null>(null);
-    const [loading, setLoading] = useState(true);
+    const { user, isLoading, signInWithGoogle, signOut } = useUser();
     const pathname = usePathname();
     const router = useRouter();
 
-    useEffect(() => {
-        const getUser = async () => {
-            const {
-                data: { user },
-            } = await supabase.auth.getUser();
-            setUser(user);
-            setLoading(false);
-        };
-
-        getUser();
-
-        const {
-            data: { subscription },
-        } = supabase.auth.onAuthStateChange(async (event, session) => {
-            setUser(session?.user ?? null);
-            setLoading(false);
-        });
-
-        return () => subscription.unsubscribe();
-    }, []);
-
     const handleGoogleSignIn = async () => {
         try {
-            const { error } = await supabase.auth.signInWithOAuth({
-                provider: 'google',
-                options: {
-                    redirectTo: `${window.location.origin}/dashboard`,
-                },
-            });
-
-            if (error) {
-                console.error('Error signing in with Google:', error);
-                alert('Error signing in with Google. Please try again.');
-            }
+            await signInWithGoogle();
         } catch (error) {
-            console.error('Unexpected error:', error);
-            alert('An unexpected error occurred. Please try again.');
+            console.error('Error signing in with Google:', error);
+            alert('Error signing in with Google. Please try again.');
         }
     };
 
     const handleSignOut = async () => {
         try {
-            const { error } = await supabase.auth.signOut();
-            if (error) {
-                console.error('Error signing out:', error);
-                alert('Error signing out. Please try again.');
-            } else {
-                router.push('/');
-            }
+            await signOut();
         } catch (error) {
-            console.error('Unexpected error:', error);
-            alert('An unexpected error occurred. Please try again.');
+            console.error('Error signing out:', error);
+            alert('Error signing out. Please try again.');
         }
     };
 
@@ -91,7 +52,7 @@ export const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
         router.push(path);
     };
 
-    if (loading) {
+    if (isLoading) {
         return (
             <div className="flex items-center justify-center min-h-screen">
                 <div className="text-lg">Loading...</div>
