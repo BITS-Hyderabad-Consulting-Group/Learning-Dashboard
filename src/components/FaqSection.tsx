@@ -14,7 +14,6 @@ export const FaqSection = () => {
         <section className="my-24">
             <div className="text-center mb-12">
                 <h2 className="text-3xl md:text-4xl font-bold text-gray-900">{faqData.title}</h2>
-                <p className="mt-2 text-md text-gray-500">Last updated {faqData.lastUpdated}</p>
             </div>
 
             <div className="max-w-3xl mx-auto">

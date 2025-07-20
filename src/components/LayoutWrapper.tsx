@@ -8,7 +8,7 @@ import { User } from '@supabase/supabase-js';
 import { Header } from '../components/Header';
 import Footer from '../components/Footer';
 
-import { Home, LayoutDashboard, User as UserIcon, LogOut } from 'lucide-react';
+import { Home, LayoutDashboard, User as UserIcon } from 'lucide-react';
 import { FcGoogle } from 'react-icons/fc';
 
 export const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
@@ -76,21 +76,15 @@ export const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
         { label: 'Home', path: '/', icon: Home },
         { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
         user ? { label: 'Profile', path: '/profile', icon: UserIcon } : null,
-        user
+        !user
             ? {
-                  label: 'Logout',
-                  path: '#',
-                  icon: LogOut,
-                  isButton: true,
-                  onClick: handleSignOut,
-              }
-            : {
                   label: 'Login',
                   path: '#',
                   icon: FcGoogle,
                   isButton: true,
                   onClick: handleGoogleSignIn,
-              },
+              }
+            : null,
     ].filter(Boolean);
 
     const handleNavigation = (path: string) => {

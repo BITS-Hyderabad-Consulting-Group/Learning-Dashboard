@@ -195,7 +195,18 @@ export default function Dashboard() {
             {/* Header */}
             <div className="container mx-auto space-y-6 px-6">
                 <h1 className="text-teal-800 text-4xl font-semibold">
-                    Welcome back, {user.full_name || user.email}!
+                    Welcome back,{' '}
+                    {user.full_name
+                        ? user.full_name
+                              .trim()
+                              .split(/\s+/) // Split by any whitespace
+                              .map(
+                                  (part) =>
+                                      part.charAt(0).toUpperCase() + part.slice(1).toLowerCase()
+                              )
+                              .join(' ')
+                        : user.email.toLowerCase()}
+                    !
                 </h1>
 
                 {/* Role-specific welcome message */}

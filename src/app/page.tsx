@@ -16,12 +16,18 @@ import { Button } from '@/components/ui/button';
 import APIData from '@/app/APIdata.json';
 import { Scroller } from '@/components/Scroller';
 import { FaqSection } from '@/components/FaqSection';
+import { motion } from 'framer-motion';
 
 function chunk<T>(array: T[], size: number): T[][] {
     if (!array.length) return [];
     const head = array.slice(0, size);
     const tail = array.slice(size);
     return [head, ...chunk(tail, size)];
+}
+
+//is mobile check
+function isMobile() {
+    return typeof window !== 'undefined' && window.innerWidth <= 768;
 }
 
 export default function HomePage() {
@@ -50,24 +56,36 @@ export default function HomePage() {
                         </div>
                         <div className="relative inline-flex items-center rounded-full bg-[#bde4e2] p-2">
                             <h1 className="flex items-center gap-4 text-3xl sm:text-4xl font-bold tracking-tight text-[#0f3433]">
-                                <span className="inline-flex items-center gap-2 rounded-full bg-[#007975] text-white px-5 py-3 text-2xl sm:text-3xl">
-                                    <Zap size={24} className="flex-shrink-0" />
-                                </span>
-                                <span className="pr-6">
-                                    <span className="text-[#007975]">Welcome</span> to BITS
-                                    Hyderabad Consulting Group
-                                </span>
+                                {isMobile() || (
+                                    <motion.span
+                                        initial={{ scale: 0.8, opacity: 0 }}
+                                        animate={{ scale: 1, opacity: 1 }}
+                                        whileHover={{ scale: 1.05, rotate: 1 }}
+                                        whileTap={{ scale: 0.95 }}
+                                        transition={{ type: 'spring', stiffness: 300, damping: 20 }}
+                                        className="inline-flex items-center gap-2 rounded-full bg-[#007975] text-white px-5 py-3 text-2xl sm:text-3xl shadow-md"
+                                    >
+                                        <Zap size={24} className="flex-shrink-0" />
+                                    </motion.span>
+                                )}
+                                {isMobile() ? (
+                                    <span className="p-6 select-none">
+                                        <span className="text-[#007975]">Learning Dashboard</span>
+                                        <br />
+                                        by BHCG
+                                    </span>
+                                ) : (
+                                    <span className="pr-6 select-none">
+                                        <span className="text-[#007975]">Learning Dashboard</span>{' '}
+                                        by BHCG
+                                    </span>
+                                )}
                             </h1>
                         </div>
                     </div>
-                    <p className="mt-8 max-w-3xl mx-auto text-lg text-gray-600 leading-relaxed">
-                        Empowering future consultants and tech leaders through comprehensive
-                        learning programs in
-                        <br />
-                        technology and business consulting.
-                    </p>
-                    <p className="mt-2 text-sm font-medium text-gray-500">
-                        End-End Non Tech Expertise
+                    <p className="mt-8 select-none max-w-3xl mx-auto text-lg text-gray-600 leading-relaxed">
+                        Empowering future consultants, product leaders, analysts, and technologists
+                        through comprehensive learning in business, data, and technology.
                     </p>
                     <div className="mt-8">
                         <Link href="/(student)/courses">
@@ -77,13 +95,11 @@ export default function HomePage() {
                         </Link>
                     </div>
                 </section>
-
                 {!isUserLoggedIn && <Scroller />}
-
                 <div className="space-y-20 my-24">
                     {isUserLoggedIn ? (
                         <>
-                            <section>
+                            <section className="w-full">
                                 <div className="flex justify-between items-baseline mb-6">
                                     <h2 className="text-2xl font-bold text-gray-900">
                                         Continue Learning
@@ -94,10 +110,11 @@ export default function HomePage() {
                                         </span>
                                     </Link>
                                 </div>
+                                {/* The Carousel component acts as the relative container for the absolute buttons */}
                                 <Carousel
                                     opts={{
                                         align: 'start',
-                                        loop: APIData.coursesPage.continueLearning.length > 3,
+                                        loop: APIData.coursesPage.continueLearning.length > 4,
                                     }}
                                     className="w-full"
                                 >
@@ -105,18 +122,20 @@ export default function HomePage() {
                                         {APIData.coursesPage.continueLearning.map((course) => (
                                             <CarouselItem
                                                 key={course.id}
-                                                className="pl-8 md:basis-1/2 lg:basis-1/3"
+                                                className="pl-8 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4"
                                             >
                                                 <CourseCard {...course} showProgress={true} />
                                             </CarouselItem>
                                         ))}
                                     </CarouselContent>
-                                    <CarouselPrevious className="text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
-                                    <CarouselNext className="text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
+                                    {/* These buttons are now positioned absolutely relative to the Carousel container */}
+                                    {/* The negative top margin pulls them up into the header space */}
+                                    <CarouselPrevious className="absolute -top-[52px] right-12 text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
+                                    <CarouselNext className="absolute -top-[52px] right-0 text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
                                 </Carousel>
                             </section>
 
-                            <section>
+                            <section className="w-full">
                                 <div className="flex justify-between items-baseline mb-6">
                                     <h2 className="text-2xl font-bold text-gray-900">
                                         Recommended for you
@@ -130,7 +149,7 @@ export default function HomePage() {
                                 <Carousel
                                     opts={{
                                         align: 'start',
-                                        loop: APIData.coursesPage.recommended.length > 3,
+                                        loop: APIData.coursesPage.recommended.length > 4,
                                     }}
                                     className="w-full"
                                 >
@@ -138,19 +157,19 @@ export default function HomePage() {
                                         {APIData.coursesPage.recommended.map((course) => (
                                             <CarouselItem
                                                 key={course.id}
-                                                className="pl-8 md:basis-1/2 lg:basis-1/3"
+                                                className="pl-8 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4"
                                             >
                                                 <CourseCard {...course} showProgress={false} />
                                             </CarouselItem>
                                         ))}
                                     </CarouselContent>
-                                    <CarouselPrevious className="text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
-                                    <CarouselNext className="text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
+                                    <CarouselPrevious className="absolute -top-[52px] right-12 text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
+                                    <CarouselNext className="absolute -top-[52px] right-0 text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
                                 </Carousel>
                             </section>
                         </>
                     ) : (
-                        <section>
+                        <section className="w-full">
                             <div className="flex justify-between items-baseline mb-6">
                                 <h2 className="text-2xl font-bold text-gray-900">
                                     Featured Courses
@@ -163,29 +182,21 @@ export default function HomePage() {
                             </div>
                             <Carousel opts={{ align: 'start', loop: true }} className="w-full">
                                 <CarouselContent className="-ml-4">
-                                    {chunk(APIData.coursesPage.recommended, 6).map(
-                                        (chunk, index) => (
-                                            <CarouselItem key={index} className="pl-4">
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-                                                    {chunk.map((course) => (
-                                                        <CourseCard
-                                                            key={course.id}
-                                                            {...course}
-                                                            showProgress={false}
-                                                        />
-                                                    ))}
-                                                </div>
-                                            </CarouselItem>
-                                        )
-                                    )}
+                                    {APIData.coursesPage.recommended.map((course) => (
+                                        <CarouselItem
+                                            key={course.id}
+                                            className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4"
+                                        >
+                                            <CourseCard {...course} showProgress={false} />
+                                        </CarouselItem>
+                                    ))}
                                 </CarouselContent>
-                                <CarouselPrevious className="text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
-                                <CarouselNext className="text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
+                                <CarouselPrevious className="absolute -top-[36px] left-60 md:left-268 text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
+                                <CarouselNext className="absolute -top-[36px] right-16 text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
                             </Carousel>
                         </section>
                     )}
                 </div>
-
                 <FaqSection />
             </div>
         </div>
