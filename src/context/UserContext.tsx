@@ -24,20 +24,34 @@ export function UserProvider({ children }: { children: React.ReactNode }) {
     useEffect(() => {
         const {
             data: { subscription },
-        } = supabase.auth.onAuthStateChange((event, session) => {
+        } = supabase.auth.onAuthStateChange(async (event, session) => {
             if (event === 'SIGNED_OUT' || !session) {
                 setUser(null);
+                setIsLoading(false);
+                return;
+            }
+
+            const authUser = session.user;
+
+            const { data: profile, error } = await supabase
+                .from('profiles')
+                .select('*')
+                .eq('id', authUser.id)
+                .single();
+
+            if (error || !profile) {
+                console.error('Error fetching profile:', error);
+                setUser(null);
             } else {
-                const authUser = session.user;
                 setUser({
-                    id: authUser.id,
+                    id: profile.id,
                     email: authUser.email!,
-                    role: 'learner',
-                    name:
-                        authUser.user_metadata?.full_name ||
-                        authUser.user_metadata?.name ||
-                        authUser.email?.split('@')[0] ||
-                        '',
+                    role: profile.role,
+                    name: profile.full_name || authUser.email?.split('@')[0] || '',
+                    xp: profile.xp ?? 0,
+                    biodata: profile.biodata ?? undefined,
+                    createdAt: new Date(profile.created_at),
+                    updatedAt: profile.updated_at ? new Date(profile.updated_at) : undefined,
                 });
             }
             setIsLoading(false);
