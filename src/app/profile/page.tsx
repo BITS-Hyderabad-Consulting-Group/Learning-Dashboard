@@ -1,4 +1,5 @@
 'use client';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { CourseCard } from '@/components/CourseCard';
@@ -16,15 +17,41 @@ import {
     Star, 
     FileText 
 } from 'lucide-react';
-import userProfile from '@/app/profile/APIdata.json';
+
+type Course = {
+    id: number;
+    name: string;
+    currentWeek: number;
+    totalModules: number;
+    progress: number;
+};
+
 
 export default function ProfilePage() {
     const router = useRouter();
-    const user = userProfile;
+    const [user, setUser] = useState<any>(null);
 
+    useEffect(() => {
+        const fetchUser = async () => {
+            const res = await fetch('/api/profile');
+            const data = await res.json();
+            setUser(data);
+        };
+
+        fetchUser();
+    }, []);
+
+
+    if (!user) {
+        return (
+            <div className="min-h-screen flex items-center justify-center text-gray-600">
+                Loading your profile...
+            </div>
+        );
+    }
     // Separate current and completed courses
-    const currentCourses = user.courses.filter((course) => course.progress < 100);
-    const completedCourses = user.courses.filter((course) => course.progress >= 100);
+    const currentCourses = (user.courses || []).filter((course : any) => course.progress < 100);
+    const completedCourses = (user.courses || []).filter((course : any) => course.progress >= 100);
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -44,6 +71,14 @@ export default function ProfilePage() {
             transition: { duration: 0.3 },
         },
     };
+
+    if (!user) {
+        return (
+         <div className="min-h-screen flex items-center justify-center text-gray-600">
+                Loading your profile...
+            </div>
+     );
+    }
 
     return (
         <div className="min-h-screen bg-gray-100 py-8 px-4">
@@ -77,9 +112,8 @@ export default function ProfilePage() {
                                     <div className="w-full h-full bg-gradient-to-br from-cyan-400 to-cyan-500 flex items-center justify-center">
                                         <span className="text-white font-bold text-3xl">
                                             {user.name
-                                                .split(' ')
-                                                .map((n) => n[0])
-                                                .join('')}
+                                                ? user.name.split(' ').map((n: string) => n[0]).join('')
+                                                : ''}
                                         </span>
                                     </div>
                                 </motion.div>
@@ -164,7 +198,7 @@ export default function ProfilePage() {
                             {currentCourses.length > 0 ? (
                                 <Carousel className="w-full">
                                     <CarouselContent className="-ml-2 md:-ml-4">
-                                        {currentCourses.map((course) => (
+                                        {currentCourses.map((course : Course) => (
                                             <CarouselItem
                                                 key={course.id}
                                                 className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/2"
@@ -172,7 +206,7 @@ export default function ProfilePage() {
                                                 <CourseCard
                                                     id={course.id.toString()}
                                                     name={course.name}
-                                                    duration={course.currentWeek}
+                                                    duration={course.currentWeek.toString()}
                                                     modules={course.totalModules}
                                                     progress={course.progress}
                                                     showProgress={true}
@@ -198,7 +232,7 @@ export default function ProfilePage() {
                             {completedCourses.length > 0 ? (
                                 <Carousel className="w-full">
                                     <CarouselContent className="-ml-2 md:-ml-4">
-                                        {completedCourses.map((course) => (
+                                        {completedCourses.map((course : Course) => (
                                             <CarouselItem
                                                 key={course.id}
                                                 className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/2"
@@ -206,7 +240,7 @@ export default function ProfilePage() {
                                                 <CourseCard
                                                     id={course.id.toString()}
                                                     name={course.name}
-                                                    duration={course.currentWeek}
+                                                    duration={course.currentWeek.toString()}
                                                     modules={course.totalModules}
                                                     progress={course.progress}
                                                     showProgress={true}
@@ -236,7 +270,7 @@ export default function ProfilePage() {
                             }}
                         >
                             <div className="space-y-3">
-                                {user.leaderboard.map((person) => (
+                                {(user.leaderboard || []).map((person : any) => (
                                     <div
                                         key={person.id}
                                         className={`flex items-center gap-3 p-3 rounded-lg ${
