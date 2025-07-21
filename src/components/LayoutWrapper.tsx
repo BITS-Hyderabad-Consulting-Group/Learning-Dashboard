@@ -7,7 +7,7 @@ import { Header } from '@/components/Header';
 import { signInWithGoogle } from '../lib/auth';
 import { FcGoogle } from 'react-icons/fc';
 
-import { Home, LayoutDashboard, User } from 'lucide-react'; // ✅ Lucide icons
+import { Home, LibraryBig, UserRound } from 'lucide-react';
 
 function PageLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
@@ -20,9 +20,9 @@ function PageLayout({ children }: { children: React.ReactNode }) {
 
     const navItems = [
         { label: 'Home', path: '/', icon: Home },
-        { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
+        { label: 'Learning', path: '/learning', icon: LibraryBig },
 
-        user && { label: 'Profile', path: '/profile', icon: User },
+        user && { label: 'Profile', path: '/profile', icon: UserRound },
 
         !loading && !user
             ? {

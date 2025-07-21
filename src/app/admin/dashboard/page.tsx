@@ -69,7 +69,7 @@ const renderPageNumbers = (
     return pageNumbers;
 };
 
-export default function Dashboard() {
+export default function Learning() {
     const { allCourses, courses: enrolledCoursesData, users: userData } = combinedData;
     const demoUser: User = userData[0];
 

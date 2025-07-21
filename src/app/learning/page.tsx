@@ -60,7 +60,7 @@ const renderPageNumbers = (
     return pageNumbers;
 };
 
-export default function Dashboard() {
+export default function Learning() {
     const { user, profile, loading: isUserLoading } = useUser();
 
     const [enrolledCourses, setEnrolledCourses] = useState<EnrolledCourse[]>([]);
@@ -86,7 +86,7 @@ export default function Dashboard() {
         }
 
         setIsCoursesLoading(true);
-        fetch(`/api/dashboard?userId=${user.id}`)
+        fetch(`/api/learning?userId=${user.id}`)
             .then((res) => res.json())
             .then((data) => {
                 setEnrolledCourses(data.enrolledCourses || []);
@@ -141,7 +141,7 @@ export default function Dashboard() {
     return (
         <div className="p-8 space-y-10">
             {/* Header */}
-            <div className="container mx-auto space-y-6 px-6">
+            <div className="container mx-auto space-y-6 pt-6 pb-2">
                 <h1 className="text-teal-800 text-4xl font-semibold">
                     Welcome back,{' '}
                     {profile?.full_name
@@ -164,7 +164,7 @@ export default function Dashboard() {
 
             {/* Continue Learning Carousel */}
             {isLoggedInLearner && (
-                <section className="container mx-auto px-6">
+                <section className="container mx-auto">
                     <h2 className="text-gray-800 text-2xl font-semibold mb-6">Continue Learning</h2>
                     {coursesWithProgress.length > 0 ? (
                         <Carousel>
@@ -194,7 +194,7 @@ export default function Dashboard() {
             )}
 
             {/* Available/All Courses */}
-            <section className="container mx-auto px-6 py-8">
+            <section className="container mx-auto py-8">
                 <h2 className="text-gray-800 text-2xl font-semibold mb-6">Available Courses</h2>
 
                 {/* Filters */}
@@ -224,7 +224,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* Course Grid */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-0 lg:gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-4 -mx-2">
                     {currentCoursesToDisplay.map((course) => (
                         <CourseCard
                             key={course.id}
