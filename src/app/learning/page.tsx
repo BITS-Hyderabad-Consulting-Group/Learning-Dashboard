@@ -28,6 +28,7 @@ import {
 import { Button } from '@/components/ui/button';
 
 import type { EnrolledCourse, AvailableCourse } from '@/types/course';
+import SkeletonLoader from './SkeletonLoader';
 
 const renderPageNumbers = (
     currentPage: number,
@@ -131,11 +132,7 @@ export default function Learning() {
     );
 
     if (isUserLoading || isCoursesLoading) {
-        return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="text-2xl font-semibold text-teal-800">Loading...</div>
-            </div>
-        );
+        return <SkeletonLoader />;
     }
 
     return (
