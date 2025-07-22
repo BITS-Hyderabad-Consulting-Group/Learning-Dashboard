@@ -32,7 +32,11 @@ export function CourseCard({
         },
     };
     return (
-        <motion.div variants={cardVariants} whileHover={{ y: -6, scale: 1.02 }} className="p-2">
+        <motion.div
+            variants={cardVariants}
+            whileHover={{ y: -6, scale: 1.02 }}
+            className="px-2 py-4"
+        >
             <Card className="w-full max-w-md min-w-xs cursor-pointer bg-white text-zinc-900 shadow-lg border-t-[12px] border-x-0 border-b-0 border-teal-800">
                 <CardHeader className="flex flex-row items-center justify-between gap-4 pb-0">
                     <CardTitle className="text-xl font-semibold truncate min-w-0" title={name}>

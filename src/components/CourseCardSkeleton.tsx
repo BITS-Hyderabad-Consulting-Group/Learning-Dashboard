@@ -1,6 +1,6 @@
 export default function CourseCardSkeleton() {
     return (
-        <div className="p-2">
+        <div className="px-2 py-4">
             <div className="w-full bg-white rounded-lg shadow-lg border-t-[12px] border-teal-800 border-x-0 border-b-0">
                 <div className="flex flex-row items-center justify-between gap-4 p-6 pb-0">
                     <div className="flex-1 min-w-0">
