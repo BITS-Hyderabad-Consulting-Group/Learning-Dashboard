@@ -1,55 +1,30 @@
 'use client';
 
-import React, { useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { useUser } from '@/context/UserContext';
-
-import { Header } from '../components/Header';
-import Footer from '../components/Footer';
-
-import { Home, LayoutDashboard, User as UserIcon } from 'lucide-react';
+import { UserProvider, useUser } from '@/context/UserContext';
+import Footer from '@/components/Footer';
+import { Header } from '@/components/Header';
+import { signInWithGoogle } from '../lib/auth';
 import { FcGoogle } from 'react-icons/fc';
 
-const PUBLIC_ROUTES = ['/', '/dashboard'];
+import { Home, LibraryBig, UserRound } from 'lucide-react';
 
-export const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
-    const { user, isLoading, signInWithGoogle, signOut } = useUser();
+function PageLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const router = useRouter();
-
-    useEffect(() => {
-        if (!isLoading && !user) {
-            if (!PUBLIC_ROUTES.includes(pathname)) {
-                router.push('/');
-            }
-        }
-    }, [isLoading, user, pathname, router]);
+    const { user, loading } = useUser();
 
     const handleGoogleSignIn = async () => {
-        try {
-            await signInWithGoogle();
-        } catch (error) {
-            console.error('Error signing in with Google:', error);
-
-            alert('Error signing in with Google. Please try again.');
-        }
+        await signInWithGoogle();
     };
-
-    // const handleSignOut = async () => {
-    //     try {
-    //         await signOut();
-    //     } catch (error) {
-    //         console.error('Error signing out:', error);
-
-    //         alert('Error signing out. Please try again.');
-    //     }
-    // };
 
     const navItems = [
         { label: 'Home', path: '/', icon: Home },
-        { label: 'Dashboard', path: '/dashboard', icon: LayoutDashboard },
-        user ? { label: 'Profile', path: '/profile', icon: UserIcon } : null,
-        !user
+        { label: 'Learning', path: '/learning', icon: LibraryBig },
+
+        user && { label: 'Profile', path: '/profile', icon: UserRound },
+
+        !loading && !user
             ? {
                   label: 'Login',
                   path: '#',
@@ -59,14 +34,6 @@ export const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
               }
             : null,
     ].filter(Boolean) as Array<any>;
-
-    if (isLoading || (!user && !PUBLIC_ROUTES.includes(pathname))) {
-        return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="text-lg">Loading...</div>
-            </div>
-        );
-    }
 
     return (
         <div className="flex flex-col min-h-screen">
@@ -81,4 +48,12 @@ export const LayoutWrapper = ({ children }: { children: React.ReactNode }) => {
             <Footer />
         </div>
     );
-};
+}
+
+export default function LayoutWrapper({ children }: { children: React.ReactNode }) {
+    return (
+        <UserProvider>
+            <PageLayout>{children}</PageLayout>
+        </UserProvider>
+    );
+}

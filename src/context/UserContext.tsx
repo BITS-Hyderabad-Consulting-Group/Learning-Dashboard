@@ -1,12 +1,88 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import type { User } from '@supabase/supabase-js';
-import { UserContextType, UserRole } from '@/types/auth';
-import { supabase } from '@/lib/supabase';
-import { useRouter } from 'next/navigation';
+import { supabase } from '../lib/supabase';
+import { Session, User } from '@supabase/supabase-js';
+import { Profile } from '@/types/user';
 
-export const UserContext = createContext<UserContextType | undefined>(undefined);
+type UserContextType = {
+    user: User | null;
+    session: Session | null;
+    profile: Profile | null;
+    loading: boolean;
+};
+
+const UserContext = createContext<UserContextType | undefined>(undefined);
+
+export const UserProvider = ({ children }: { children: React.ReactNode }) => {
+    const [session, setSession] = useState<Session | null>(null);
+    const [user, setUser] = useState<User | null>(null);
+    const [profile, setProfile] = useState<Profile | null>(null);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const getSessionAndProfile = async () => {
+            const {
+                data: { session },
+                error,
+            } = await supabase.auth.getSession();
+            setSession(session);
+            setUser(session?.user ?? null);
+
+            if (session?.user) {
+                const { data: profileData, error: profileError } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', session.user.id)
+                    .single();
+
+                if (profileError) {
+                    console.error('Error fetching profile:', profileError);
+                } else {
+                    setProfile(profileData);
+                }
+            }
+            setLoading(false);
+        };
+
+        getSessionAndProfile();
+
+        const { data: authListener } = supabase.auth.onAuthStateChange(async (_event, session) => {
+            setSession(session);
+            setUser(session?.user ?? null);
+
+            if (session?.user) {
+                const { data: profileData, error: profileError } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', session.user.id)
+                    .single();
+
+                if (profileError) {
+                    setProfile(null);
+                } else {
+                    setProfile(profileData);
+                }
+            } else {
+                setProfile(null);
+            }
+            setLoading(false);
+        });
+
+        return () => {
+            authListener?.subscription.unsubscribe();
+        };
+    }, []);
+
+    const value = {
+        session,
+        user,
+        profile,
+        loading,
+    };
+
+    return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
+};
 
 export const useUser = () => {
     const context = useContext(UserContext);
@@ -15,80 +91,3 @@ export const useUser = () => {
     }
     return context;
 };
-
-export function UserProvider({ children }: { children: React.ReactNode }) {
-    const [user, setUser] = useState<UserContextType['user']>(null);
-    const [isLoading, setIsLoading] = useState(true);
-    const router = useRouter();
-
-    useEffect(() => {
-        const {
-            data: { subscription },
-        } = supabase.auth.onAuthStateChange(async (event, session) => {
-            if (event === 'SIGNED_OUT' || !session) {
-                setUser(null);
-                setIsLoading(false);
-                router.push('/');
-                return;
-            }
-
-            const authUser = session.user;
-
-            const { data: profile, error } = await supabase
-                .from('profiles')
-                .select('*')
-                .eq('id', authUser.id)
-                .single();
-
-            if (error) {
-                console.error('Error fetching user profile:', error);
-                setUser(null);
-            } else if (profile) {
-                setUser({
-                    id: profile.id,
-                    email: authUser.email!,
-                    role: profile.role as UserRole,
-                    xp: profile.xp ?? 0,
-                    biodata: profile.biodata,
-                    createdAt: profile.created_at ? new Date(profile.created_at) : new Date(),
-                    updatedAt: profile.updated_at ? new Date(profile.updated_at) : undefined,
-                    name: profile.full_name || authUser.email?.split('@')[0] || '',
-                });
-            }
-            setIsLoading(false);
-        });
-
-        return () => {
-            subscription.unsubscribe();
-        };
-    }, [router]);
-
-    const signInWithGoogle = async () => {
-        try {
-            const redirectTo = process.env.NEXT_PUBLIC_SITE_URL
-                ? `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard`
-                : '/dashboard';
-            const { error } = await supabase.auth.signInWithOAuth({
-                provider: 'google',
-                options: { redirectTo },
-            });
-
-            if (error) throw error;
-        } catch (error) {
-            console.error('Error signing in with Google:', error);
-        }
-    };
-
-    const signOut = async () => {
-        try {
-            const { error } = await supabase.auth.signOut();
-            if (error) throw error;
-        } catch (error) {
-            console.error('Error during sign-out:', error);
-        }
-    };
-
-    const value = { user, isLoading, signInWithGoogle, signOut };
-
-    return <UserContext.Provider value={value}>{children}</UserContext.Provider>;
-}

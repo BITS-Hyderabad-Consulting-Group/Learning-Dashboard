@@ -1,23 +1,26 @@
 import { useRouter } from 'next/navigation';
 import { useUser } from '@/context/UserContext';
-import { UserRole } from '@/types/auth';
+import { Profile } from '@/types/user';
 
-export function withRoleAccess(WrappedComponent: React.ComponentType, allowedRoles: UserRole[]) {
+export function withRoleAccess(
+    WrappedComponent: React.ComponentType,
+    allowedRoles: Profile['role'][]
+) {
     return function WithRoleAccessComponent(props: any) {
-        const { user, isLoading } = useUser();
+        const { user, loading } = useUser();
         const router = useRouter();
 
-        if (isLoading) {
+        if (loading) {
             return <div>Loading...</div>;
         }
 
         if (!user) {
-            router.push('/'); // Redirect to home/login page
+            router.push('/');
             return null;
         }
 
-        if (!allowedRoles.includes(user.role)) {
-            router.push('/unauthorized'); // Redirect to unauthorized page
+        if (!user.role || !allowedRoles.includes(user.role as Profile['role'])) {
+            router.push('/unauthorized');
             return null;
         }
 

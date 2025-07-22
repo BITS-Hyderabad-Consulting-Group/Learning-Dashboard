@@ -69,7 +69,7 @@ const renderPageNumbers = (
     return pageNumbers;
 };
 
-export default function Dashboard() {
+export default function Learning() {
     const { allCourses, courses: enrolledCoursesData, users: userData } = combinedData;
     const demoUser: User = userData[0];
 
@@ -122,17 +122,9 @@ export default function Dashboard() {
         currentPage * coursesPerPage
     );
 
-    const { user, signOut, isLoading } = useUser();
+    const { profile } = useUser();
 
-    if (isLoading) {
-        return (
-            <div className="flex items-center justify-center min-h-screen">
-                <div className="text-2xl font-semibold text-teal-800">Loading...</div>
-            </div>
-        );
-    }
-
-    if (!user) {
+    if (!profile) {
         return (
             <div className="flex items-center justify-center min-h-screen">
                 <div className="text-center">
@@ -157,11 +149,7 @@ export default function Dashboard() {
                     className="bg-teal-800 text-white px-4 py-2 rounded flex items-center gap-2 hover:bg-teal-900 transition-colors"
                     onClick={async () => {
                         try {
-                            const { error } = await signInWithGoogle();
-                            if (error) {
-                                console.error('Error signing in with Google:', error);
-                                alert('Error signing in with Google. Please try again.');
-                            }
+                            await signInWithGoogle();
                         } catch (error) {
                             console.error('Unexpected error:', error);
                             alert('An unexpected error occurred. Please try again.');
@@ -173,10 +161,10 @@ export default function Dashboard() {
                 </button>
             </div>
 
-            {user ? (
+            {profile ? (
                 <div className="container mx-auto space-y-15 px-6 py-8 overflow-x-hidden">
                     <h1 className="text-teal-800 text-4xl ml-6 font-semibold">
-                        Welcome Back, {user.name || 'Admin'}!
+                        Welcome Back, {profile.full_name || 'Admin'}!
                     </h1>
                     <section>
                         <h2 className="text-gray-700 text-2xl ml-18 font-semibold mb-8">

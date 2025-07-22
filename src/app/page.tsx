@@ -31,19 +31,10 @@ function isMobile() {
 }
 
 export default function HomePage() {
-    const [isUserLoggedIn, setIsUserLoggedIn] = React.useState(false);
     return (
         <div className="bg-white">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
                 <section className="py-16 sm:py-24 relative text-center flex flex-col items-center">
-                    {/* <div className="absolute top-0 right-0 pt-4 pr-4">
-                        <Button
-                            variant="outline"
-                            onClick={() => setIsUserLoggedIn((prev) => !prev)}
-                        >
-                            {isUserLoggedIn ? 'Simulate Log Out' : 'Simulate Log In'}
-                        </Button>
-                    </div> */}
                     <div className="relative inline-block">
                         <div className="absolute -top-2 -left-4 transform -rotate-12">
                             <Image
@@ -95,107 +86,34 @@ export default function HomePage() {
                         </Link>
                     </div>
                 </section>
-                {!isUserLoggedIn && <Scroller />}
+                <Scroller />
                 <div className="space-y-20 my-24">
-                    {isUserLoggedIn ? (
-                        <>
-                            <section className="w-full">
-                                <div className="flex justify-between items-baseline mb-6">
-                                    <h2 className="text-2xl font-bold text-gray-900">
-                                        Continue Learning
-                                    </h2>
-                                    <Link href="/courses/learning">
-                                        <span className="text-sm font-semibold text-teal-800 hover:underline">
-                                            See all
-                                        </span>
-                                    </Link>
-                                </div>
-                                {/* The Carousel component acts as the relative container for the absolute buttons */}
-                                <Carousel
-                                    opts={{
-                                        align: 'start',
-                                        loop: APIData.coursesPage.continueLearning.length > 4,
-                                    }}
-                                    className="w-full"
-                                >
-                                    <CarouselContent className="-ml-8">
-                                        {APIData.coursesPage.continueLearning.map((course) => (
-                                            <CarouselItem
-                                                key={course.id}
-                                                className="pl-8 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4"
-                                            >
-                                                <CourseCard {...course} showProgress={true} />
-                                            </CarouselItem>
-                                        ))}
-                                    </CarouselContent>
-                                    {/* These buttons are now positioned absolutely relative to the Carousel container */}
-                                    {/* The negative top margin pulls them up into the header space */}
-                                    <CarouselPrevious className="absolute -top-[52px] right-12 text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
-                                    <CarouselNext className="absolute -top-[52px] right-0 text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
-                                </Carousel>
-                            </section>
-
-                            <section className="w-full">
-                                <div className="flex justify-between items-baseline mb-6">
-                                    <h2 className="text-2xl font-bold text-gray-900">
-                                        Recommended for you
-                                    </h2>
-                                    <Link href="/courses/recommended">
-                                        <span className="text-sm font-semibold text-teal-800 hover:underline">
-                                            See all
-                                        </span>
-                                    </Link>
-                                </div>
-                                <Carousel
-                                    opts={{
-                                        align: 'start',
-                                        loop: APIData.coursesPage.recommended.length > 4,
-                                    }}
-                                    className="w-full"
-                                >
-                                    <CarouselContent className="-ml-8">
-                                        {APIData.coursesPage.recommended.map((course) => (
-                                            <CarouselItem
-                                                key={course.id}
-                                                className="pl-8 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4"
-                                            >
-                                                <CourseCard {...course} showProgress={false} />
-                                            </CarouselItem>
-                                        ))}
-                                    </CarouselContent>
-                                    <CarouselPrevious className="absolute -top-[52px] right-12 text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
-                                    <CarouselNext className="absolute -top-[52px] right-0 text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
-                                </Carousel>
-                            </section>
-                        </>
-                    ) : (
-                        <section className="w-full">
-                            <div className="flex justify-between items-baseline mb-6">
-                                <h2 className="text-2xl font-bold text-gray-900">
-                                    Featured Courses
-                                </h2>
-                                <Link href="/courses/featured">
-                                    <span className="text-sm font-semibold text-teal-800 hover:underline">
-                                        See all
-                                    </span>
-                                </Link>
-                            </div>
+                    <section className="w-full">
+                        <div className="flex justify-between items-baseline mb-6">
+                            <h2 className="text-2xl font-bold text-gray-900">Featured Courses</h2>
+                            <Link href="/courses/featured">
+                                <span className="text-sm font-semibold text-teal-800 hover:underline">
+                                    See all
+                                </span>
+                            </Link>
+                        </div>
+                        <div className="px-10">
                             <Carousel opts={{ align: 'start', loop: true }} className="w-full">
-                                <CarouselContent className="-ml-4">
+                                <CarouselContent className="">
                                     {APIData.coursesPage.recommended.map((course) => (
                                         <CarouselItem
                                             key={course.id}
-                                            className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3 xl:basis-1/4"
+                                            className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3 "
                                         >
                                             <CourseCard {...course} showProgress={false} />
                                         </CarouselItem>
                                     ))}
                                 </CarouselContent>
-                                <CarouselPrevious className="absolute -top-[36px] left-60 md:left-268 text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
-                                <CarouselNext className="absolute -top-[36px] right-16 text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
+                                <CarouselPrevious className="text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
+                                <CarouselNext className="text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
                             </Carousel>
-                        </section>
-                    )}
+                        </div>
+                    </section>
                 </div>
                 <FaqSection />
             </div>
