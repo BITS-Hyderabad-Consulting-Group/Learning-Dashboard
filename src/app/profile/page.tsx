@@ -1,7 +1,10 @@
 'use client';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
+import { motion, number } from 'framer-motion';
+ import { supabase } from '@/lib/supabase-client';
 import { CourseCard } from '@/components/CourseCard';
+import { useState, useEffect } from 'react';
+
 import {
     Carousel,
     CarouselContent,
@@ -12,13 +15,67 @@ import {
 import { Briefcase, Mail, Calendar, Star, FileText } from 'lucide-react';
 import userProfile from '@/app/profile/APIdata.json';
 
+
 export default function ProfilePage() {
     const router = useRouter();
-    const user = userProfile;
+    const [user, setUser] = useState<any>(null);
+
+    
+    useEffect(() => {
+        const fetchUserProfile = async () => {
+            const { data: { user }, error } = await supabase.auth.getUser();
+
+            if (error || !user) {
+                console.error('User not logged in or error fetching user:', error);
+                return;
+            }
+
+            const userId = user.id;
+
+            try {
+                const res = await fetch(`/api/profile?id=${userId}`);
+                if (!res.ok) {
+                    throw new Error('Failed to fetch profile from API');
+                }
+                const profileData = await res.json();
+                setUser(profileData);
+            } catch (fetchError) {
+                console.error('Error fetching profile data:', fetchError);
+            }
+        };
+
+        fetchUserProfile();
+    }, []);
+
+
+
+    if (!user) {
+        return (
+            <div className="min-h-screen flex items-center justify-center text-gray-600">
+                Loading your profile...
+            </div>
+        );
+    }
+
+    type Course = {
+        id: number;
+        name: string;
+        currentWeek: number;
+        totalModules: number;
+        progress: number;
+    };
+
+    type LeaderboardEntry = {
+        id: string;
+        name: string;
+        initials: string;
+        xp: number;
+        rank: number;
+    };
 
     // Separate current and completed courses
-    const currentCourses = user.courses.filter((course) => course.progress < 100);
-    const completedCourses = user.courses.filter((course) => course.progress >= 100);
+    const currentCourses = user?.courses?.filter((course : Course) => (course.progress) < 100) || [];
+    const completedCourses = user?.courses?.filter((course : Course) => course.progress >= 100) || [];
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -65,24 +122,30 @@ export default function ProfilePage() {
                             <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
                                 {/* Profile Picture - Responsive Size */}
                                 <motion.div
-                                    className="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 bg-cyan-400 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0"
+                                    className="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 rounded-full overflow-hidden flex items-center justify-center flex-shrink-0 bg-gray-200"
                                     whileHover={{ scale: 1.05 }}
                                     transition={{ type: 'spring', stiffness: 300 }}
-                                >
-                                    <div className="w-full h-full bg-gradient-to-br from-cyan-400 to-cyan-500 flex items-center justify-center">
+                                    >
+                                    {user.photo_url ? (
+                                        <img
+                                        src={user.photo_url}
+                                        alt="Profile Photo"
+                                        className="w-full h-full object-cover"
+                                        />
+                                    ) : (
+                                        <div className="w-full h-full bg-gradient-to-br from-cyan-400 to-cyan-500 flex items-center justify-center">
                                         <span className="text-white font-bold text-xl sm:text-2xl lg:text-3xl">
-                                            {user.name
-                                                .split(' ')
-                                                .map((n) => n[0])
-                                                .join('')}
+                                            {user?.full_name?.split(' ').map((n: string) => n[0]).join('')}
                                         </span>
-                                    </div>
+                                        </div>
+                                    )}
                                 </motion.div>
+
 
                                 {/* Name and Primary Info */}
                                 <div className="text-center sm:text-left flex-1">
                                     <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-3 sm:mb-4">
-                                        {user.name}
+                                        {user.full_name}
                                     </h2>
 
                                     {/* Responsive Grid Layout */}
@@ -114,7 +177,7 @@ export default function ProfilePage() {
                                         <p className="text-gray-600 flex items-center justify-center sm:justify-start gap-2">
                                             <Calendar className="w-4 h-4 text-gray-600 flex-shrink-0" />
                                             <span className="text-sm sm:text-base">
-                                                Member since {user.joined}
+                                                Member since {new Date(user.created_at).toLocaleDateString()}
                                             </span>
                                         </p>
                                     </div>
@@ -173,7 +236,7 @@ export default function ProfilePage() {
                             {currentCourses.length > 0 ? (
                                 <Carousel className="w-full">
                                     <CarouselContent className="-ml-2 md:-ml-4">
-                                        {currentCourses.map((course) => (
+                                        {currentCourses?.map((course : Course) => (
                                             <CarouselItem
                                                 key={course.id}
                                                 className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/2"
@@ -181,7 +244,7 @@ export default function ProfilePage() {
                                                 <CourseCard
                                                     id={course.id.toString()}
                                                     name={course.name}
-                                                    duration={course.currentWeek}
+                                                    duration={course.currentWeek.toString()}
                                                     modules={course.totalModules}
                                                     progress={course.progress}
                                                     showProgress={true}
@@ -207,7 +270,7 @@ export default function ProfilePage() {
                             {completedCourses.length > 0 ? (
                                 <Carousel className="w-full">
                                     <CarouselContent className="-ml-2 md:-ml-4">
-                                        {completedCourses.map((course) => (
+                                        {completedCourses?.map((course : Course) => (
                                             <CarouselItem
                                                 key={course.id}
                                                 className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/2"
@@ -215,7 +278,7 @@ export default function ProfilePage() {
                                                 <CourseCard
                                                     id={course.id.toString()}
                                                     name={course.name}
-                                                    duration={course.currentWeek}
+                                                    duration={course.currentWeek.toString()}
                                                     modules={course.totalModules}
                                                     progress={course.progress}
                                                     showProgress={true}
@@ -245,11 +308,11 @@ export default function ProfilePage() {
                             }}
                         >
                             <div className="space-y-3">
-                                {user.leaderboard.map((person) => (
+                                {user.leaderboard?.map((person : LeaderboardEntry) => (
                                     <div
                                         key={person.id}
                                         className={`flex items-center gap-3 p-3 rounded-lg ${
-                                            person.name === user.name
+                                            person.name === user.full_name
                                                 ? 'bg-teal-300 bg-opacity-70'
                                                 : 'bg-white bg-opacity-50'
                                         }`}

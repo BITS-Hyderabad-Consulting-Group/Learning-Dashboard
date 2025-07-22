@@ -6,4 +6,5 @@ export type Profile = {
     created_at: string;
     xp: number;
     biodata: string | null;
+    photo_url : string;
 };
