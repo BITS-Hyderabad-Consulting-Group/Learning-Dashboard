@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import type { CourseRow, WeekRow, ModuleRow, EnrollRow } from '@/types/course';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseServiceRoleKey = process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY;
+const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 const supabase = createClient(supabaseUrl!, supabaseServiceRoleKey!);
 
 // GET /api/learning?userId=xxx

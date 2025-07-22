@@ -1,4 +1,4 @@
-import { supabase } from './supabase';
+import { supabase } from '@/lib/supabase-client';
 
 export const signInWithGoogle = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
