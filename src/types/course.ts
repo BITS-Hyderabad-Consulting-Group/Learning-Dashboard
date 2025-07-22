@@ -22,6 +22,8 @@ export interface Module {
     id?: string; // Add module ID for API calls
     title: string;
     type: string;
+    content: string;
+    duration: number; // in minutes
     completed: boolean;
     markedForReview: boolean;
 }
@@ -35,6 +37,7 @@ export interface Week {
 export interface CourseData {
     title: string;
     description: string;
+    updatedAt: Date;
     modulesCount: number;
     totalDuration: number;
     modulesCompleted: number;
