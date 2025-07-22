@@ -4,18 +4,22 @@ import { usePathname, useRouter } from 'next/navigation';
 import { UserProvider, useUser } from '@/context/UserContext';
 import Footer from '@/components/Footer';
 import { Header } from '@/components/Header';
-import { signInWithGoogle } from '../lib/auth';
+import { signInWithGoogle, signOut } from '../lib/auth';
 import { FcGoogle } from 'react-icons/fc';
 
-import { Home, LibraryBig, UserRound } from 'lucide-react';
+import { Home, LibraryBig, UserRound, PencilRuler, LogOut } from 'lucide-react';
 
 function PageLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const router = useRouter();
-    const { user, loading } = useUser();
+    const { user, profile, loading } = useUser();
 
     const handleGoogleSignIn = async () => {
         await signInWithGoogle();
+    };
+
+    const handleSignOut = async () => {
+        await signOut();
     };
 
     const navItems = [
@@ -23,6 +27,20 @@ function PageLayout({ children }: { children: React.ReactNode }) {
         { label: 'Learning', path: '/learning', icon: LibraryBig },
 
         user && { label: 'Profile', path: '/profile', icon: UserRound },
+
+        profile &&
+            (profile.role === 'admin' || profile.role === 'instructor') && {
+                label: 'Dashboard',
+                path: '/instructor/dashboard',
+                icon: PencilRuler,
+            },
+
+        user && {
+            label: 'Logout',
+            path: '#',
+            icon: LogOut,
+            onClick: handleSignOut,
+        },
 
         !loading && !user
             ? {
