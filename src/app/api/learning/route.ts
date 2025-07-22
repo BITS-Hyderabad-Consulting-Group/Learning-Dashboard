@@ -104,7 +104,8 @@ export async function GET(req: Request) {
         [];
     const { data: allCourses, error: allCoursesError } = await supabase
         .from('courses')
-        .select('id, title');
+        .select('id, title')
+        .order('created_at', { ascending: false });
     if (allCoursesError) {
         return NextResponse.json({ error: 'Failed to fetch courses' }, { status: 500 });
     }

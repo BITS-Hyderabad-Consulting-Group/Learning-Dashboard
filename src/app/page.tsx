@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Zap } from 'lucide-react';
@@ -13,10 +13,28 @@ import {
     CarouselPrevious,
 } from '@/components/ui/carousel';
 import { Button } from '@/components/ui/button';
-import APIData from '@/app/APIdata.json';
 import { Scroller } from '@/components/Scroller';
 import { FaqSection } from '@/components/FaqSection';
 import { motion } from 'framer-motion';
+import CourseCardSkeleton from '@/components/CourseCardSkeleton';
+
+interface Course {
+    id: string;
+    title: string;
+    modules: number;
+    duration: string;
+}
+
+interface ApiResponse {
+    enrolledCourses: Array<{
+        id: string;
+        title: string;
+        modules: number;
+        duration: string;
+        progress: number;
+    }>;
+    availableCourses: Course[];
+}
 
 function chunk<T>(array: T[], size: number): T[][] {
     if (!array.length) return [];
@@ -31,6 +49,29 @@ function isMobile() {
 }
 
 export default function HomePage() {
+    const [featuredCourses, setFeaturedCourses] = useState<Course[]>([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchCourses = async () => {
+            try {
+                const response = await fetch('/api/learning');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch courses');
+                }
+                const data: ApiResponse = await response.json();
+                // Get first 6 available courses for featured section
+                setFeaturedCourses(data.availableCourses.slice(0, 6));
+            } catch (error) {
+                console.error('Error fetching courses:', error);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchCourses();
+    }, []);
+
     return (
         <div className="bg-white">
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -99,15 +140,31 @@ export default function HomePage() {
                         </div>
                         <div className="px-10">
                             <Carousel opts={{ align: 'start', loop: true }} className="w-full">
-                                <CarouselContent className="">
-                                    {APIData.coursesPage.recommended.map((course) => (
-                                        <CarouselItem
-                                            key={course.id}
-                                            className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3 "
-                                        >
-                                            <CourseCard {...course} showProgress={false} />
-                                        </CarouselItem>
-                                    ))}
+                                <CarouselContent>
+                                    {loading
+                                        ? Array.from({ length: 3 }).map((_, index) => (
+                                              <CarouselItem
+                                                  key={`skeleton-${index}`}
+                                                  className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3"
+                                              >
+                                                  <CourseCardSkeleton />
+                                              </CarouselItem>
+                                          ))
+                                        : featuredCourses.map((course) => (
+                                              <CarouselItem
+                                                  key={course.id}
+                                                  className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3"
+                                              >
+                                                  <CourseCard
+                                                      id={course.id}
+                                                      name={course.title}
+                                                      modules={course.modules}
+                                                      duration={course.duration}
+                                                      progress={0}
+                                                      showProgress={false}
+                                                  />
+                                              </CarouselItem>
+                                          ))}
                                 </CarouselContent>
                                 <CarouselPrevious className="text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
                                 <CarouselNext className="text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
