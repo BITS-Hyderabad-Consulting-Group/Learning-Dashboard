@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Facebook, Instagram, Linkedin, Phone, Mail, Code2, Paintbrush, Crown } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 
 const Footer: React.FC = () => {
     const [isCreditsVisible, setIsCreditsVisible] = useState(false);
@@ -88,17 +89,18 @@ const Footer: React.FC = () => {
                     <h4 className="font-bold mb-1 text-lg">Quick Links</h4>
                     <ul className="space-y-2">
                         <li>
-                            <a href="#" className="hover:text-gray-300">
+                            <Link href="/" className="hover:text-gray-300">
                                 Home
+                            </Link>
+                        </li>
+                        
+                        <li>
+                            <a href="/learning" className="hover:text-gray-300">
+                                Learning
                             </a>
                         </li>
                         <li>
-                            <a href="#" className="hover:text-gray-300">
-                                Dashboard
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" className="hover:text-gray-300">
+                            <a href="/profile" className="hover:text-gray-300">
                                 Profile
                             </a>
                         </li>
