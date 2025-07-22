@@ -5,7 +5,7 @@ import { useUser } from '@/context/UserContext';
 import { CourseCard } from '@/components/CourseCard';
 import combinedData from '@/app/admin/dashboard/APIdata.json';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import {
+import {    
     Carousel,
     CarouselContent,
     CarouselItem,
@@ -176,7 +176,7 @@ export default function Dashboard() {
             {user ? (
                 <div className="container mx-auto space-y-15 px-6 py-8 overflow-x-hidden">
                     <h1 className="text-teal-800 text-4xl ml-6 font-semibold">
-                        Welcome Back, {user.full_name || 'Admin'}!
+                        Welcome Back, {user.name || 'Admin'}!
                     </h1>
                     <section>
                         <h2 className="text-gray-700 text-2xl ml-18 font-semibold mb-8">

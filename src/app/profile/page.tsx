@@ -9,13 +9,7 @@ import {
     CarouselNext,
     CarouselPrevious,
 } from '@/components/ui/carousel';
-import { 
-    Briefcase, 
-    Mail, 
-    Calendar, 
-    Star, 
-    FileText 
-} from 'lucide-react';
+import { Briefcase, Mail, Calendar, Star, FileText } from 'lucide-react';
 import userProfile from '@/app/profile/APIdata.json';
 
 export default function ProfilePage() {
@@ -47,9 +41,9 @@ export default function ProfilePage() {
 
     return (
         <div className="min-h-screen bg-gray-100 py-8 px-4">
-            {/* Combined Header + Profile Card - Same Width as Main Content */}
+            {/* Combined Header + Profile Card - Responsive Width */}
             <motion.div
-                className="max-w-7xl mx-auto mb-8"
+                className="w-full max-w-7xl mx-auto mb-8 px-4"
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
@@ -59,23 +53,24 @@ export default function ProfilePage() {
                     variants={itemVariants}
                 >
                     {/* Header Bar */}
-                    <div className="bg-teal-800 text-white py-4 px-8">
-                        <h1 className="text-xl font-semibold">Your Profile</h1>
+                    <div className="bg-teal-800 text-white py-4 px-4 sm:px-6 lg:px-8">
+                        <h1 className="text-lg sm:text-xl font-semibold">Your Profile</h1>
                     </div>
 
-                    {/* Profile Info Section - Improved Layout */}
-                    <div className="py-8 px-8">
-                        <div className="flex items-center justify-between gap-8">
+                    {/* Profile Info Section - Responsive Layout */}
+                    <div className="py-6 px-4 sm:py-8 sm:px-6 lg:px-8">
+                        {/* Main Profile Content - Responsive Flex */}
+                        <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 lg:gap-8">
                             {/* Left Side - Profile Picture and Basic Info */}
-                            <div className="flex items-center gap-6">
-                                {/* Profile Picture */}
+                            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
+                                {/* Profile Picture - Responsive Size */}
                                 <motion.div
-                                    className="w-28 h-28 bg-cyan-400 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0"
+                                    className="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 bg-cyan-400 rounded-full flex items-center justify-center overflow-hidden flex-shrink-0"
                                     whileHover={{ scale: 1.05 }}
                                     transition={{ type: 'spring', stiffness: 300 }}
                                 >
                                     <div className="w-full h-full bg-gradient-to-br from-cyan-400 to-cyan-500 flex items-center justify-center">
-                                        <span className="text-white font-bold text-3xl">
+                                        <span className="text-white font-bold text-xl sm:text-2xl lg:text-3xl">
                                             {user.name
                                                 .split(' ')
                                                 .map((n) => n[0])
@@ -85,56 +80,70 @@ export default function ProfilePage() {
                                 </motion.div>
 
                                 {/* Name and Primary Info */}
-                                <div>
-                                    <h2 className="text-3xl font-bold text-gray-800 mb-4">
+                                <div className="text-center sm:text-left flex-1">
+                                    <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-3 sm:mb-4">
                                         {user.name}
                                     </h2>
-                                    <div className="grid grid-cols-2 gap-x-6 gap-y-2">
+
+                                    {/* Responsive Grid Layout */}
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-2">
                                         {/* Role */}
                                         {user.role && (
-                                            <p className="text-gray-600 flex items-center gap-2">
-                                                <Briefcase className="w-4 h-4 text-gray-500" />
-                                                <span className="font-medium">{user.role}</span>
+                                            <p className="text-gray-600 flex items-center justify-center sm:justify-start gap-2">
+                                                <Briefcase className="w-4 h-4 text-gray-500 flex-shrink-0" />
+                                                <span className="font-medium text-sm sm:text-base">
+                                                    {user.role}
+                                                </span>
                                             </p>
                                         )}
                                         {/* XP */}
-                                        <p className="text-gray-600 flex items-center gap-2">
-                                            <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                                            <span className="font-semibold">{user.xp} XP</span>
+                                        <p className="text-gray-600 flex items-center justify-center sm:justify-start gap-2">
+                                            <Star className="w-4 h-4 text-yellow-500 fill-yellow-500 flex-shrink-0" />
+                                            <span className="font-semibold text-sm sm:text-base">
+                                                {user.xp} XP
+                                            </span>
                                         </p>
                                         {/* Email */}
-                                        <p className="text-gray-600 flex items-center gap-2">
-                                            <Mail className="w-4 h-4 text-gray-600" />
-                                            <span>{user.email}</span>
+                                        <p className="text-gray-600 flex items-center justify-center sm:justify-start gap-2">
+                                            <Mail className="w-4 h-4 text-gray-600 flex-shrink-0" />
+                                            <span className="text-sm sm:text-base truncate">
+                                                {user.email}
+                                            </span>
                                         </p>
                                         {/* Joined Date */}
-                                        <p className="text-gray-600 flex items-center gap-2">
-                                            <Calendar className="w-4 h-4 text-gray-600" />
-                                            <span>Member since {user.joined}</span>
+                                        <p className="text-gray-600 flex items-center justify-center sm:justify-start gap-2">
+                                            <Calendar className="w-4 h-4 text-gray-600 flex-shrink-0" />
+                                            <span className="text-sm sm:text-base">
+                                                Member since {user.joined}
+                                            </span>
                                         </p>
                                     </div>
                                 </div>
                             </div>
 
-                            {/* Right Side - Stats or Additional Info */}
-                            <div className="flex flex-col items-end text-right">
-                                <div className="bg-teal-50 rounded-lg p-4 border border-teal-200">
-                                    <div className="text-2xl font-bold text-teal-800">{user.xp}</div>
-                                    <div className="text-sm text-teal-600">Total XP</div>
+                            {/* Right Side - Stats Card - Responsive Positioning */}
+                            <div className="flex justify-center lg:flex-col lg:items-end">
+                                <div className="bg-teal-50 rounded-lg p-4 border border-teal-200 w-full max-w-xs lg:max-w-none lg:w-auto">
+                                    <div className="text-center lg:text-right">
+                                        <div className="text-2xl sm:text-3xl font-bold text-teal-800">
+                                            {user.xp}
+                                        </div>
+                                        <div className="text-sm text-teal-600">Total XP</div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* Bio Section - Full Width Below */}
+                        {/* Bio Section - Full Width, Responsive */}
                         {user.bio && (
-                            <div className="mt-8 pt-6 border-t border-gray-200">
+                            <div className="mt-6 sm:mt-8 pt-6 border-t border-gray-200">
                                 <div className="flex items-start gap-3">
                                     <FileText className="w-5 h-5 text-gray-500 mt-1 flex-shrink-0" />
                                     <div className="flex-1">
                                         <h4 className="text-base font-semibold text-gray-700 mb-2">
                                             About
                                         </h4>
-                                        <p className="text-gray-600 leading-relaxed max-w-3xl">
+                                        <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
                                             {user.bio}
                                         </p>
                                     </div>
