@@ -13,16 +13,17 @@ import {
     CarouselNext,
     CarouselPrevious,
 } from '@/components/ui/carousel';
+import ProfilePageSkeleton from './ProfileSkeleton';
 
 export default function ProfilePage() {
     const [currentCourses, setCurrentCourses] = useState<Course[]>([]);
     const [completedCourses, setCompletedCourses] = useState<Course[]>([]);
-    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [coursesLoading, setCoursesLoading] = useState<boolean>(true);
     const { profile } = useUser();
 
     useEffect(() => {
         const fetchUserCourses = async () => {
-            setIsLoading(true);
+            setCoursesLoading(true);
 
             try {
                 const response = await fetch(`/api/profile/${profile?.id}`);
@@ -39,7 +40,7 @@ export default function ProfilePage() {
             } catch (err: any) {
                 console.error('Fetch error:', err);
             } finally {
-                setIsLoading(false);
+                setCoursesLoading(false);
             }
         };
 
@@ -48,12 +49,10 @@ export default function ProfilePage() {
         }
     }, [profile?.id]);
 
-    if (!profile) {
-        return (
-            <div className="min-h-screen flex items-center justify-center text-gray-600">
-                Loading your profile...
-            </div>
-        );
+    // ✅ 3. Combined loading state check
+    // We show the skeleton if the profile is loading OR if the courses are loading.
+    if (!profile || coursesLoading) {
+        return <ProfilePageSkeleton />;
     }
 
     type LeaderboardEntry = {
@@ -84,7 +83,7 @@ export default function ProfilePage() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-100 py-8 px-4">
+        <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
             {/* Combined Header + Profile Card - Responsive Width */}
             <motion.div
                 className="w-full max-w-7xl mx-auto mb-8"
@@ -251,21 +250,24 @@ export default function ProfilePage() {
                 animate="visible"
             >
                 {/* Two Column Layout */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
                     {/* Left Column - Current and Completed Courses (Stacked Vertically) */}
-                    <div className="lg:col-span-2 space-y-6">
+                    <div className="lg:col-span-2 space-y-6 h-full">
                         {/* Current Courses Section */}
-                        <motion.div className="bg-[#B4DEDD] rounded-lg p-6" variants={itemVariants}>
+                        <motion.div
+                            className="bg-[#B4DEDD] min-h-[15rem] rounded-lg p-6"
+                            variants={itemVariants}
+                        >
                             <h3 className="text-lg font-bold text-teal-800 mb-6">
                                 Current Courses
                             </h3>
                             {currentCourses.length > 0 ? (
-                                <Carousel className="w-full">
-                                    <CarouselContent className="-ml-2 md:-ml-4">
-                                        {currentCourses?.map((course: Course) => (
+                                <Carousel opts={{ align: 'start', loop: true }} className="w-full">
+                                    <CarouselContent>
+                                        {currentCourses.map((course) => (
                                             <CarouselItem
                                                 key={course.id}
-                                                className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/2"
+                                                className="pl-4 basis-full lg:basis-1/2"
                                             >
                                                 <CourseCard
                                                     id={course.id}
@@ -278,28 +280,31 @@ export default function ProfilePage() {
                                             </CarouselItem>
                                         ))}
                                     </CarouselContent>
-                                    <CarouselPrevious />
-                                    <CarouselNext />
+                                    <CarouselPrevious className="text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
+                                    <CarouselNext className="text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
                                 </Carousel>
                             ) : (
-                                <div className="text-center text-teal-600 py-8">
-                                    <p>No current courses enrolled</p>
-                                </div>
+                                <Carousel opts={{ align: 'start', loop: true }} className="w-full">
+                                    No current courses available.
+                                </Carousel>
                             )}
                         </motion.div>
 
                         {/* Completed Courses Section */}
-                        <motion.div className="bg-[#B4DEDD] rounded-lg p-6" variants={itemVariants}>
+                        <motion.div
+                            className="bg-[#B4DEDD] min-h-[15rem] rounded-lg p-6"
+                            variants={itemVariants}
+                        >
                             <h3 className="text-lg font-bold text-teal-800 mb-6">
                                 Completed Courses
                             </h3>
                             {completedCourses.length > 0 ? (
-                                <Carousel className="w-full">
-                                    <CarouselContent className="-ml-2 md:-ml-4">
-                                        {completedCourses?.map((course: Course) => (
+                                <Carousel opts={{ align: 'start', loop: true }} className="w-full">
+                                    <CarouselContent>
+                                        {completedCourses.map((course) => (
                                             <CarouselItem
                                                 key={course.id}
-                                                className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/2"
+                                                className="pl-4 basis-full lg:basis-1/2"
                                             >
                                                 <CourseCard
                                                     id={course.id}
@@ -312,22 +317,25 @@ export default function ProfilePage() {
                                             </CarouselItem>
                                         ))}
                                     </CarouselContent>
-                                    <CarouselPrevious />
-                                    <CarouselNext />
+                                    <CarouselPrevious className="text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
+                                    <CarouselNext className="text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
                                 </Carousel>
                             ) : (
-                                <div className="text-center text-teal-600 py-8">
-                                    <p>No completed courses yet</p>
-                                </div>
+                                <Carousel opts={{ align: 'start', loop: true }} className="w-full">
+                                    No completed courses available.
+                                </Carousel>
                             )}
                         </motion.div>
                     </div>
 
                     {/* Right Column - Leaderboard (Single Box) */}
-                    <motion.div className="bg-[#B4DEDD] rounded-lg p-6" variants={itemVariants}>
+                    <motion.div
+                        className="bg-[#B4DEDD] rounded-lg p-6 h-full flex flex-col"
+                        variants={itemVariants}
+                    >
                         <h3 className="text-lg font-bold text-teal-800 mb-4">Leaderboard</h3>
                         <div
-                            className="h-[600px] overflow-y-scroll pr-2 scrollbar-thin scrollbar-thumb-teal-600 scrollbar-track-teal-200"
+                            className="flex-1 overflow-y-scroll pr-2 scrollbar-thin scrollbar-thumb-teal-600 scrollbar-track-teal-200"
                             style={{
                                 scrollbarWidth: 'thin',
                                 scrollbarColor: '#0f766e #b2dfdb',
