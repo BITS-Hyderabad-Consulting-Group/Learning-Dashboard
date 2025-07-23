@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Facebook, Instagram, Linkedin, Phone, Mail, Code2, Paintbrush, Crown } from 'lucide-react';
 import Image from 'next/image';
+import Link from "next/link";
 
 const Footer: React.FC = () => {
     const [isCreditsVisible, setIsCreditsVisible] = useState(false);
@@ -128,14 +129,14 @@ const Footer: React.FC = () => {
                             </a>
                         </li>
                         <li>
-                            <a href="#" className="hover:text-gray-300">
+                            <Link href="#" className="hover:text-gray-300">
                                 Terms of Service
-                            </a>
+                            </Link>
                         </li>
                         <li>
-                            <a href="#" className="hover:text-gray-300">
+                            <Link href="/terms" className="hover:text-gray-300">
                                 Privacy Policy
-                            </a>
+                            </Link>
                         </li>
                     </ul>
                 </div>
