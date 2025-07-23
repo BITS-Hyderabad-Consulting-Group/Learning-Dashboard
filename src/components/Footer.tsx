@@ -1,6 +1,17 @@
 'use client';
 import React, { useState } from 'react';
-import { Facebook, Instagram, Linkedin, Phone, Mail, Code2, Paintbrush, Crown } from 'lucide-react';
+import {
+    Facebook,
+    Instagram,
+    Linkedin,
+    Phone,
+    Mail,
+    Code2,
+    Paintbrush,
+    Crown,
+    MapPin,
+    ExternalLink,
+} from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
 
@@ -40,181 +51,224 @@ const Footer: React.FC = () => {
             ],
         },
     ];
+
     return (
-        <footer className="bg-[#027F7B] text-white text-sm">
-            <div className="max-w-screen-xl mx-auto flex flex-col md:flex-row flex-wrap md:flex-nowrap justify-between items-start gap-y-8 py-8 border-b border-white/30 px-4 sm:px-6 lg:px-8">
-                <div className="flex flex-col gap-4 items-start w-full md:w-auto">
-                    <div className="flex items-center gap-4">
-                        <Image
-                            src="/Logo.png"
-                            alt="BHCG Logo"
-                            width={225}
-                            height={225}
-                            className="w-20 h-auto"
-                        />
-                        <p className="leading-snug text-sm">
-                            BITS Pilani
-                            <br />
-                            Hyderabad Campus
-                        </p>
+        <footer className="bg-gradient-to-br from-[#027F7B] to-[#015d5a] text-white">
+            {/* Main Footer Content */}
+            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                    {/* Company Info */}
+                    <div className="space-y-4">
+                        <div className="flex items-center gap-3">
+                            <Image
+                                src="/Logo.png"
+                                alt="BHCG Logo"
+                                width={48}
+                                height={48}
+                                className="w-12 h-12 object-contain bg-white/10 rounded-lg p-1"
+                            />
+                            <h3 className="text-lg font-bold">BITS Hyderabad Consulting Group</h3>
+                        </div>
+                        {/* Social Links */}
+                        <div className="flex gap-2">
+                            <a
+                                href="https://www.facebook.com/TheBHCG/"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center hover:bg-white/20 transition-colors"
+                                aria-label="Facebook"
+                            >
+                                <Facebook size={16} />
+                            </a>
+                            <a
+                                href="https://www.instagram.com/bhcg.bitshyd/"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center hover:bg-white/20 transition-colors"
+                                aria-label="Instagram"
+                            >
+                                <Instagram size={16} />
+                            </a>
+                            <a
+                                href="https://in.linkedin.com/company/bhcg-bitshyd"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center hover:bg-white/20 transition-colors"
+                                aria-label="LinkedIn"
+                            >
+                                <Linkedin size={16} />
+                            </a>
+                        </div>
                     </div>
 
-                    <div className="flex items-center gap-4 mt-2 flex-wrap">
-                        <a
-                            href="https://www.facebook.com/TheBHCG/"
-                            className="hover:text-gray-300"
-                            aria-label="Facebook"
-                        >
-                            <Facebook size={20} />
-                        </a>
-                        <a
-                            href="https://www.instagram.com/bhcg.bitshyd/"
-                            className="hover:text-gray-300"
-                            aria-label="Instagram"
-                        >
-                            <Instagram size={20} />
-                        </a>
-                        <a
-                            href="https://in.linkedin.com/company/bhcg-bitshyd"
-                            className="hover:text-gray-300"
-                            aria-label="LinkedIn"
-                        >
-                            <Linkedin size={20} />
-                        </a>
+                    {/* Quick Links */}
+                    <div className="ml=0 sm:ml-10">
+                        <h4 className="text-md font-semibold text-white mb-3">Quick Links</h4>
+                        <ul className="space-y-2">
+                            <li>
+                                <Link
+                                    href="/"
+                                    className="text-gray-300 hover:text-white transition-colors text-sm"
+                                >
+                                    Home
+                                </Link>
+                            </li>
+                            <li>
+                                <Link
+                                    href="/learning"
+                                    className="text-gray-300 hover:text-white transition-colors text-sm"
+                                >
+                                    Learning
+                                </Link>
+                            </li>
+                            <li>
+                                <Link
+                                    href="/profile"
+                                    className="text-gray-300 hover:text-white transition-colors text-sm"
+                                >
+                                    Profile
+                                </Link>
+                            </li>
+                        </ul>
                     </div>
-                </div>
 
-                {/* Quick Links */}
-                <div className="flex flex-col gap-2 mt-8 md:mt-0 md:ml-12 w-full md:w-auto">
-                    <h4 className="font-bold mb-1 text-lg">Quick Links</h4>
-                    <ul className="space-y-2">
-                        <li>
-                            <Link href="/" className="hover:text-gray-300">
-                                Home
+                    {/* Legal */}
+                    <div>
+                        <h4 className="text-md font-semibold text-white mb-3">Legal</h4>
+                        <div className="space-y-2">
+                            <Link
+                                href="/terms"
+                                className="text-gray-300 hover:text-white transition-colors text-sm block"
+                            >
+                                Terms of Service
                             </Link>
-                        </li>
-                        
-                        <li>
-                            <a href="/learning" className="hover:text-gray-300">
-                                Learning
-                            </a>
-                        </li>
-                        <li>
-                            <a href="/profile" className="hover:text-gray-300">
-                                Profile
-                            </a>
-                        </li>
-                    </ul>
-                </div>
+                            <Link
+                                href="/privacy"
+                                className="text-gray-300 hover:text-white transition-colors text-sm block"
+                            >
+                                Privacy Policy
+                            </Link>
+                        </div>
+                    </div>
 
-                {/* Contact Us */}
-                <div className="flex flex-col gap-2 mt-8 md:mt-0 md:-ml-4 w-full md:w-auto">
-                    <h4 className="font-bold mb-1 text-lg">Contact Us</h4>
-                    <ul className="space-y-2">
-                        <li>
+                    {/* Contact */}
+                    <div className="-ml-0 lg:-ml-10">
+                        <h4 className="text-md font-semibold text-white mb-3">Contact</h4>
+                        <div className="space-y-2">
                             <a
                                 href="tel:9346315392"
-                                className="flex items-center gap-2 hover:text-gray-300 transition"
+                                className="text-gray-300 hover:text-white transition-colors flex items-center gap-2 text-sm"
                             >
-                                <Phone size={16} />
-                                9346315392
+                                <Phone size={14} />
+                                +91 9346315392
                             </a>
-                        </li>
-                        <li>
                             <a
                                 href="mailto:bhcg@hyderabad.bits-pilani.ac.in"
-                                className="flex items-center gap-2 hover:text-gray-300 transition"
+                                className="text-gray-300 hover:text-white transition-colors flex items-center gap-2 text-sm"
                             >
-                                <Mail size={16} />
+                                <Mail size={14} />
                                 bhcg@hyderabad.bits-pilani.ac.in
                             </a>
-                        </li>
-                        <li>
-                            <a href="#" className="hover:text-gray-300">
-                                Terms of Service
-                            </a>
-                        </li>
-                        <li>
-                            <a href="#" className="hover:text-gray-300">
-                                Privacy Policy
-                            </a>
-                        </li>
-                    </ul>
+                            <div className="flex items-start justify-items-start gap-2 text-gray-300">
+                                <a
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    href="https://maps.app.goo.gl/xdaopRRCGqA7PmRz8"
+                                    className="text-gray-300 hover:text-white transition-colors flex items-center gap-2 text-sm"
+                                >
+                                    <MapPin size={14} />
+                                    BITS Pilani Hyderabad Campus
+                                    <br />
+                                    Hyderabad, Telangana 500078
+                                </a>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            {/* Footer bottom bar */}
-            <div className="max-w-screen-xl mx-auto flex flex-col md:flex-row justify-between items-center py-4 text-xs px-4 sm:px-6 lg:px-8 gap-y-2">
-                <p className="text-center md:text-left">
-                    © {new Date().getFullYear()} BITS Hyderabad Consulting Group. All rights
-                    reserved.
-                </p>
-                <div
-                    className="relative"
-                    onMouseEnter={() => setIsCreditsVisible(true)}
-                    onMouseLeave={() => setIsCreditsVisible(false)}
-                >
-                    <span className="cursor-pointer hover:text-white transition-colors duration-200 hover:underline ">
-                        Website Credits
-                    </span>
+            {/* Footer Bottom */}
+            <div className="border-t border-white/20 bg-black/10">
+                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                    <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
+                        <p className="text-gray-300 text-xs">
+                            © {new Date().getFullYear()} BITS Hyderabad Consulting Group. All rights
+                            reserved.
+                        </p>
 
-                    {isCreditsVisible && (
                         <div
-                            className="absolute bottom-full mb-2 w-80 rounded-xl bg-white p-5 shadow-2xl text-gray-800 ring-1 ring-black ring-opacity-5
-               left-1/2 -translate-x-1/2 sm:left-auto sm:right-0 sm:translate-x-0
-               transition-all duration-300 ease-in-out"
+                            className="relative"
+                            onMouseEnter={() => setIsCreditsVisible(true)}
+                            onMouseLeave={() => setIsCreditsVisible(false)}
                         >
-                            <div className="text-center mb-5">
-                                <h3 className="text-xl font-bold text-gray-900">Crafted By</h3>
-                            </div>
+                            <button className="text-gray-300 hover:text-white transition-colors text-xs px-3 py-1 rounded hover:bg-white/10">
+                                Website Credits
+                            </button>
 
-                            <div className="space-y-6">
-                                <div>
-                                    <div className="flex items-center gap-3 mb-2">
-                                        <lead.icon size={20} className="text-yellow-500" />
-                                        <h4 className="font-bold text-md text-[#387b7d]">
-                                            {lead.role}
-                                        </h4>
+                            {isCreditsVisible && (
+                                <div className="absolute bottom-full mb-2 w-72 rounded-xl bg-[#BDE4E2] backdrop-blur-lg p-4 shadow-xl text-gray-800 ring-1 ring-black/10 left-1/2 -translate-x-1/2 sm:left-auto sm:right-0 sm:translate-x-0">
+                                    <div className="text-center mb-4">
+                                        <h3 className="text-lg font-bold text-gray-900">
+                                            Crafted By
+                                        </h3>
+                                        <div className="w-8 h-0.5 bg-gradient-to-r from-[#027F7B] to-[#015d5a] mx-auto rounded-full"></div>
                                     </div>
-                                    <a
-                                        href={lead.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        className="font-bold text-gray-700 hover:underline"
-                                    >
-                                        {lead.name}
-                                    </a>
-                                </div>
 
-                                {teams.map((team) => {
-                                    const TeamIcon = team.icon;
-                                    return (
-                                        <div key={team.name}>
-                                            <div className="flex items-center gap-3 mb-3">
-                                                <TeamIcon size={20} className="text-[#387b7d]" />
-                                                <h4 className="font-bold text-md text-[#387b7d]">
-                                                    {team.name}
+                                    <div className="space-y-4">
+                                        <div className="bg-gradient-to-r from-yellow-50 to-orange-50 rounded-lg p-3 border border-yellow-200">
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <lead.icon size={16} className="text-yellow-600" />
+                                                <h4 className="font-semibold text-xs text-gray-800">
+                                                    {lead.role}
                                                 </h4>
                                             </div>
-                                            <ul className="space-y-2 pl-8">
-                                                {team.members.map((member) => (
-                                                    <li
-                                                        key={member.name}
-                                                        className="flex items-center justify-between"
-                                                    >
-                                                        {member.name}
-                                                    </li>
-                                                ))}
-                                            </ul>
+                                            <a
+                                                href={lead.url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="font-bold text-[#027F7B] hover:text-[#015d5a] transition-colors text-sm hover:underline"
+                                            >
+                                                {lead.name}
+                                            </a>
                                         </div>
-                                    );
-                                })}
-                            </div>
 
-                            {/* The Arrow */}
-                            <div className="absolute bottom-0 translate-y-1/2 w-3 h-3 bg-white rotate-45 ring-1 ring-black ring-opacity-5 left-1/2 -translate-x-1/2 sm:left-auto sm:right-8"></div>
+                                        {teams.map((team) => {
+                                            const TeamIcon = team.icon;
+                                            return (
+                                                <div
+                                                    key={team.name}
+                                                    className="bg-gray-50 rounded-lg p-3 border border-gray-200"
+                                                >
+                                                    <div className="flex items-center gap-2 mb-2">
+                                                        <TeamIcon
+                                                            size={14}
+                                                            className="text-[#027F7B]"
+                                                        />
+                                                        <h4 className="font-semibold text-xs text-gray-800">
+                                                            {team.name}
+                                                        </h4>
+                                                    </div>
+                                                    <ul className="space-y-1 pl-4">
+                                                        {team.members.map((member) => (
+                                                            <li
+                                                                key={member.name}
+                                                                className="text-xs text-gray-600"
+                                                            >
+                                                                {member.name}
+                                                            </li>
+                                                        ))}
+                                                    </ul>
+                                                </div>
+                                            );
+                                        })}
+                                    </div>
+
+                                    {/* Arrow */}
+                                    <div className="absolute bottom-0 translate-y-1/2 w-2 h-2 bg-white/95 backdrop-blur-lg rotate-45 ring-1 ring-black/10 left-1/2 -translate-x-1/2 sm:left-auto sm:right-6"></div>
+                                </div>
+                            )}
                         </div>
-                    )}
+                    </div>
                 </div>
             </div>
         </footer>
