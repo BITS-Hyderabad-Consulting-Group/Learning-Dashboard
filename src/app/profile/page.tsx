@@ -1,10 +1,11 @@
 'use client';
-import { useRouter } from 'next/navigation';
-import { motion, number } from 'framer-motion';
- import { supabase } from '@/lib/supabase-client';
+import { TooltipWrapper } from '@/components/ToolTipWrapper';
+import { motion } from 'framer-motion';
 import { CourseCard } from '@/components/CourseCard';
 import { useState, useEffect } from 'react';
-
+import { Briefcase, Mail, Calendar, Star, FileText, UserRound, User } from 'lucide-react';
+import { EnrolledCourse as Course } from '@/types/course';
+import { useUser } from '@/context/UserContext';
 import {
     Carousel,
     CarouselContent,
@@ -12,58 +13,19 @@ import {
     CarouselNext,
     CarouselPrevious,
 } from '@/components/ui/carousel';
-import { Briefcase, Mail, Calendar, Star, FileText } from 'lucide-react';
-import userProfile from '@/app/profile/APIdata.json';
-
 
 export default function ProfilePage() {
-    const router = useRouter();
-    const [user, setUser] = useState<any>(null);
+    const [currentCourses, setCurrentCourses] = useState<Course[]>([]);
+    const [completedCourses, setCompletedCourses] = useState<Course[]>([]);
+    const { profile } = useUser();
 
-    
-    useEffect(() => {
-        const fetchUserProfile = async () => {
-            const { data: { user }, error } = await supabase.auth.getUser();
-
-            if (error || !user) {
-                console.error('User not logged in or error fetching user:', error);
-                return;
-            }
-
-            const userId = user.id;
-
-            try {
-                const res = await fetch(`/api/profile?id=${userId}`);
-                if (!res.ok) {
-                    throw new Error('Failed to fetch profile from API');
-                }
-                const profileData = await res.json();
-                setUser(profileData);
-            } catch (fetchError) {
-                console.error('Error fetching profile data:', fetchError);
-            }
-        };
-
-        fetchUserProfile();
-    }, []);
-
-
-
-    if (!user) {
+    if (!profile) {
         return (
             <div className="min-h-screen flex items-center justify-center text-gray-600">
                 Loading your profile...
             </div>
         );
     }
-
-    type Course = {
-        id: number;
-        name: string;
-        currentWeek: number;
-        totalModules: number;
-        progress: number;
-    };
 
     type LeaderboardEntry = {
         id: string;
@@ -72,10 +34,6 @@ export default function ProfilePage() {
         xp: number;
         rank: number;
     };
-
-    // Separate current and completed courses
-    const currentCourses = user?.courses?.filter((course : Course) => (course.progress) < 100) || [];
-    const completedCourses = user?.courses?.filter((course : Course) => course.progress >= 100) || [];
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -100,7 +58,7 @@ export default function ProfilePage() {
         <div className="min-h-screen bg-gray-100 py-8 px-4">
             {/* Combined Header + Profile Card - Responsive Width */}
             <motion.div
-                className="w-full max-w-7xl mx-auto mb-8 px-4"
+                className="w-full max-w-7xl mx-auto mb-8"
                 variants={containerVariants}
                 initial="hidden"
                 animate="visible"
@@ -119,65 +77,102 @@ export default function ProfilePage() {
                         {/* Main Profile Content - Responsive Flex */}
                         <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6 lg:gap-8">
                             {/* Left Side - Profile Picture and Basic Info */}
-                            <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4 sm:gap-6">
+                            <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-6">
                                 {/* Profile Picture - Responsive Size */}
                                 <motion.div
                                     className="w-20 h-20 sm:w-24 sm:h-24 lg:w-28 lg:h-28 rounded-full overflow-hidden flex items-center justify-center flex-shrink-0 bg-gray-200"
                                     whileHover={{ scale: 1.05 }}
                                     transition={{ type: 'spring', stiffness: 300 }}
-                                    >
-                                    {user.photo_url ? (
+                                >
+                                    {profile.photo_url ? (
                                         <img
-                                        src={user.photo_url}
-                                        alt="Profile Photo"
-                                        className="w-full h-full object-cover"
+                                            src={profile.photo_url?.split('=')[0]}
+                                            alt="Profile Photo"
+                                            referrerPolicy="no-referrer"
+                                            className="w-full h-full object-cover"
                                         />
                                     ) : (
                                         <div className="w-full h-full bg-gradient-to-br from-cyan-400 to-cyan-500 flex items-center justify-center">
-                                        <span className="text-white font-bold text-xl sm:text-2xl lg:text-3xl">
-                                            {user?.full_name?.split(' ').map((n: string) => n[0]).join('')}
-                                        </span>
+                                            <span className="text-white font-bold text-xl sm:text-2xl lg:text-3xl">
+                                                {profile?.full_name
+                                                    ?.split(' ')
+                                                    .map((n: string) => n[0])
+                                                    .join('')}
+                                            </span>
                                         </div>
                                     )}
                                 </motion.div>
 
-
                                 {/* Name and Primary Info */}
-                                <div className="text-center sm:text-left flex-1">
+                                <div className="text-left flex-1">
                                     <h2 className="text-2xl sm:text-3xl font-bold text-gray-800 mb-3 sm:mb-4">
-                                        {user.full_name}
+                                        {profile.full_name
+                                            ?.toLowerCase()
+                                            .split(' ')
+                                            .map(
+                                                (word: string) =>
+                                                    word.charAt(0).toUpperCase() + word.slice(1)
+                                            )
+                                            .join(' ')}
                                     </h2>
+                                    <p className="text-gray-600 text-sm sm:text-base mb-2">
+                                        <TooltipWrapper label="User ID">
+                                            <UserRound className="w-4 h-4 text-gray-500 inline-block" />
+                                        </TooltipWrapper>
+                                        <span className="text-sm p-2 sm:text-base">
+                                            {profile.id}
+                                        </span>
+                                    </p>
 
                                     {/* Responsive Grid Layout */}
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 sm:gap-x-6 gap-y-2">
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-x-4 lg:gap-x-12 gap-y-2 text-left">
                                         {/* Role */}
-                                        {user.role && (
-                                            <p className="text-gray-600 flex items-center justify-center sm:justify-start gap-2">
-                                                <Briefcase className="w-4 h-4 text-gray-500 flex-shrink-0" />
+                                        {profile.role && (
+                                            <p className="text-gray-600 flex items-center gap-2">
+                                                <TooltipWrapper label="Role">
+                                                    <Briefcase className="w-4 h-4 text-gray-500 flex-shrink-0" />
+                                                </TooltipWrapper>
                                                 <span className="font-medium text-sm sm:text-base">
-                                                    {user.role}
+                                                    {profile.role.charAt(0).toUpperCase() +
+                                                        profile.role.slice(1)}
                                                 </span>
                                             </p>
                                         )}
+
                                         {/* XP */}
-                                        <p className="text-gray-600 flex items-center justify-center sm:justify-start gap-2">
-                                            <Star className="w-4 h-4 text-yellow-500 fill-yellow-500 flex-shrink-0" />
+                                        <p className="text-gray-600 flex items-center gap-2">
+                                            <TooltipWrapper label="Experience Points">
+                                                <Star className="w-4 h-4 text-yellow-500 fill-yellow-500 flex-shrink-0" />
+                                            </TooltipWrapper>
                                             <span className="font-semibold text-sm sm:text-base">
-                                                {user.xp} XP
+                                                {profile.xp} XP
                                             </span>
                                         </p>
+
                                         {/* Email */}
-                                        <p className="text-gray-600 flex items-center justify-center sm:justify-start gap-2">
-                                            <Mail className="w-4 h-4 text-gray-600 flex-shrink-0" />
+                                        <p className="text-gray-600 flex items-center gap-2">
+                                            <TooltipWrapper label="Email">
+                                                <Mail className="w-4 h-4 text-gray-600 flex-shrink-0" />
+                                            </TooltipWrapper>
                                             <span className="text-sm sm:text-base truncate">
-                                                {user.email}
+                                                {profile.email}
                                             </span>
                                         </p>
+
                                         {/* Joined Date */}
-                                        <p className="text-gray-600 flex items-center justify-center sm:justify-start gap-2">
-                                            <Calendar className="w-4 h-4 text-gray-600 flex-shrink-0" />
+                                        <p className="text-gray-600 flex items-center gap-2">
+                                            <TooltipWrapper label="Join Date">
+                                                <Calendar className="w-4 h-4 text-gray-600 flex-shrink-0" />
+                                            </TooltipWrapper>
                                             <span className="text-sm sm:text-base">
-                                                Member since {new Date(user.created_at).toLocaleDateString()}
+                                                Member since{' '}
+                                                {new Date(profile.created_at).toLocaleDateString(
+                                                    'en-US',
+                                                    {
+                                                        year: 'numeric',
+                                                        month: 'long',
+                                                    }
+                                                )}
                                             </span>
                                         </p>
                                     </div>
@@ -189,16 +184,18 @@ export default function ProfilePage() {
                                 <div className="bg-teal-50 rounded-lg p-4 border border-teal-200 w-full max-w-xs lg:max-w-none lg:w-auto">
                                     <div className="text-center lg:text-right">
                                         <div className="text-2xl sm:text-3xl font-bold text-teal-800">
-                                            {user.xp}
+                                            {profile.xp}
                                         </div>
-                                        <div className="text-sm text-teal-600">Total XP</div>
+                                        <div className="text-sm text-center text-teal-600">
+                                            Total XP
+                                        </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
                         {/* Bio Section - Full Width, Responsive */}
-                        {user.bio && (
+                        {profile.biodata && (
                             <div className="mt-6 sm:mt-8 pt-6 border-t border-gray-200">
                                 <div className="flex items-start gap-3">
                                     <FileText className="w-5 h-5 text-gray-500 mt-1 flex-shrink-0" />
@@ -207,7 +204,7 @@ export default function ProfilePage() {
                                             About
                                         </h4>
                                         <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
-                                            {user.bio}
+                                            {profile.biodata}
                                         </p>
                                     </div>
                                 </div>
@@ -236,18 +233,18 @@ export default function ProfilePage() {
                             {currentCourses.length > 0 ? (
                                 <Carousel className="w-full">
                                     <CarouselContent className="-ml-2 md:-ml-4">
-                                        {currentCourses?.map((course : Course) => (
+                                        {currentCourses?.map((course: Course) => (
                                             <CarouselItem
                                                 key={course.id}
                                                 className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/2"
                                             >
                                                 <CourseCard
-                                                    id={course.id.toString()}
-                                                    name={course.name}
-                                                    duration={course.currentWeek.toString()}
-                                                    modules={course.totalModules}
+                                                    id={course.id}
+                                                    name={course.title}
+                                                    modules={course.modules}
+                                                    duration={course.duration}
                                                     progress={course.progress}
-                                                    showProgress={true}
+                                                    showProgress
                                                 />
                                             </CarouselItem>
                                         ))}
@@ -270,18 +267,18 @@ export default function ProfilePage() {
                             {completedCourses.length > 0 ? (
                                 <Carousel className="w-full">
                                     <CarouselContent className="-ml-2 md:-ml-4">
-                                        {completedCourses?.map((course : Course) => (
+                                        {completedCourses?.map((course: Course) => (
                                             <CarouselItem
                                                 key={course.id}
                                                 className="pl-2 md:pl-4 md:basis-1/2 lg:basis-1/2"
                                             >
                                                 <CourseCard
-                                                    id={course.id.toString()}
-                                                    name={course.name}
-                                                    duration={course.currentWeek.toString()}
-                                                    modules={course.totalModules}
+                                                    id={course.id}
+                                                    name={course.title}
+                                                    modules={course.modules}
+                                                    duration={course.duration}
                                                     progress={course.progress}
-                                                    showProgress={true}
+                                                    showProgress
                                                 />
                                             </CarouselItem>
                                         ))}
@@ -308,11 +305,11 @@ export default function ProfilePage() {
                             }}
                         >
                             <div className="space-y-3">
-                                {user.leaderboard?.map((person : LeaderboardEntry) => (
+                                {/* {profile.leaderboard?.map((person: LeaderboardEntry) => (
                                     <div
                                         key={person.id}
                                         className={`flex items-center gap-3 p-3 rounded-lg ${
-                                            person.name === user.full_name
+                                            person.name === profile.full_name
                                                 ? 'bg-teal-300 bg-opacity-70'
                                                 : 'bg-white bg-opacity-50'
                                         }`}
@@ -334,7 +331,7 @@ export default function ProfilePage() {
                                             #{person.rank}
                                         </div>
                                     </div>
-                                ))}
+                                ))} */}
                             </div>
                         </div>
                     </motion.div>

@@ -17,6 +17,7 @@ import Link from 'next/link';
 
 const Footer: React.FC = () => {
     const [isCreditsVisible, setIsCreditsVisible] = useState(false);
+    const year = new Date().getFullYear();
 
     const lead = {
         name: 'Aravind Sathesh',
@@ -192,8 +193,7 @@ const Footer: React.FC = () => {
                 <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
                         <p className="text-gray-300 text-xs">
-                            © {new Date().getFullYear()} BITS Hyderabad Consulting Group. All rights
-                            reserved.
+                            © {year} BITS Hyderabad Consulting Group. All rights reserved.
                         </p>
 
                         <div
