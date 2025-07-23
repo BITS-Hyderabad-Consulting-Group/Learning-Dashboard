@@ -3,7 +3,7 @@ export type EnrolledCourse = {
     id: string;
     title: string;
     modules: number;
-    duration: string;
+    duration: number;
     progress: number;
 };
 
@@ -11,10 +11,10 @@ export type AvailableCourse = {
     id: string;
     title: string;
     modules: number;
-    duration: string;
+    duration: number;
 };
 
-export type CourseRow = { id: string; title: string };
+export type CourseRow = { id: string; title: string; duration: number };
 export type WeekRow = { id: string; course_id: string };
 export type ModuleRow = { id: string; week_id: string };
 export type EnrollRow = { course_id: string; courses: CourseRow | CourseRow[] | null };
@@ -35,7 +35,12 @@ export interface Week {
 }
 
 export interface CourseData {
+    courseObjectives: string[];
     title: string;
+    enrolled: boolean;
+    activeLearners: number | null;
+    completedModules: string[];
+    instructor: string;
     description: string;
     updatedAt: Date;
     modulesCount: number;
@@ -44,6 +49,15 @@ export interface CourseData {
     weeksCompleted: number;
     markedForReview: number;
     weeks: Week[];
+}
+
+export interface CourseWithInstructor {
+    id: string;
+    title: string;
+    description: string;
+    objectives: string[];
+    updated_at: string;
+    instructor: { full_name: string } | null;
 }
 
 // Database types

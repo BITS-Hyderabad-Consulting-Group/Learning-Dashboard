@@ -1,158 +1,115 @@
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
-import type { CourseRow, WeekRow, ModuleRow, EnrollRow } from '@/types/course';
+import type { EnrolledCourse, AvailableCourse } from '@/types/course';
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-const supabase = createClient(supabaseUrl!, supabaseServiceRoleKey!);
 
-// GET /api/learning?userId=xxx
-export async function GET(req: Request) {
+if (!supabaseUrl || !supabaseServiceRoleKey) {
+    throw new Error('Supabase URL or Service Role Key is not defined.');
+}
+const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
+
+type CourseDetails = {
+    id: string;
+    title: string;
+    duration: number;
+    modules_count: number;
+};
+
+// GET /api/learning?userId=xxx (userId is now optional)
+export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get('userId');
 
-    // 1. Get enrolled courses for user (Continue Learning)
+    try {
+        // --- Conditional User-Specific Logic ---
+        let enrolledCourseIds: string[] = [];
+        const progressMap = new Map<string, number>();
 
-    let enrolledCourses: Array<{
-        id: string;
-        title: string;
-        modules: number;
-        duration: string;
-        progress: number;
-    }> = [];
-    if (userId) {
-        // Get enrolled course ids for user
-        const { data: enrollData, error: enrollError } = await supabase
-            .from('user_course_enrollments')
-            .select('course_id, courses (id, title)')
-            .eq('user_id', userId);
-        if (enrollError) {
-            return NextResponse.json({ error: 'Failed to fetch enrollments' }, { status: 500 });
-        }
-        if (enrollData && Array.isArray(enrollData)) {
-            // For each course, count modules
-            const courseIds = (enrollData as EnrollRow[])
-                .map((row) => (Array.isArray(row.courses) ? row.courses[0]?.id : row.courses?.id))
-                .filter((id): id is string => Boolean(id));
-            const modulesCountMap: Record<string, number> = {};
-            if (courseIds.length > 0) {
-                // Get all weeks for these courses
-                const { data: weeksData, error: weeksError } = await supabase
-                    .from('weeks')
-                    .select('id, course_id')
-                    .in('course_id', courseIds);
-                if (weeksError) {
-                    return NextResponse.json({ error: 'Failed to fetch weeks' }, { status: 500 });
-                }
-                const weekIds = ((weeksData as WeekRow[]) || []).map((w) => w.id);
-                // Get all modules for these weeks
-                let modulesData: ModuleRow[] = [];
-                if (weekIds.length > 0) {
-                    const { data: modsData, error: modsError } = await supabase
-                        .from('modules')
-                        .select('id, week_id');
-                    if (modsError) {
-                        return NextResponse.json(
-                            { error: 'Failed to fetch modules' },
-                            { status: 500 }
-                        );
-                    }
-                    modulesData = ((modsData as ModuleRow[]) || []).filter((m) =>
-                        weekIds.includes(m.week_id)
-                    );
-                }
-                // Count modules per course
-                for (const courseId of courseIds) {
-                    const weekIdsForCourse = ((weeksData as WeekRow[]) || [])
-                        .filter((w) => w.course_id === courseId)
-                        .map((w) => w.id);
-                    modulesCountMap[courseId] = modulesData.filter((m) =>
-                        weekIdsForCourse.includes(m.week_id)
-                    ).length;
-                }
+        if (userId) {
+            const { data: enrollmentData, error: enrollmentError } = await supabase
+                .from('user_course_enrollments')
+                .select('course_id')
+                .eq('user_id', userId);
+
+            if (enrollmentError) {
+                console.error(`Error fetching enrollments for user ${userId}:`, enrollmentError);
+            } else if (enrollmentData) {
+                enrolledCourseIds = enrollmentData.map((e) => e.course_id);
             }
-            enrolledCourses = (enrollData as EnrollRow[])
-                .map((row) => {
-                    let course = row.courses;
-                    if (Array.isArray(course)) course = course[0];
-                    if (!course) return undefined;
-                    return {
-                        id: course.id,
-                        title: course.title,
-                        modules: modulesCountMap[course.id] ?? 0,
-                        duration: 'x',
-                        progress: 0,
-                    };
-                })
-                .filter(
-                    (
-                        c
-                    ): c is {
-                        id: string;
-                        title: string;
-                        modules: number;
-                        duration: string;
-                        progress: number;
-                    } => !!c
-                );
-        }
-    }
 
-    // 2. Get all available courses
-
-    let availableCourses: Array<{ id: string; title: string; modules: number; duration: string }> =
-        [];
-    const { data: allCourses, error: allCoursesError } = await supabase
-        .from('courses')
-        .select('id, title')
-        .order('created_at', { ascending: false });
-    if (allCoursesError) {
-        return NextResponse.json({ error: 'Failed to fetch courses' }, { status: 500 });
-    }
-    if (allCourses && Array.isArray(allCourses)) {
-        const courseIds = (allCourses as CourseRow[]).map((c) => c.id);
-        // Get all weeks for these courses
-        const { data: weeksData, error: weeksError } = await supabase
-            .from('weeks')
-            .select('id, course_id')
-            .in('course_id', courseIds);
-        if (weeksError) {
-            return NextResponse.json({ error: 'Failed to fetch weeks' }, { status: 500 });
-        }
-        const weekIds = ((weeksData as WeekRow[]) || []).map((w) => w.id);
-        // Get all modules for these weeks
-        let modulesData: ModuleRow[] = [];
-        if (weekIds.length > 0) {
-            const { data: modsData, error: modsError } = await supabase
-                .from('modules')
-                .select('id, week_id');
-            if (modsError) {
-                return NextResponse.json({ error: 'Failed to fetch modules' }, { status: 500 });
-            }
-            modulesData = ((modsData as ModuleRow[]) || []).filter((m) =>
-                weekIds.includes(m.week_id)
+            const { data: progressData, error: progressError } = await supabase.rpc(
+                'get_user_progress_by_course',
+                { p_user_id: userId }
             );
-        }
-        // Count modules per course
-        const modulesCountMap: Record<string, number> = {};
-        for (const courseId of courseIds) {
-            const weekIdsForCourse = ((weeksData as WeekRow[]) || [])
-                .filter((w) => w.course_id === courseId)
-                .map((w) => w.id);
-            modulesCountMap[courseId] = modulesData.filter((m) =>
-                weekIdsForCourse.includes(m.week_id)
-            ).length;
-        }
-        availableCourses = (allCourses as CourseRow[]).map((course) => ({
-            id: course.id,
-            title: course.title,
-            modules: modulesCountMap[course.id] ?? 0,
-            duration: 'x',
-        }));
-    }
 
-    return NextResponse.json({
-        enrolledCourses,
-        availableCourses,
-    });
+            if (progressError) {
+                console.error(`Error fetching progress for user ${userId}:`, progressError);
+            } else if (progressData) {
+                progressData.forEach(
+                    (item: {
+                        course_id: string;
+                        completed_modules: number;
+                        total_modules: number;
+                    }) => {
+                        const percentage =
+                            item.total_modules > 0
+                                ? Math.round((item.completed_modules / item.total_modules) * 100)
+                                : 0;
+                        progressMap.set(item.course_id, percentage);
+                    }
+                );
+            }
+        }
+
+        // --- Publicly Accessible Logic ---
+        const { data: allCoursesDetails, error: coursesError } = await supabase
+            .from('course_details')
+            .select('*')
+            .order('title') // Good to have a consistent order
+            .returns<CourseDetails[]>();
+
+        if (coursesError) {
+            console.error('Error fetching from course_details view:', coursesError);
+            return NextResponse.json({ error: 'Failed to fetch course details' }, { status: 500 });
+        }
+
+        if (!allCoursesDetails) {
+            return NextResponse.json({ enrolledCourses: [], availableCourses: [] });
+        }
+
+        const enrolledCourses: EnrolledCourse[] = [];
+        const availableCourses: AvailableCourse[] = [];
+
+        for (const course of allCoursesDetails) {
+            const courseData = {
+                id: course.id,
+                title: course.title,
+                modules: course.modules_count,
+                duration: course.duration,
+            };
+
+            // If the user is logged in AND this course ID is in their list,
+            // add it to 'enrolledCourses' with progress.
+            if (userId && enrolledCourseIds.includes(course.id)) {
+                enrolledCourses.push({
+                    ...courseData,
+                    progress: progressMap.get(course.id) ?? 0,
+                });
+            } else {
+                // Otherwise, add it to the general 'availableCourses' list.
+                // This works for both logged-out users and logged-in users viewing non-enrolled courses.
+                availableCourses.push(courseData);
+            }
+        }
+
+        return NextResponse.json({
+            enrolledCourses,
+            availableCourses,
+        });
+    } catch (error) {
+        console.error('Unexpected error in /api/learning:', error);
+        return NextResponse.json({ error: 'An internal server error occurred' }, { status: 500 });
+    }
 }

@@ -1,9 +1,9 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { toast } from 'sonner';
 import { useUser } from '@/context/UserContext';
-import { format } from 'date-fns';
+import { format, isValid, parseISO } from 'date-fns';
 import WeekList from '@/components/WeekList';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -11,24 +11,34 @@ import { CourseData } from '@/types/course';
 
 import { use } from 'react';
 
+// Helper function to format module type strings for display
+const formatModuleTypeForDisplay = (type: string): 'Video' | 'Article' | 'Evaluative' => {
+    switch (type.toLowerCase()) {
+        case 'video':
+            return 'Video';
+        case 'article':
+            return 'Article';
+        default:
+            return 'Evaluative'; // For 'quiz', 'assignment', etc.
+    }
+};
+
 export default function CoursePage({ params }: { params: Promise<{ courseId: string }> }) {
     const { courseId } = use(params);
     const [data, setData] = useState<CourseData | null>(null);
     const [loading, setLoading] = useState(true);
-    const [activeLearners, setActiveLearners] = useState<number | null>(null);
-    const [enrolled, setEnrolled] = useState<boolean>(false);
     const [enrolLoading, setEnrolLoading] = useState(false);
     const [enrolError, setEnrolError] = useState<string | null>(null);
-    const [completedModules, setCompletedModules] = useState<string[]>([]);
     const { user, loading: userLoading } = useUser();
 
     const fetchCourseData = useCallback(async () => {
         setLoading(true);
         try {
-            let url = `/api/courses/${courseId}`;
-            if (user && user.id) {
-                url += `?userId=${user.id}`;
-            }
+            // Simplify URL construction
+            const url = user?.id
+                ? `/api/courses/${courseId}?userId=${user.id}`
+                : `/api/courses/${courseId}`;
+
             const response = await fetch(url, {
                 cache: 'no-store',
                 headers: {
@@ -40,27 +50,26 @@ export default function CoursePage({ params }: { params: Promise<{ courseId: str
                 throw new Error(`Failed to fetch course data: ${response.status}`);
             }
 
-            const courseData = await response.json();
+            const courseData: CourseData = await response.json();
             setData(courseData);
-            setEnrolled(!!courseData.enrolled);
-            setActiveLearners(courseData.activeLearners ?? null);
-            setCompletedModules(courseData.completedModules || []);
         } catch (error) {
+            // Set a complete error state object to avoid null reference errors in the UI
             setData({
                 title: 'Course Not Found',
-                description:
-                    'Unable to load course data. Please check your connection and try again.',
+                description: 'Unable to load course data. Please check the URL or try again later.',
+                courseObjectives: [],
                 modulesCount: 0,
+                weeks: [],
+                enrolled: false,
+                instructor: 'N/A',
+                updatedAt: new Date(),
+                activeLearners: 0,
+                completedModules: [],
+                markedForReview: 0,
+                weeksCompleted: 0,
                 totalDuration: 0,
                 modulesCompleted: 0,
-                weeksCompleted: 0,
-                updatedAt: new Date(),
-                markedForReview: 0,
-                weeks: [],
             });
-            setEnrolled(false);
-            setActiveLearners(null);
-            setCompletedModules([]);
         } finally {
             setLoading(false);
         }
@@ -71,6 +80,18 @@ export default function CoursePage({ params }: { params: Promise<{ courseId: str
             fetchCourseData();
         }
     }, [fetchCourseData, userLoading]);
+
+    const transformedWeeks = useMemo(() => {
+        if (!data?.weeks) return [];
+
+        return data.weeks.map((week) => ({
+            ...week,
+            modules: week.modules.map((module) => ({
+                ...module,
+                type: formatModuleTypeForDisplay(module.type),
+            })),
+        }));
+    }, [data]);
 
     const handleEnrol = async () => {
         if (!user || !user.id) return;
@@ -86,35 +107,29 @@ export default function CoursePage({ params }: { params: Promise<{ courseId: str
             });
             const result = await res.json();
             if (!res.ok) throw new Error(result.error || 'Failed to enrol');
-            setEnrolled(true);
-            fetchCourseData();
+            await fetchCourseData(); // Refetch data to update UI state
             toast.success('Enrolled successfully!');
         } catch (e: unknown) {
-            setEnrolError(e instanceof Error ? e.message : 'Failed to enrol');
+            const errorMessage = e instanceof Error ? e.message : 'An unknown error occurred';
+            setEnrolError(errorMessage);
+            toast.error(errorMessage);
         } finally {
             setEnrolLoading(false);
         }
     };
 
     const handleModuleClick = (moduleUrl: string) => {
-        if (!enrolled) {
+        if (!data?.enrolled) {
             toast.error('Please enroll in the course to access modules');
             return;
         }
-
-        // Handle module navigation here
+        // Handle module navigation here (e.g., router.push(moduleUrl))
         console.log('Opening module:', moduleUrl);
-        // Example: router.push(moduleUrl) or window.open(moduleUrl)
-
-        // Mark module as completed (you might want to call an API here)
-        if (!completedModules.includes(moduleUrl)) {
-            setCompletedModules((prev) => [...prev, moduleUrl]);
-        }
     };
 
-    if (loading || !data || userLoading) {
+    if (loading || userLoading) {
         return (
-            <main className="max-w-6xl mx-auto p-4">
+            <main className="max-w-6xl mx-auto p-6">
                 <motion.div
                     className="flex items-center justify-center h-64"
                     initial={{ opacity: 0 }}
@@ -140,10 +155,19 @@ export default function CoursePage({ params }: { params: Promise<{ courseId: str
         );
     }
 
+    // Fallback if data loading fails but we are no longer in a 'loading' state
+    if (!data) {
+        return (
+            <main className="max-w-6xl mx-auto p-6 text-center text-red-500">
+                Course data could not be loaded.
+            </main>
+        );
+    }
+
     return (
         <>
             <motion.main
-                className="max-w-6xl mx-auto p-4"
+                className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8"
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, ease: 'easeOut' }}
@@ -177,7 +201,7 @@ export default function CoursePage({ params }: { params: Promise<{ courseId: str
                                 {data.title}
                             </motion.span>
                             <AnimatePresence>
-                                {!enrolled && user && (
+                                {!data?.enrolled && user && (
                                     <motion.button
                                         className="bg-[#007C6A] text-white font-bold px-5 py-1.5 rounded-md shadow-md hover:bg-[#005F5F] transition-all duration-200 text-base whitespace-nowrap"
                                         onClick={handleEnrol}
@@ -196,9 +220,11 @@ export default function CoursePage({ params }: { params: Promise<{ courseId: str
                                                 repeat: enrolLoading ? Infinity : 0,
                                                 ease: 'linear',
                                             }}
+                                            style={{ display: 'inline-block' }} // Prevents layout shift on rotate
                                         >
-                                            {enrolLoading ? 'Enrolling...' : 'Enrol'}
+                                            {enrolLoading ? '...' : 'Enrol'}
                                         </motion.span>
+                                        {enrolLoading && 'Enrolling'}
                                     </motion.button>
                                 )}
                             </AnimatePresence>
@@ -219,31 +245,29 @@ export default function CoursePage({ params }: { params: Promise<{ courseId: str
                         >
                             {[
                                 {
-                                    label: 'Last updated:',
-                                    value: data.updatedAt
-                                        ? (() => {
-                                              const dateObj =
-                                                  typeof data.updatedAt === 'string'
-                                                      ? new Date(data.updatedAt)
-                                                      : data.updatedAt;
-                                              return isNaN(dateObj.getTime())
-                                                  ? 'N/A'
-                                                  : format(dateObj, 'dd MMMM, yyyy');
-                                          })()
-                                        : 'N/A',
+                                    label: 'Instructor:',
+                                    value: data.instructor || 'N/A',
                                 },
-                                { label: 'Language:', value: 'English' },
+                                {
+                                    label: 'Last updated:',
+                                    value: (() => {
+                                        const date =
+                                            typeof data.updatedAt === 'string'
+                                                ? parseISO(data.updatedAt)
+                                                : data.updatedAt;
+                                        return isValid(date)
+                                            ? format(date, 'dd MMMM, yyyy')
+                                            : 'N/A';
+                                    })(),
+                                },
                                 {
                                     label: 'Active learners:',
-                                    value:
-                                        activeLearners !== null && activeLearners !== undefined
-                                            ? activeLearners
-                                            : 0,
+                                    value: data.activeLearners ?? 0,
                                 },
                             ].map((item, index) => (
                                 <motion.div
                                     key={index}
-                                    className="flex items-center gap-2 bg-white/20 rounded-md px-3 py-2 shadow-sm"
+                                    className="flex items-center gap-2 bg-white/20 rounded-md px-3 py-3 shadow-sm"
                                     initial={{ opacity: 0, x: -10 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     transition={{ duration: 0.3, delay: 0.5 + index * 0.05 }}
@@ -252,11 +276,11 @@ export default function CoursePage({ params }: { params: Promise<{ courseId: str
                                         transition: { duration: 0.2 },
                                     }}
                                 >
-                                    <span className="font-semibold text-[#007C6A] min-w-28">
+                                    <span className="font-semibold text-[#007C6A]">
                                         {item.label}
                                     </span>
                                     <motion.span
-                                        className="bg-white/50 px-2 py-1 rounded-full"
+                                        className="bg-white/50 px-2 py-0 rounded-full"
                                         initial={{ scale: 0.95 }}
                                         animate={{ scale: 1 }}
                                         transition={{ duration: 0.2 }}
@@ -308,14 +332,7 @@ export default function CoursePage({ params }: { params: Promise<{ courseId: str
                                 animate={{ opacity: 1 }}
                                 transition={{ duration: 0.5, delay: 0.5 }}
                             >
-                                {[
-                                    'Lorem ipsum dolor sit amet, consectetur adipiscing elit.',
-                                    'Curabitur ac leo nunc. Vestibulum et mauris vel ante.',
-                                    'Praesent ut ligula non mi varius sagittis.',
-                                    'Morbi nec metus. Donec id justo.',
-                                    'Nullam dictum felis eu pede mollis pretium.',
-                                    'Etiam imperdiet imperdiet orci. Nunc nec neque.',
-                                ].map((text, index) => (
+                                {data.courseObjectives?.map((text, index) => (
                                     <motion.li
                                         key={index}
                                         className="flex items-start gap-2"
@@ -335,7 +352,7 @@ export default function CoursePage({ params }: { params: Promise<{ courseId: str
                                                 delay: 0.6 + index * 0.05,
                                             }}
                                         >
-                                            &#10003;
+                                            ✓
                                         </motion.span>
                                         <span>{text}</span>
                                     </motion.li>
@@ -355,23 +372,7 @@ export default function CoursePage({ params }: { params: Promise<{ courseId: str
                         ease: 'anticipate',
                     }}
                 >
-                    <WeekList
-                        weeks={data.weeks.map((week) => ({
-                            ...week,
-                            modules: week.modules.map((module) => ({
-                                ...module,
-                                type:
-                                    module.type === 'video'
-                                        ? 'Video'
-                                        : module.type === 'article'
-                                        ? 'Article'
-                                        : 'Evaluative',
-                                completed: completedModules.includes(module.id || ''),
-                                markedForReview: module.markedForReview || false,
-                            })),
-                        }))}
-                        enrolled={enrolled}
-                    />
+                    <WeekList weeks={transformedWeeks} enrolled={data.enrolled} />
                 </motion.div>
             </motion.main>
         </>

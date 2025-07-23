@@ -17,13 +17,7 @@ import { Scroller } from '@/components/Scroller';
 import { FaqSection } from '@/components/FaqSection';
 import { motion } from 'framer-motion';
 import CourseCardSkeleton from '@/components/CourseCardSkeleton';
-
-interface Course {
-    id: string;
-    title: string;
-    modules: number;
-    duration: string;
-}
+import { AvailableCourse } from '@/types/course';
 
 interface ApiResponse {
     enrolledCourses: Array<{
@@ -33,7 +27,7 @@ interface ApiResponse {
         duration: string;
         progress: number;
     }>;
-    availableCourses: Course[];
+    availableCourses: AvailableCourse[];
 }
 
 function chunk<T>(array: T[], size: number): T[][] {
@@ -49,7 +43,7 @@ function isMobile() {
 }
 
 export default function HomePage() {
-    const [featuredCourses, setFeaturedCourses] = useState<Course[]>([]);
+    const [featuredCourses, setFeaturedCourses] = useState<AvailableCourse[]>([]);
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
@@ -156,10 +150,45 @@ export default function HomePage() {
                                                   className="pl-4 basis-full lg:basis-1/3"
                                               >
                                                   <CourseCard
+                                                      key={course.id}
                                                       id={course.id}
                                                       name={course.title}
                                                       modules={course.modules}
-                                                      duration={course.duration}
+                                                      duration={
+                                                          course.duration >= 10080
+                                                              ? `${Math.floor(
+                                                                    course.duration / 10080
+                                                                )} week${
+                                                                    Math.floor(
+                                                                        course.duration / 10080
+                                                                    ) > 1
+                                                                        ? 's'
+                                                                        : ''
+                                                                }`
+                                                              : course.duration >= 1440
+                                                              ? `${Math.floor(
+                                                                    course.duration / 1440
+                                                                )} day${
+                                                                    Math.floor(
+                                                                        course.duration / 1440
+                                                                    ) > 1
+                                                                        ? 's'
+                                                                        : ''
+                                                                }`
+                                                              : course.duration >= 60
+                                                              ? `${Math.floor(
+                                                                    course.duration / 60
+                                                                )} hour${
+                                                                    Math.floor(
+                                                                        course.duration / 60
+                                                                    ) > 1
+                                                                        ? 's'
+                                                                        : ''
+                                                                }`
+                                                              : `${course.duration} minute${
+                                                                    course.duration > 1 ? 's' : ''
+                                                                }`
+                                                      }
                                                       progress={0}
                                                       showProgress={false}
                                                   />
