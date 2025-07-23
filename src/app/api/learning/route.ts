@@ -14,10 +14,19 @@ type CourseDetails = {
     modules_count: number;
 };
 
-// GET /api/learning?userId=xxx (userId is now optional)
+// GET /api/learning?userId=xxx&page=1&limit=12&search=&sort=a-z (userId is now optional)
 export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get('userId');
+
+    // Pagination and filtering parameters
+    const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
+    const limit = Math.max(1, parseInt(searchParams.get('limit') || '12', 10));
+    const search = (searchParams.get('search') || '').trim();
+    const sort = searchParams.get('sort') || 'a-z';
+
+    // Calculate offset for pagination
+    const offset = (page - 1) * limit;
 
     try {
         // --- Conditional User-Specific Logic ---
@@ -60,20 +69,62 @@ export async function GET(req: NextRequest) {
             }
         }
 
-        // --- Publicly Accessible Logic ---
-        const { data: allCoursesDetails, error: coursesError } = await supabaseServer
-            .from('course_details')
-            .select('*')
-            .order('title') // Good to have a consistent order
-            .returns<CourseDetails[]>();
+        // --- Publicly Accessible Logic with Server-Side Filtering ---
+
+        // Build the query with search and sorting
+        let query = supabaseServer.from('courses').select('*', { count: 'exact' }); // Include count for total pages calculation
+
+        // Apply search filter if provided
+        if (search.length > 0) {
+            query = query.ilike('title', `%${search}%`);
+        }
+
+        // Apply sorting
+        switch (sort) {
+            case 'z-a':
+                query = query.order('title', { ascending: false });
+                break;
+            case 'desc':
+                // Use the correct field name for sorting by date from the joined courses table
+                query = query.order('created_at', { ascending: false });
+                break;
+            case 'asc':
+                query = query.order('created_at', { ascending: true });
+                break;
+            case 'a-z':
+            default:
+                query = query.order('title', { ascending: true });
+                break;
+        }
+
+        // Apply pagination
+        query = query.range(offset, offset + limit - 1);
+
+        const {
+            data: allCoursesDetails,
+            error: coursesError,
+            count: totalCount,
+        } = await query.returns<CourseDetails[]>();
 
         if (coursesError) {
             console.error('Error fetching from course_details view:', coursesError);
             return NextResponse.json({ error: 'Failed to fetch course details' }, { status: 500 });
         }
 
-        if (!allCoursesDetails) {
-            return NextResponse.json({ enrolledCourses: [], availableCourses: [] });
+        // If no courses found, always return empty arrays and correct pagination
+        if (!allCoursesDetails || allCoursesDetails.length === 0) {
+            return NextResponse.json({
+                enrolledCourses: [],
+                availableCourses: [],
+                pagination: {
+                    currentPage: page,
+                    totalPages: 0,
+                    totalCount: 0,
+                    limit,
+                    hasNextPage: false,
+                    hasPreviousPage: page > 1,
+                },
+            });
         }
 
         const enrolledCourses: EnrolledCourse[] = [];
@@ -94,13 +145,31 @@ export async function GET(req: NextRequest) {
                     total_duration: course.duration,
                 });
             } else {
+                // Otherwise, add it to the general 'availableCourses' list.
                 availableCourses.push(courseData);
             }
         }
 
+        // Calculate pagination metadata
+        const safeTotalCount =
+            typeof totalCount === 'number' && totalCount >= 0
+                ? totalCount
+                : availableCourses.length + enrolledCourses.length;
+        const totalPages = Math.ceil(safeTotalCount / limit);
+        const hasNextPage = page < totalPages;
+        const hasPreviousPage = page > 1;
+
         return NextResponse.json({
             enrolledCourses,
             availableCourses,
+            pagination: {
+                currentPage: page,
+                totalPages,
+                totalCount: safeTotalCount,
+                limit,
+                hasNextPage,
+                hasPreviousPage,
+            },
         });
     } catch (error) {
         console.error('Unexpected error in /api/learning:', error);
