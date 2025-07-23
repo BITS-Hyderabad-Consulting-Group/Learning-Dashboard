@@ -14,6 +14,21 @@ export type AvailableCourse = {
     duration: number;
 };
 
+export type PaginationInfo = {
+    currentPage: number;
+    totalPages: number;
+    totalCount: number;
+    limit: number;
+    hasNextPage: boolean;
+    hasPreviousPage: boolean;
+};
+
+export type LearningApiResponse = {
+    enrolledCourses: EnrolledCourse[];
+    availableCourses: AvailableCourse[];
+    pagination: PaginationInfo;
+};
+
 export type CourseRow = { id: string; title: string; duration: number };
 export type WeekRow = { id: string; course_id: string };
 export type ModuleRow = { id: string; week_id: string };
