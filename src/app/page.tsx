@@ -153,7 +153,7 @@ export default function HomePage() {
                                         : featuredCourses.map((course) => (
                                               <CarouselItem
                                                   key={course.id}
-                                                  className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3"
+                                                  className="pl-4 basis-full lg:basis-1/3"
                                               >
                                                   <CourseCard
                                                       id={course.id}
