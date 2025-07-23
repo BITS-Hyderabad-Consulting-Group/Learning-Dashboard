@@ -17,7 +17,36 @@ import {
 export default function ProfilePage() {
     const [currentCourses, setCurrentCourses] = useState<Course[]>([]);
     const [completedCourses, setCompletedCourses] = useState<Course[]>([]);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
     const { profile } = useUser();
+
+    useEffect(() => {
+        const fetchUserCourses = async () => {
+            setIsLoading(true);
+
+            try {
+                const response = await fetch(`/api/profile/${profile?.id}`);
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    throw new Error(errorData.error || 'Failed to fetch courses');
+                }
+
+                const data = await response.json();
+
+                setCurrentCourses(data.currentCourses);
+                setCompletedCourses(data.completedCourses);
+            } catch (err: any) {
+                console.error('Fetch error:', err);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        if (profile?.id) {
+            fetchUserCourses();
+        }
+    }, [profile?.id]);
 
     if (!profile) {
         return (
