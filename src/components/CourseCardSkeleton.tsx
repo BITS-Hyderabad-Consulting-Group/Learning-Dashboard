@@ -1,4 +1,4 @@
-export default function CourseCardSkeleton() {
+export default function CourseCardSkeleton({ progress = false }: { progress?: boolean } = {}) {
     return (
         <div className="px-2 py-4">
             <div className="w-full bg-white rounded-lg shadow-lg border-t-[12px] border-teal-800 border-x-0 border-b-0">
@@ -20,6 +20,13 @@ export default function CourseCardSkeleton() {
                         <div className="w-12 h-4 bg-gray-300 rounded animate-pulse"></div>
                     </div>
                 </div>
+                {progress && (
+                    <div className="px-6 pb-4">
+                        <div className="w-full h-2 bg-gray-200 rounded-full">
+                            <div className="h-2 bg-teal-600 rounded-full animate-pulse w-3/4"></div>
+                        </div>
+                    </div>
+                )}
             </div>
         </div>
     );

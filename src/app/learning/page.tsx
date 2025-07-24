@@ -4,13 +4,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { useUser } from '@/context/UserContext';
 import { CourseCard } from '@/components/CourseCard';
 import {
-    Carousel,
-    CarouselContent,
-    CarouselItem,
-    CarouselNext,
-    CarouselPrevious,
-} from '@/components/ui/carousel';
-import {
     Select,
     SelectContent,
     SelectItem,
@@ -29,6 +22,7 @@ import { Button } from '@/components/ui/button';
 
 import type { EnrolledCourse, AvailableCourse } from '@/types/course';
 import SkeletonLoader from './SkeletonLoader';
+import CourseCarousel from '@/components/CourseCarousel';
 
 const renderPageNumbers = (
     currentPage: number,
@@ -164,27 +158,10 @@ export default function Learning() {
                 <section className="container mx-auto">
                     <h2 className="text-gray-800 text-2xl font-semibold mb-6">Continue Learning</h2>
                     {coursesWithProgress.length > 0 ? (
-                        <Carousel>
-                            <CarouselContent className="py-4">
-                                {coursesWithProgress.slice(0, 6).map((course) => (
-                                    <CarouselItem key={course.id} className="basis-1/3 pl-4">
-                                        <CourseCard
-                                            id={course.id}
-                                            name={course.title}
-                                            modules={course.modules}
-                                            duration={course.duration}
-                                            progress={course.progress}
-                                            showProgress
-                                        />
-                                    </CarouselItem>
-                                ))}
-                            </CarouselContent>
-                            <CarouselPrevious className="text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
-                            <CarouselNext className="text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
-                        </Carousel>
+                        <CourseCarousel courses={coursesWithProgress.slice(0, 6)} basis="1/3" />
                     ) : (
                         <p className="text-gray-500 text-center py-8">
-                            You haven’t enrolled in any courses yet.
+                            You haven't enrolled in any courses yet.
                         </p>
                     )}
                 </section>

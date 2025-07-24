@@ -5,6 +5,7 @@ type CourseWithStatus = {
     id: string;
     title: string;
     description: string | null;
+    duration: number | null;
     course_status: 'current' | 'completed';
 };
 

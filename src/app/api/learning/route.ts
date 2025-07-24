@@ -87,19 +87,16 @@ export async function GET(req: NextRequest) {
                 id: course.id,
                 title: course.title,
                 modules: course.modules_count,
-                duration: course.duration,
+                total_duration: course.duration,
             };
 
-            // If the user is logged in AND this course ID is in their list,
-            // add it to 'enrolledCourses' with progress.
             if (userId && enrolledCourseIds.includes(course.id)) {
                 enrolledCourses.push({
                     ...courseData,
                     progress: progressMap.get(course.id) ?? 0,
+                    total_duration: course.duration,
                 });
             } else {
-                // Otherwise, add it to the general 'availableCourses' list.
-                // This works for both logged-out users and logged-in users viewing non-enrolled courses.
                 availableCourses.push(courseData);
             }
         }

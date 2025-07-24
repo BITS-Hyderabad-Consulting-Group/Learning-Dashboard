@@ -17,7 +17,7 @@ const SkeletonLoader = () => {
                 {/* Course Cards Carousel Skeleton */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-4 -mx-2">
                     {[...Array(3)].map((_, i) => (
-                        <CourseCardSkeleton key={i} />
+                        <CourseCardSkeleton progress={true} key={i} />
                     ))}
                 </div>
             </section>

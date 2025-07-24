@@ -3,15 +3,15 @@ export type EnrolledCourse = {
     id: string;
     title: string;
     modules: number;
-    duration: number;
-    progress: number;
+    total_duration: number;
+    progress?: number;
 };
 
 export type AvailableCourse = {
     id: string;
     title: string;
     modules: number;
-    duration: number;
+    total_duration: number;
 };
 
 export type CourseRow = { id: string; title: string; duration: number };

@@ -4,20 +4,11 @@ import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { Zap } from 'lucide-react';
-import { CourseCard } from '@/components/CourseCard';
-import {
-    Carousel,
-    CarouselContent,
-    CarouselItem,
-    CarouselNext,
-    CarouselPrevious,
-} from '@/components/ui/carousel';
-import { Button } from '@/components/ui/button';
 import { Scroller } from '@/components/Scroller';
 import { FaqSection } from '@/components/FaqSection';
 import { motion } from 'framer-motion';
-import CourseCardSkeleton from '@/components/CourseCardSkeleton';
 import { AvailableCourse } from '@/types/course';
+import CourseCarousel from '@/components/CourseCarousel';
 
 interface ApiResponse {
     enrolledCourses: Array<{
@@ -37,14 +28,14 @@ function chunk<T>(array: T[], size: number): T[][] {
     return [head, ...chunk(tail, size)];
 }
 
-//is mobile check
-function isMobile() {
-    return typeof window !== 'undefined' && window.innerWidth <= 768;
-}
-
 export default function HomePage() {
     const [featuredCourses, setFeaturedCourses] = useState<AvailableCourse[]>([]);
     const [loading, setLoading] = useState(true);
+    const [isMobile, setIsMobile] = useState(false);
+
+    useEffect(() => {
+        setIsMobile(window.innerWidth <= 768);
+    }, []);
 
     useEffect(() => {
         const fetchCourses = async () => {
@@ -82,7 +73,7 @@ export default function HomePage() {
                         </div>
                         <div className="relative inline-flex items-center rounded-full bg-[#bde4e2] p-2">
                             <h1 className="flex items-center gap-4 text-3xl sm:text-4xl font-bold tracking-tight text-[#0f3433]">
-                                {isMobile() || (
+                                {isMobile || (
                                     <motion.span
                                         initial={{ scale: 0.8, opacity: 0 }}
                                         animate={{ scale: 1, opacity: 1 }}
@@ -94,7 +85,7 @@ export default function HomePage() {
                                         <Zap size={24} className="flex-shrink-0" />
                                     </motion.span>
                                 )}
-                                {isMobile() ? (
+                                {isMobile ? (
                                     <span className="p-6 select-none">
                                         <span className="text-[#007975]">Learning Dashboard</span>
                                         <br />
@@ -132,38 +123,13 @@ export default function HomePage() {
                                 </span>
                             </Link>
                         </div>
-                        <div className="px-10">
-                            <Carousel opts={{ align: 'start', loop: true }} className="w-full">
-                                <CarouselContent>
-                                    {loading
-                                        ? Array.from({ length: 3 }).map((_, index) => (
-                                              <CarouselItem
-                                                  key={`skeleton-${index}`}
-                                                  className="pl-4 basis-full sm:basis-1/2 lg:basis-1/3"
-                                              >
-                                                  <CourseCardSkeleton />
-                                              </CarouselItem>
-                                          ))
-                                        : featuredCourses.map((course) => (
-                                              <CarouselItem
-                                                  key={course.id}
-                                                  className="pl-4 basis-full lg:basis-1/3"
-                                              >
-                                                  <CourseCard
-                                                      key={course.id}
-                                                      id={course.id}
-                                                      name={course.title}
-                                                      modules={course.modules}
-                                                      duration={course.duration}
-                                                      progress={0}
-                                                      showProgress={false}
-                                                  />
-                                              </CarouselItem>
-                                          ))}
-                                </CarouselContent>
-                                <CarouselPrevious className="text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
-                                <CarouselNext className="text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
-                            </Carousel>
+                        <div className="w-full">
+                            <CourseCarousel
+                                courses={featuredCourses}
+                                loading={loading}
+                                basis="1/3"
+                                enrolled={false}
+                            />
                         </div>
                     </section>
                 </div>
