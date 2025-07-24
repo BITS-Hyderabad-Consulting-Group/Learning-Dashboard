@@ -1,14 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { supabaseServer } from '@/lib/supabase-server'; // Use your existing utility
 import type { EnrolledCourse, AvailableCourse } from '@/types/course';
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-if (!supabaseUrl || !supabaseServiceRoleKey) {
-    throw new Error('Supabase URL or Service Role Key is not defined.');
-}
-const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
+// Remove the direct client creation
+// const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+// const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+// const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
 
 type CourseDetails = {
     id: string;
@@ -28,7 +25,7 @@ export async function GET(req: NextRequest) {
         const progressMap = new Map<string, number>();
 
         if (userId) {
-            const { data: enrollmentData, error: enrollmentError } = await supabase
+            const { data: enrollmentData, error: enrollmentError } = await supabaseServer
                 .from('user_course_enrollments')
                 .select('course_id')
                 .eq('user_id', userId);
@@ -39,7 +36,7 @@ export async function GET(req: NextRequest) {
                 enrolledCourseIds = enrollmentData.map((e) => e.course_id);
             }
 
-            const { data: progressData, error: progressError } = await supabase.rpc(
+            const { data: progressData, error: progressError } = await supabaseServer.rpc(
                 'get_user_progress_by_course',
                 { p_user_id: userId }
             );
@@ -64,7 +61,7 @@ export async function GET(req: NextRequest) {
         }
 
         // --- Publicly Accessible Logic ---
-        const { data: allCoursesDetails, error: coursesError } = await supabase
+        const { data: allCoursesDetails, error: coursesError } = await supabaseServer
             .from('course_details')
             .select('*')
             .order('title') // Good to have a consistent order
