@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import APIdata from './APIdata.json';
+import APIdata from "./APIdata.json";
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,8 +12,9 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Textarea } from '@/components/ui/textarea';
-import { ChevronRight, ChevronDown, CheckCircle2, Plus, Edit, Trash2, Clock, FileText, Video, HelpCircle, Award, BookOpen, AlertTriangle, Loader2, Save } from 'lucide-react';
-import { toast } from "sonner";
+import { ChevronRight, ChevronDown, CheckCircle2, Plus, Edit, Trash2, Clock, FileText, Video, HelpCircle, Award, BookOpen, AlertTriangle, Save, Loader2 } from 'lucide-react';
+import { toast } from 'sonner';
+import { MarkdownEditor } from '@/components/MarkdownEditor';
 
 interface Module {
   id: string;
@@ -22,7 +23,8 @@ interface Module {
   title: string;
   description: string;
   contentType: 'article' | 'video' | 'quiz' | 'assignment' | 'resource';
-  contentUrl?: string;
+  markdownContent?: string; // New field for markdown content
+  contentUrl?: string; // Keep for non-article types
   duration: number;
   isRequired: boolean;
   points: number;
@@ -66,7 +68,11 @@ interface Course {
   updatedAt: string;
 }
 
-const APIdata = {apiData};
+const apiData = APIdata as {
+  course: Course;
+  weeks: Week[];
+  modules: Module[];
+};
 
 const contentTypeIcons = {
   article: FileText,
@@ -107,6 +113,7 @@ export default function App() {
     title: '',
     description: '',
     contentType: 'article' as Module['contentType'],
+    markdownContent: '',
     contentUrl: '',
     duration: 30,
     isRequired: true,
@@ -255,6 +262,7 @@ export default function App() {
       title: '',
       description: '',
       contentType: 'article',
+      markdownContent: '',
       contentUrl: '',
       duration: 30,
       isRequired: true,
@@ -270,6 +278,7 @@ export default function App() {
       title: module.title,
       description: module.description,
       contentType: module.contentType,
+      markdownContent: module.markdownContent || '',
       contentUrl: module.contentUrl || '',
       duration: module.duration,
       isRequired: module.isRequired,
@@ -388,7 +397,10 @@ export default function App() {
                     <span className="text-gray-500">Price:</span>
                     <span>${course.price}</span>
                   </div>
-                  
+                  <div className="flex items-center gap-2">
+                    <span className="text-gray-500">Limit:</span>
+                    <span>{course.enrollmentLimit} students</span>
+                  </div>
                 </div>
                 {course.prerequisites && (
                   <div className="mt-3 p-3 bg-blue-50 rounded-lg">
@@ -518,6 +530,11 @@ export default function App() {
                                       {module.estimatedReadTime && (
                                         <span>{module.estimatedReadTime} min read</span>
                                       )}
+                                      {module.contentType === 'article' && module.markdownContent && (
+                                        <Badge variant="outline" className="text-xs h-5 bg-teal-50 text-teal-700">
+                                          Markdown
+                                        </Badge>
+                                      )}
                                     </div>
                                   </div>
                                 </div>
@@ -633,113 +650,177 @@ export default function App() {
         </Dialog>
 
         <Dialog open={isModuleDialogOpen} onOpenChange={setIsModuleDialogOpen}>
-          <DialogContent className="sm:max-w-lg">
-            <DialogHeader>
+          <DialogContent className="sm:max-w-7xl max-h-[95vh] flex flex-col">
+            <DialogHeader className="flex-shrink-0">
               <DialogTitle>{editingModule.module ? 'Edit Module' : 'Add New Module'}</DialogTitle>
               <DialogDescription>
                 {editingModule.module ? 'Update the module information below.' : 'Create a new module by filling out the form below.'}
               </DialogDescription>
             </DialogHeader>
-            <div className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="moduleTitle">Module Title</Label>
-                <Input
-                  id="moduleTitle"
-                  value={moduleForm.title}
-                  onChange={(e) => setModuleForm({ ...moduleForm, title: e.target.value })}
-                  placeholder="Enter module title"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="moduleDescription">Description</Label>
-                <Textarea
-                  id="moduleDescription"
-                  value={moduleForm.description}
-                  onChange={(e) => setModuleForm({ ...moduleForm, description: e.target.value })}
-                  placeholder="Enter module description"
-                  rows={3}
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="contentUrl">Content URL</Label>
-                <Input
-                  id="contentUrl"
-                  value={moduleForm.contentUrl}
-                  onChange={(e) => setModuleForm({ ...moduleForm, contentUrl: e.target.value })}
-                  placeholder="https://example.com/content"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="contentType">Content Type</Label>
-                  <Select value={moduleForm.contentType} onValueChange={(value: Module['contentType']) => setModuleForm({ ...moduleForm, contentType: value })}>
-                    <SelectTrigger id="contentType">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="article">Article</SelectItem>
-                      <SelectItem value="video">Video</SelectItem>
-                      <SelectItem value="quiz">Quiz</SelectItem>
-                      <SelectItem value="assignment">Assignment</SelectItem>
-                      <SelectItem value="resource">Resource</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="moduleDuration">Duration (min)</Label>
-                  <Input
-                    id="moduleDuration"
-                    type="number"
-                    value={moduleForm.duration}
-                    onChange={(e) => setModuleForm({ ...moduleForm, duration: parseInt(e.target.value) || 0 })}
-                    placeholder="30"
+            
+            <div className="flex-1 overflow-y-auto">
+              {moduleForm.contentType === 'article' ? (
+                <div className="space-y-6 p-1">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="moduleDescription">Description</Label>
+                      <Textarea
+                        id="moduleDescription"
+                        value={moduleForm.description}
+                        onChange={(e) => setModuleForm({ ...moduleForm, description: e.target.value })}
+                        placeholder="Enter module description"
+                        rows={3}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="contentType">Content Type</Label>
+                      <Select value={moduleForm.contentType} onValueChange={(value: Module['contentType']) => setModuleForm({ ...moduleForm, contentType: value })}>
+                        <SelectTrigger id="contentType">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="article">Article</SelectItem>
+                          <SelectItem value="video">Video</SelectItem>
+                          <SelectItem value="quiz">Quiz</SelectItem>
+                          <SelectItem value="assignment">Assignment</SelectItem>
+                          <SelectItem value="resource">Resource</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="grid grid-cols-3 gap-2">
+                      <div className="space-y-2">
+                        <Label htmlFor="moduleDuration">Duration (min)</Label>
+                        <Input
+                          id="moduleDuration"
+                          type="number"
+                          value={moduleForm.duration}
+                          onChange={(e) => setModuleForm({ ...moduleForm, duration: parseInt(e.target.value) || 0 })}
+                          placeholder="30"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="points">Points</Label>
+                        <Input
+                          id="points"
+                          type="number"
+                          value={moduleForm.points}
+                          onChange={(e) => setModuleForm({ ...moduleForm, points: parseInt(e.target.value) || 0 })}
+                          placeholder="10"
+                        />
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="estimatedReadTime">Read Time</Label>
+                        <Input
+                          id="estimatedReadTime"
+                          type="number"
+                          value={moduleForm.estimatedReadTime}
+                          onChange={(e) => setModuleForm({ ...moduleForm, estimatedReadTime: parseInt(e.target.value) || 0 })}
+                          placeholder="25"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <MarkdownEditor
+                    title={moduleForm.title}
+                    content={moduleForm.markdownContent}
+                    onTitleChange={(title) => setModuleForm({ ...moduleForm, title })}
+                    onContentChange={(content) => setModuleForm({ ...moduleForm, markdownContent: content })}
+                    placeholder="Write your article content here using Markdown formatting..."
                   />
                 </div>
-              </div>
-              <div className="grid grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="points">Points</Label>
-                  <Input
-                    id="points"
-                    type="number"
-                    value={moduleForm.points}
-                    onChange={(e) => setModuleForm({ ...moduleForm, points: parseInt(e.target.value) || 0 })}
-                    placeholder="10"
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="isRequired">Required</Label>
-                  <Select value={moduleForm.isRequired.toString()} onValueChange={(value) => setModuleForm({ ...moduleForm, isRequired: value === 'true' })}>
-                    <SelectTrigger id="isRequired">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="true">Required</SelectItem>
-                      <SelectItem value="false">Optional</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-                {moduleForm.contentType === 'article' && (
+              ) : (
+                <div className="space-y-4 p-1">
                   <div className="space-y-2">
-                    <Label htmlFor="estimatedReadTime">Read Time (min)</Label>
+                    <Label htmlFor="moduleTitle">Module Title</Label>
                     <Input
-                      id="estimatedReadTime"
-                      type="number"
-                      value={moduleForm.estimatedReadTime}
-                      onChange={(e) => setModuleForm({ ...moduleForm, estimatedReadTime: parseInt(e.target.value) || 0 })}
-                      placeholder="25"
+                      id="moduleTitle"
+                      value={moduleForm.title}
+                      onChange={(e) => setModuleForm({ ...moduleForm, title: e.target.value })}
+                      placeholder="Enter module title"
                     />
                   </div>
-                )}
-              </div>
-              <div className="flex justify-end gap-2 pt-4">
-                <Button variant="outline" onClick={() => setIsModuleDialogOpen(false)}>
-                  Cancel
-                </Button>
-                <Button onClick={handleSaveModule} className="bg-teal-600 hover:bg-teal-700">
-                  {editingModule.module ? 'Update' : 'Create'} Module
-                </Button>
-              </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="moduleDescription">Description</Label>
+                    <Textarea
+                      id="moduleDescription"
+                      value={moduleForm.description}
+                      onChange={(e) => setModuleForm({ ...moduleForm, description: e.target.value })}
+                      placeholder="Enter module description"
+                      rows={3}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="contentUrl">Content URL</Label>
+                    <Input
+                      id="contentUrl"
+                      value={moduleForm.contentUrl}
+                      onChange={(e) => setModuleForm({ ...moduleForm, contentUrl: e.target.value })}
+                      placeholder="https://example.com/content"
+                    />
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="contentType">Content Type</Label>
+                      <Select value={moduleForm.contentType} onValueChange={(value: Module['contentType']) => setModuleForm({ ...moduleForm, contentType: value })}>
+                        <SelectTrigger id="contentType">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="article">Article</SelectItem>
+                          <SelectItem value="video">Video</SelectItem>
+                          <SelectItem value="quiz">Quiz</SelectItem>
+                          <SelectItem value="assignment">Assignment</SelectItem>
+                          <SelectItem value="resource">Resource</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="moduleDuration">Duration (min)</Label>
+                      <Input
+                        id="moduleDuration"
+                        type="number"
+                        value={moduleForm.duration}
+                        onChange={(e) => setModuleForm({ ...moduleForm, duration: parseInt(e.target.value) || 0 })}
+                        placeholder="30"
+                      />
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="points">Points</Label>
+                      <Input
+                        id="points"
+                        type="number"
+                        value={moduleForm.points}
+                        onChange={(e) => setModuleForm({ ...moduleForm, points: parseInt(e.target.value) || 0 })}
+                        placeholder="10"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="isRequired">Required</Label>
+                      <Select value={moduleForm.isRequired.toString()} onValueChange={(value) => setModuleForm({ ...moduleForm, isRequired: value === 'true' })}>
+                        <SelectTrigger id="isRequired">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="true">Required</SelectItem>
+                          <SelectItem value="false">Optional</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div className="flex justify-end gap-2 pt-4 border-t flex-shrink-0">
+              <Button variant="outline" onClick={() => setIsModuleDialogOpen(false)}>
+                Cancel
+              </Button>
+              <Button onClick={handleSaveModule} className="bg-teal-600 hover:bg-teal-700">
+                {editingModule.module ? 'Update' : 'Create'} Module
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
