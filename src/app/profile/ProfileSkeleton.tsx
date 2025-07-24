@@ -52,7 +52,7 @@ const ProfilePageSkeleton = () => {
 
             {/* Main Content Area - Courses and Leaderboard */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                <div className="lg:col-span-2 space-y-6">
+                <div className="lg:col-span-3 space-y-6">
                     {/* Current Courses Section */}
                     <div className="bg-gray-200 min-h-[15rem] rounded-lg p-6">
                         <div className="h-7 w-40 bg-gray-300 rounded-md mb-6"></div>
@@ -66,13 +66,14 @@ const ProfilePageSkeleton = () => {
                         <div className="h-7 w-48 bg-gray-300 rounded-md mb-6"></div>
                         <div className="flex gap-4">
                             <div className="bg-gray-100 p-4 rounded-lg shadow-md h-40 w-1/2"></div>
+                            <div className="bg-gray-100 p-4 rounded-lg shadow-md h-40 w-1/2"></div>
                         </div>
                     </div>
                 </div>
                 {/* Right Column: Leaderboard */}
-                <div className="bg-gray-200 rounded-lg p-6 min-h-[31.5rem]">
+                {/* <div className="bg-gray-200 rounded-lg p-6 min-h-[31.5rem]">
                     <div className="h-7 w-32 bg-gray-300 rounded-md mb-4"></div>
-                </div>
+                </div> */}
             </div>
         </div>
     );

@@ -252,7 +252,7 @@ export default function ProfilePage() {
                 {/* Two Column Layout */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
                     {/* Left Column - Current and Completed Courses (Stacked Vertically) */}
-                    <div className="lg:col-span-2 space-y-6 h-full">
+                    <div className="lg:col-span-3 space-y-6 h-full">
                         {/* Current Courses Section */}
                         <motion.div
                             className="bg-[#B4DEDD] min-h-[15rem] rounded-lg p-6"
@@ -262,7 +262,10 @@ export default function ProfilePage() {
                                 Current Courses
                             </h3>
                             {currentCourses.length > 0 ? (
-                                <Carousel opts={{ align: 'start', loop: true }} className="w-full">
+                                <Carousel
+                                    opts={{ align: 'start', loop: true }}
+                                    className="w-full px-8"
+                                >
                                     <CarouselContent>
                                         {currentCourses.map((course) => (
                                             <CarouselItem
@@ -280,8 +283,8 @@ export default function ProfilePage() {
                                             </CarouselItem>
                                         ))}
                                     </CarouselContent>
-                                    <CarouselPrevious className="text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
-                                    <CarouselNext className="text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
+                                    <CarouselPrevious className=" ml-10 -mr-6 text-teal-1200 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
+                                    <CarouselNext className="-ml-6 mr-10 text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
                                 </Carousel>
                             ) : (
                                 <Carousel opts={{ align: 'start', loop: true }} className="w-full">
@@ -291,45 +294,53 @@ export default function ProfilePage() {
                         </motion.div>
 
                         {/* Completed Courses Section */}
-                        <motion.div
-                            className="bg-[#B4DEDD] min-h-[15rem] rounded-lg p-6"
-                            variants={itemVariants}
-                        >
-                            <h3 className="text-lg font-bold text-teal-800 mb-6">
-                                Completed Courses
-                            </h3>
-                            {completedCourses.length > 0 ? (
-                                <Carousel opts={{ align: 'start', loop: true }} className="w-full">
-                                    <CarouselContent>
-                                        {completedCourses.map((course) => (
-                                            <CarouselItem
-                                                key={course.id}
-                                                className="pl-4 basis-full lg:basis-1/2"
-                                            >
-                                                <CourseCard
-                                                    id={course.id}
-                                                    name={course.title}
-                                                    modules={course.modules}
-                                                    duration={course.duration}
-                                                    progress={course.progress}
-                                                    showProgress
-                                                />
-                                            </CarouselItem>
-                                        ))}
-                                    </CarouselContent>
-                                    <CarouselPrevious className="text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
-                                    <CarouselNext className="text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
-                                </Carousel>
-                            ) : (
-                                <Carousel opts={{ align: 'start', loop: true }} className="w-full">
-                                    No completed courses available.
-                                </Carousel>
-                            )}
-                        </motion.div>
+                        {completedCourses.length > 0 && (
+                            <motion.div
+                                className="bg-[#B4DEDD] min-h-[15rem] rounded-lg p-6"
+                                variants={itemVariants}
+                            >
+                                <h3 className="text-lg font-bold text-teal-800 mb-6">
+                                    Completed Courses
+                                </h3>
+                                {completedCourses.length > 0 ? (
+                                    <Carousel
+                                        opts={{ align: 'start', loop: true }}
+                                        className="w-full px-8"
+                                    >
+                                        <CarouselContent>
+                                            {completedCourses.map((course) => (
+                                                <CarouselItem
+                                                    key={course.id}
+                                                    className="pl-4 basis-full lg:basis-1/2"
+                                                >
+                                                    <CourseCard
+                                                        id={course.id}
+                                                        name={course.title}
+                                                        modules={course.modules}
+                                                        duration={course.duration}
+                                                        progress={course.progress}
+                                                        showProgress
+                                                    />
+                                                </CarouselItem>
+                                            ))}
+                                        </CarouselContent>
+                                        <CarouselPrevious className=" ml-10 -mr-6 text-teal-1200 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
+                                        <CarouselNext className="-ml-6 mr-10 text-teal-800 border-gray-300 hover:bg-gray-100 hover:border-teal-800" />
+                                    </Carousel>
+                                ) : (
+                                    <Carousel
+                                        opts={{ align: 'start', loop: true }}
+                                        className="w-full"
+                                    >
+                                        No completed courses available.
+                                    </Carousel>
+                                )}
+                            </motion.div>
+                        )}
                     </div>
 
                     {/* Right Column - Leaderboard (Single Box) */}
-                    <motion.div
+                    {/* <motion.div
                         className="bg-[#B4DEDD] rounded-lg p-6 h-full flex flex-col"
                         variants={itemVariants}
                     >
@@ -342,7 +353,7 @@ export default function ProfilePage() {
                             }}
                         >
                             <div className="space-y-3">
-                                {/* {profile.leaderboard?.map((person: LeaderboardEntry) => (
+                                {profile.leaderboard?.map((person: LeaderboardEntry) => (
                                     <div
                                         key={person.id}
                                         className={`flex items-center gap-3 p-3 rounded-lg ${
@@ -368,10 +379,10 @@ export default function ProfilePage() {
                                             #{person.rank}
                                         </div>
                                     </div>
-                                ))} */}
+                                ))} 
                             </div>
                         </div>
-                    </motion.div>
+                    </motion.div> */}
                 </div>
             </motion.div>
         </div>
