@@ -2,11 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase-server';
 import { CourseWithInstructor } from '@/types/course';
 
-export async function POST(request: NextRequest, { params }: { params: { courseId: string } }) {
+// Define the params type as a Promise for Next.js 15
+type Params = Promise<{ courseId: string }>;
+
+export async function POST(request: NextRequest, { params }: { params: Params }) {
     try {
-        const { courseId } = params;
+        const { courseId } = await params;
         const body = await request.json();
         const userId = body.userId;
+
         if (!userId) {
             return NextResponse.json({ error: 'Missing userId' }, { status: 400 });
         }
@@ -17,9 +21,11 @@ export async function POST(request: NextRequest, { params }: { params: { courseI
             .eq('user_id', userId)
             .eq('course_id', courseId)
             .maybeSingle();
+
         if (checkError) {
             return NextResponse.json({ error: checkError.message }, { status: 500 });
         }
+
         if (existing) {
             return NextResponse.json({ message: 'Already enrolled' }, { status: 200 });
         }
@@ -33,21 +39,21 @@ export async function POST(request: NextRequest, { params }: { params: { courseI
                 amount_paid: 0.0,
             },
         ]);
+
         if (insertError) {
             return NextResponse.json({ error: insertError.message }, { status: 500 });
         }
+
         return NextResponse.json({ message: 'Enrolled successfully' }, { status: 201 });
-    } catch {
+    } catch (error) {
+        console.error('Error in POST:', error);
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }
 
-export async function GET(
-    request: NextRequest,
-    context: { params: Promise<{ courseId: string }> }
-) {
-    const { courseId } = await context.params;
+export async function GET(request: NextRequest, { params }: { params: Params }) {
     try {
+        const { courseId } = await params;
         const { searchParams } = new URL(request.url);
         const userId = searchParams.get('userId');
 
@@ -89,6 +95,7 @@ export async function GET(
                 .eq('user_id', userId)
                 .eq('course_id', courseId)
                 .single();
+
             if (!enrollmentError && enrollmentData) {
                 enrolled = true;
             }
@@ -120,13 +127,15 @@ export async function GET(
                         userModuleReviews[review.module_id] = true;
                     });
                 }
-            } catch {
-                console.log('Note: user_module_reviews table not found, skipping review data');
+            } catch (error) {
+                console.log(
+                    'Note: user_module_reviews table not found, skipping review data:',
+                    error
+                );
             }
         }
 
         let modulesCount = 0;
-        // let modulesCompleted = 0;
         let markedForReview = 0;
 
         const transformedWeeks =
@@ -145,7 +154,6 @@ export async function GET(
                         const completed = userProgress[module.id] || false;
                         const markedForReviewStatus = userModuleReviews[module.id] || false;
 
-                        // if (completed) modulesCompleted++;
                         if (markedForReviewStatus) markedForReview++;
 
                         return {
