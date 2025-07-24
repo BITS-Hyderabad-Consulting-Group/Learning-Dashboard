@@ -158,7 +158,11 @@ export default function Learning() {
                 <section className="container mx-auto">
                     <h2 className="text-gray-800 text-2xl font-semibold mb-6">Continue Learning</h2>
                     {coursesWithProgress.length > 0 ? (
-                        <CourseCarousel courses={coursesWithProgress.slice(0, 6)} basis="1/3" />
+                        <CourseCarousel
+                            enrolled={true}
+                            courses={coursesWithProgress.slice(0, 6)}
+                            basis="1/3"
+                        />
                     ) : (
                         <p className="text-gray-500 text-center py-8">
                             You haven't enrolled in any courses yet.
@@ -205,7 +209,7 @@ export default function Learning() {
                             id={course.id}
                             name={course.title}
                             modules={course.modules}
-                            duration={course.duration}
+                            duration={course.total_duration}
                             progress={0}
                             showProgress={false}
                         />

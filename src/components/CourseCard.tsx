@@ -16,13 +16,7 @@ type Course = {
 };
 
 function formatDuration(minutes: number): string {
-    if (minutes >= 10080) {
-        const weeks = Math.floor(minutes / 10080);
-        return `${weeks} week${weeks > 1 ? 's' : ''}`;
-    } else if (minutes >= 1440) {
-        const days = Math.floor(minutes / 1440);
-        return `${days} day${days > 1 ? 's' : ''}`;
-    } else if (minutes >= 60) {
+    if (minutes >= 60) {
         const hours = Math.floor(minutes / 60);
         return `${hours} hour${hours > 1 ? 's' : ''}`;
     } else {

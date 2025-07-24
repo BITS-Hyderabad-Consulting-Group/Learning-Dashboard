@@ -254,7 +254,11 @@ export default function ProfilePage() {
                                 <h3 className="text-lg font-bold text-teal-800 mb-2">
                                     Current Courses
                                 </h3>
-                                <CourseCarousel courses={currentCourses} enrolled={true} />
+                                <CourseCarousel
+                                    courses={currentCourses}
+                                    basis="1/3"
+                                    enrolled={true}
+                                />
                             </motion.div>
                         )}
 
@@ -267,7 +271,11 @@ export default function ProfilePage() {
                                 <h3 className="text-lg font-bold text-teal-800 mb-2">
                                     Completed Courses
                                 </h3>
-                                <CourseCarousel courses={completedCourses} enrolled={true} />
+                                <CourseCarousel
+                                    courses={completedCourses}
+                                    basis="1/3"
+                                    enrolled={true}
+                                />
                             </motion.div>
                         )}
                     </div>
