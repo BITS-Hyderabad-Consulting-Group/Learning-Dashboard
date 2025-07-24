@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { use, useMemo, useState } from 'react';
 import { notFound } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -14,8 +14,8 @@ import data from './APIdata.json';
 type Quiz = (typeof data.quizzes)[0];
 type Question = Quiz['questions'][0];
 
-export default function QuizSubmissionsPage({ params }: { params: { courseId: string } }) {
-    const { courseId } = params;
+export default function QuizSubmissionsPage({ params }: { params: Promise<{ courseId: string }> }) {
+    const { courseId } = use(params);
     const { courses, students, quizzes, quizSubmissions } = data;
 
     const [selectedSubmissionId, setSelectedSubmissionId] = useState<string | null>(null);

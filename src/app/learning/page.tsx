@@ -133,8 +133,8 @@ export default function Learning() {
         <div className="p-8 space-y-10">
             {/* Header */}
             <div className="container mx-auto space-y-6 pt-6 pb-2">
+                <h3 className="text-gray-600 text-lg font-semibold p-0 m-0">Welcome back, </h3>
                 <h1 className="text-teal-800 text-4xl font-semibold">
-                    Welcome back,{' '}
                     {profile?.full_name
                         ? profile.full_name
                               .split(' ')
