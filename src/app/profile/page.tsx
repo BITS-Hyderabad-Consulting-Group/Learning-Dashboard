@@ -7,7 +7,7 @@ import { EnrolledCourse as Course } from '@/types/course';
 import { useUser } from '@/context/UserContext';
 import ProfilePageSkeleton from './ProfileSkeleton';
 import CourseCarousel from '@/components/CourseCarousel';
-// import Image from 'next/image';
+import Image from 'next/image';
 
 export default function ProfilePage() {
     const [currentCourses, setCurrentCourses] = useState<Course[]>([]);
@@ -105,7 +105,7 @@ export default function ProfilePage() {
                                     whileHover={{ scale: 1.05 }}
                                     transition={{ type: 'spring', stiffness: 300 }}
                                 >
-                                    {/* {profile.photo_url ? (
+                                    {profile.photo_url ? (
                                         <Image
                                             src={profile.photo_url?.split('=')[0]}
                                             alt="Profile Photo"
@@ -123,7 +123,7 @@ export default function ProfilePage() {
                                                     .join('')}
                                             </span>
                                         </div>
-                                    )} */}
+                                    )}
                                 </motion.div>
 
                                 {/* Name and Primary Info */}
