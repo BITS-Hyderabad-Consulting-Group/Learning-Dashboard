@@ -9,11 +9,26 @@ import { Progress } from '@/components/ui/progress';
 type Course = {
     id: string;
     name: string;
-    duration: string;
+    duration: number;
     progress: number;
     modules: number;
     showProgress: boolean;
 };
+
+function formatDuration(minutes: number): string {
+    if (minutes >= 10080) {
+        const weeks = Math.floor(minutes / 10080);
+        return `${weeks} week${weeks > 1 ? 's' : ''}`;
+    } else if (minutes >= 1440) {
+        const days = Math.floor(minutes / 1440);
+        return `${days} day${days > 1 ? 's' : ''}`;
+    } else if (minutes >= 60) {
+        const hours = Math.floor(minutes / 60);
+        return `${hours} hour${hours > 1 ? 's' : ''}`;
+    } else {
+        return `${minutes} minute${minutes !== 1 ? 's' : ''}`;
+    }
+}
 
 export function CourseCard({
     id,
@@ -58,7 +73,7 @@ export function CourseCard({
                         </div>
                         <div className="flex items-center space-x-1.5">
                             <Timer className="h-4 w-4" />
-                            <span>{duration}</span>
+                            <span>{formatDuration(duration)}</span>
                         </div>
                     </div>
                 </CardContent>

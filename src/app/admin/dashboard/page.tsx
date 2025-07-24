@@ -5,7 +5,7 @@ import { useUser } from '@/context/UserContext';
 import { CourseCard } from '@/components/CourseCard';
 import combinedData from '@/app/admin/dashboard/APIdata.json';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
-import {    
+import {
     Carousel,
     CarouselContent,
     CarouselItem,
@@ -174,7 +174,15 @@ export default function Learning() {
                             <CarouselContent className=" py-4 ml-1 ">
                                 {userCoursesWithDetails.map((course) => (
                                     <CarouselItem key={course.id} className="basis-1/3 px-2">
-                                        <CourseCard {...course} showProgress={true} />
+                                        <CourseCard
+                                            {...course}
+                                            duration={
+                                                typeof course.duration === 'string'
+                                                    ? Number(course.duration)
+                                                    : course.duration
+                                            }
+                                            showProgress={true}
+                                        />
                                     </CarouselItem>
                                 ))}
                             </CarouselContent>
@@ -261,6 +269,7 @@ export default function Learning() {
                                 <CourseCard
                                     key={course.id}
                                     {...course}
+                                    duration={Number(course.duration)}
                                     progress={0}
                                     showProgress={false}
                                 />
@@ -297,6 +306,7 @@ export default function Learning() {
                                 key={course.id}
                                 progress={0}
                                 {...course}
+                                duration={Number(course.duration)}
                                 showProgress={false}
                             />
                         ))}

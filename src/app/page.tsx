@@ -154,41 +154,7 @@ export default function HomePage() {
                                                       id={course.id}
                                                       name={course.title}
                                                       modules={course.modules}
-                                                      duration={
-                                                          course.duration >= 10080
-                                                              ? `${Math.floor(
-                                                                    course.duration / 10080
-                                                                )} week${
-                                                                    Math.floor(
-                                                                        course.duration / 10080
-                                                                    ) > 1
-                                                                        ? 's'
-                                                                        : ''
-                                                                }`
-                                                              : course.duration >= 1440
-                                                              ? `${Math.floor(
-                                                                    course.duration / 1440
-                                                                )} day${
-                                                                    Math.floor(
-                                                                        course.duration / 1440
-                                                                    ) > 1
-                                                                        ? 's'
-                                                                        : ''
-                                                                }`
-                                                              : course.duration >= 60
-                                                              ? `${Math.floor(
-                                                                    course.duration / 60
-                                                                )} hour${
-                                                                    Math.floor(
-                                                                        course.duration / 60
-                                                                    ) > 1
-                                                                        ? 's'
-                                                                        : ''
-                                                                }`
-                                                              : `${course.duration} minute${
-                                                                    course.duration > 1 ? 's' : ''
-                                                                }`
-                                                      }
+                                                      duration={course.duration}
                                                       progress={0}
                                                       showProgress={false}
                                                   />
