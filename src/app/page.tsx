@@ -21,13 +21,6 @@ interface ApiResponse {
     availableCourses: AvailableCourse[];
 }
 
-function chunk<T>(array: T[], size: number): T[][] {
-    if (!array.length) return [];
-    const head = array.slice(0, size);
-    const tail = array.slice(size);
-    return [head, ...chunk(tail, size)];
-}
-
 export default function HomePage() {
     const [featuredCourses, setFeaturedCourses] = useState<AvailableCourse[]>([]);
     const [loading, setLoading] = useState(true);

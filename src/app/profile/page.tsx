@@ -7,6 +7,7 @@ import { EnrolledCourse as Course } from '@/types/course';
 import { useUser } from '@/context/UserContext';
 import ProfilePageSkeleton from './ProfileSkeleton';
 import CourseCarousel from '@/components/CourseCarousel';
+// import Image from 'next/image';
 
 export default function ProfilePage() {
     const [currentCourses, setCurrentCourses] = useState<Course[]>([]);
@@ -29,7 +30,7 @@ export default function ProfilePage() {
                 const data = await response.json();
                 setCurrentCourses(data.currentCourses);
                 setCompletedCourses(data.completedCourses);
-            } catch (err: any) {
+            } catch (err: unknown) {
                 console.error('Fetch error:', err);
             } finally {
                 setCoursesLoading(false);
@@ -47,13 +48,13 @@ export default function ProfilePage() {
         return <ProfilePageSkeleton />;
     }
 
-    type LeaderboardEntry = {
-        id: string;
-        name: string;
-        initials: string;
-        xp: number;
-        rank: number;
-    };
+    // type LeaderboardEntry = {
+    //     id: string;
+    //     name: string;
+    //     initials: string;
+    //     xp: number;
+    //     rank: number;
+    // };
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -104,12 +105,14 @@ export default function ProfilePage() {
                                     whileHover={{ scale: 1.05 }}
                                     transition={{ type: 'spring', stiffness: 300 }}
                                 >
-                                    {profile.photo_url ? (
-                                        <img
+                                    {/* {profile.photo_url ? (
+                                        <Image
                                             src={profile.photo_url?.split('=')[0]}
                                             alt="Profile Photo"
                                             referrerPolicy="no-referrer"
                                             className="w-full h-full object-cover"
+                                            width={300}
+                                            height={300}
                                         />
                                     ) : (
                                         <div className="w-full h-full bg-gradient-to-br from-cyan-400 to-cyan-500 flex items-center justify-center">
@@ -120,7 +123,7 @@ export default function ProfilePage() {
                                                     .join('')}
                                             </span>
                                         </div>
-                                    )}
+                                    )} */}
                                 </motion.div>
 
                                 {/* Name and Primary Info */}

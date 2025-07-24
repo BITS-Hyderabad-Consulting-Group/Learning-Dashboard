@@ -24,7 +24,6 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         const getSessionAndProfile = async () => {
             const {
                 data: { session },
-                error,
             } = await supabase.auth.getSession();
             setSession(session);
             setUser(session?.user ?? null);

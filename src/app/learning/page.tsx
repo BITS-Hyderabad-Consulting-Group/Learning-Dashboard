@@ -165,7 +165,7 @@ export default function Learning() {
                         />
                     ) : (
                         <p className="text-gray-500 text-center py-8">
-                            You haven't enrolled in any courses yet.
+                            You haven&apos;t enrolled in any courses yet.
                         </p>
                     )}
                 </section>

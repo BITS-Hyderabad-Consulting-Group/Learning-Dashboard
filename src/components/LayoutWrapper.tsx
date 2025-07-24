@@ -9,6 +9,14 @@ import { FcGoogle } from 'react-icons/fc';
 
 import { Home, LibraryBig, UserRound, PencilRuler, LogOut } from 'lucide-react';
 
+interface NavItem {
+    label: string;
+    path: string;
+    icon: React.ComponentType<any> | React.FC<any>;
+    onClick?: () => void | Promise<void>;
+    isButton?: boolean;
+}
+
 function PageLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const router = useRouter();
@@ -51,7 +59,7 @@ function PageLayout({ children }: { children: React.ReactNode }) {
                   onClick: handleGoogleSignIn,
               }
             : null,
-    ].filter(Boolean) as Array<any>;
+    ].filter(Boolean) as NavItem[];
 
     return (
         <div className="flex flex-col min-h-screen">

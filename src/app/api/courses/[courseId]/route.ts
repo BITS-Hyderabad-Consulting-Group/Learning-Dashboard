@@ -37,7 +37,7 @@ export async function POST(request: NextRequest, { params }: { params: { courseI
             return NextResponse.json({ error: insertError.message }, { status: 500 });
         }
         return NextResponse.json({ message: 'Enrolled successfully' }, { status: 201 });
-    } catch (e) {
+    } catch (_e) {
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }
@@ -77,10 +77,10 @@ export async function GET(
             return NextResponse.json({ error: 'Error fetching course weeks' }, { status: 500 });
         }
 
-        let userProgress: Record<string, boolean> = {};
-        let userModuleReviews: Record<string, boolean> = {};
+        const userProgress: Record<string, boolean> = {};
+        const userModuleReviews: Record<string, boolean> = {};
         let enrolled = false;
-        let completedModuleIds: string[] = [];
+        const completedModuleIds: string[] = [];
 
         if (userId) {
             const { data: enrollmentData, error: enrollmentError } = await supabaseServer
@@ -93,7 +93,7 @@ export async function GET(
                 enrolled = true;
             }
 
-            const { data: progressData, error: progressError } = await supabaseServer
+            const { data: progressData } = await supabaseServer
                 .from('user_module_progress')
                 .select('module_id, completed_at')
                 .eq('user_id', userId);

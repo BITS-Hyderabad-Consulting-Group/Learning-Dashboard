@@ -52,7 +52,7 @@ export default function CoursePage({ params }: { params: Promise<{ courseId: str
 
             const courseData: CourseData = await response.json();
             setData(courseData);
-        } catch (error) {
+        } catch (_error) {
             // Set a complete error state object to avoid null reference errors in the UI
             setData({
                 title: 'Course Not Found',
@@ -116,15 +116,6 @@ export default function CoursePage({ params }: { params: Promise<{ courseId: str
         } finally {
             setEnrolLoading(false);
         }
-    };
-
-    const handleModuleClick = (moduleUrl: string) => {
-        if (!data?.enrolled) {
-            toast.error('Please enroll in the course to access modules');
-            return;
-        }
-        // Handle module navigation here (e.g., router.push(moduleUrl))
-        console.log('Opening module:', moduleUrl);
     };
 
     if (loading || userLoading) {

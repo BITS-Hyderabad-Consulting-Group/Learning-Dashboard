@@ -4,7 +4,6 @@ import { useMemo, useState } from 'react';
 import { useUser } from '@/context/UserContext';
 import { CourseCard } from '@/components/CourseCard';
 import combinedData from '@/app/admin/dashboard/APIdata.json';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
 import {
     Carousel,
     CarouselContent,
