@@ -52,7 +52,9 @@ export default function CourseCarousel({
                         : courses.map((course) => (
                               <CarouselItem
                                   key={course.id}
-                                  className={`pl-4 basis-full lg:basis-${basis}`}
+                                  className={`pl-4 basis-full ${
+                                      basis === '1/3' ? 'lg:basis-1/3' : 'lg:basis-1/2'
+                                  }`}
                               >
                                   <CourseCard
                                       id={course.id}
