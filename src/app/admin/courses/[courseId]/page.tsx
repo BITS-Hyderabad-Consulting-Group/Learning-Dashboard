@@ -1,6 +1,6 @@
 'use client';
-
-import { useState, useEffect, use } from 'react';
+import React from 'react';
+import { useState, useEffect } from 'react';
 import { notFound } from 'next/navigation';
 import data from '../[courseId]/APIdata.json';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
@@ -25,8 +25,12 @@ type CourseFormState = {
     weeks: { title: string }[];
 };
 
-export default function CourseUpsertPage({ params }: { params: Promise<{ courseId: string }> }) {
-    const resolvedParams = use(params);
+// Define the params type as a Promise for Next.js 15
+type Params = Promise<{ courseId: string }>;
+
+export default function CourseUpsertPage({ params }: { params: Params }) {
+    // Use React.use() to unwrap the params Promise
+    const resolvedParams = React.use(params);
     const { courseId } = resolvedParams;
     const isCreateMode = courseId === 'new';
 
