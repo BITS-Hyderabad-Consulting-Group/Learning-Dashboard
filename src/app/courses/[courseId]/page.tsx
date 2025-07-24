@@ -52,7 +52,7 @@ export default function CoursePage({ params }: { params: Promise<{ courseId: str
 
             const courseData: CourseData = await response.json();
             setData(courseData);
-        } catch (_error) {
+        } catch {
             // Set a complete error state object to avoid null reference errors in the UI
             setData({
                 title: 'Course Not Found',

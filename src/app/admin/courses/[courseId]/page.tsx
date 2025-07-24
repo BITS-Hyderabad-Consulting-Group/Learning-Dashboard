@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect, use } from 'react';
+import { useState, useEffect } from 'react';
 import { notFound } from 'next/navigation';
-// import Image from 'next/image';
 import data from '../[courseId]/APIdata.json';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BookOpen, Layers, Star, Image as ImageIcon } from 'lucide-react';
+// import Image from 'next/image';
 
 type CourseFormState = {
     id: string;
@@ -25,8 +25,8 @@ type CourseFormState = {
     weeks: { title: string }[];
 };
 
-export default function CourseUpsertPage({ params }: { params: Promise<{ courseId: string }> }) {
-    const { courseId } = use(params);
+export default function CourseUpsertPage({ params }: { params: { courseId: string } }) {
+    const { courseId } = params;
     const isCreateMode = courseId === 'new';
 
     const [form, setForm] = useState<CourseFormState>(data.newCourseTemplate);
@@ -285,15 +285,15 @@ export default function CourseUpsertPage({ params }: { params: Promise<{ courseI
                                 onChange={handleFileChange}
                                 className="w-full border border-gray-200 rounded-lg px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-teal-500"
                             />
-                            {/* {bannerPreview && (
-                                <Image
-                                    src={bannerPreview}
-                                    alt="Banner Preview"
-                                    className="mt-4 rounded-lg max-h-48 w-full object-cover border"
-                                    width={500}
-                                    height={400}
-                                />
-                            )} */}
+                            {bannerPreview &&
+                                // <Image
+                                //     src={bannerPreview}
+                                //     alt="Banner Preview"
+                                //     className="mt-4 rounded-lg max-h-48 w-full object-cover border"
+                                //     width={600}
+                                //     height={200}
+                                // />
+                                true}
                         </section>
 
                         {!isCreateMode && form.weeks && form.weeks.length > 0 && (

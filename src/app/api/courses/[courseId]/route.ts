@@ -37,7 +37,7 @@ export async function POST(request: NextRequest, { params }: { params: { courseI
             return NextResponse.json({ error: insertError.message }, { status: 500 });
         }
         return NextResponse.json({ message: 'Enrolled successfully' }, { status: 201 });
-    } catch (_e) {
+    } catch {
         return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
     }
 }
@@ -126,7 +126,7 @@ export async function GET(
         }
 
         let modulesCount = 0;
-        let modulesCompleted = 0;
+        // let modulesCompleted = 0;
         let markedForReview = 0;
 
         const transformedWeeks =
@@ -145,7 +145,7 @@ export async function GET(
                         const completed = userProgress[module.id] || false;
                         const markedForReviewStatus = userModuleReviews[module.id] || false;
 
-                        if (completed) modulesCompleted++;
+                        // if (completed) modulesCompleted++;
                         if (markedForReviewStatus) markedForReview++;
 
                         return {

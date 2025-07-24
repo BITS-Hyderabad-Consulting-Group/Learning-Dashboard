@@ -12,7 +12,9 @@ import { Home, LibraryBig, UserRound, PencilRuler, LogOut } from 'lucide-react';
 interface NavItem {
     label: string;
     path: string;
-    icon: React.ComponentType<any> | React.FC<any>;
+    icon:
+        | React.ComponentType<React.SVGProps<SVGSVGElement>>
+        | React.FC<{ className?: string; size?: number }>;
     onClick?: () => void | Promise<void>;
     isButton?: boolean;
 }

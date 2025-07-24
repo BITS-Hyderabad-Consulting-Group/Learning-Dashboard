@@ -212,7 +212,7 @@ export default function App() {
                 description: 'All changes have been saved to the database.',
                 duration: 3000,
             });
-        } catch (_error) {
+        } catch {
             // Show error toast
             toast.error('Failed to save course', {
                 description: 'Please try again or contact support if the problem persists.',
