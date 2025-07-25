@@ -1,0 +1,73 @@
+{
+    "effectiveDate": "July 25, 2025",
+    "introText": "BITS Hyderabad Consulting Group values your privacy and is committed to protecting your personal information. By using our platform, you agree to these terms which outline how we collect, use, protect, and manage your data.",
+    "headerSubtitle": "Learning Dashboard - Developed by BITS Hyderabad Consulting Group",
+    "sections": [
+        {
+            "title": "Information We Collect",
+            "icon": "Database",
+            "content": [
+                "We only collect minimal personal information through secure Google OAuth authentication:"
+            ],
+            "bullets": [
+                "Google Email Address",
+                "Your Full Name (from your Google account)",
+                "Your Profile Picture"
+            ],
+            "note": {
+                "text": "Personal information and sensitive identifiers are never collected or stored.",
+                "icon": "CheckCircle",
+                "color": "teal"
+            }
+        },
+        {
+            "title": "How We Use Your Information",
+            "icon": "UserCheck",
+            "content": ["We use your information solely to:"],
+            "bullets": [
+                "Authenticate and log you into the platform securely via Supabase",
+                "Personalize your dashboard experience with your name and profile image",
+                "Track your course progress, XP, and quiz submissions",
+                "Associate your activity (like submissions and course enrollment) with your account"
+            ],
+            "note": {
+                "text": "We do not send promotional emails, nor do we sell, share, or transfer your data to third parties.",
+                "icon": "Info",
+                "color": "blue"
+            }
+        },
+        {
+            "title": "Data Protection",
+            "icon": "Shield",
+            "bullets": [
+                "All user data is stored securely using industry-standard practices",
+                "Access to personal information is strictly limited to authorized platform administrators",
+                "We do not collect any passwords — authentication is fully handled by Google OAuth via Supabase"
+            ]
+        },
+        {
+            "title": "Your Rights",
+            "icon": "FileText",
+            "content": ["You have full control over your data:"],
+            "bullets": [
+                "You can delete your account and associated data at any time",
+                "You can request a copy of the data we store about you via our support team"
+            ]
+        },
+        {
+            "title": "Account Deletion",
+            "icon": "Trash2",
+            "content": [
+                "To request account deletion and permanent removal of your information from our system, please contact us using the email below."
+            ]
+        },
+        {
+            "title": "Contact Us",
+            "icon": "Mail",
+            "content": [
+                "If you have questions, concerns, or feedback regarding this Privacy Policy or our data handling practices, please reach out to:"
+            ],
+            "email": "bhcg@hyderabad.bits-pilani.ac.in"
+        }
+    ]
+}
