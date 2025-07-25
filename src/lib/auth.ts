@@ -11,6 +11,7 @@ export const signInWithGoogle = async () => {
 
 export const signOut = async () => {
     const { error } = await supabase.auth.signOut();
+    window.location.href = '/';
     if (error) {
         console.error('Error signing out:', error);
     }
