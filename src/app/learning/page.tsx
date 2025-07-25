@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useCallback } from 'react';
 import { useUser } from '@/context/UserContext';
 import { CourseCard } from '@/components/CourseCard';
 import {
@@ -20,7 +20,12 @@ import {
 } from '@/components/ui/pagination';
 import { Button } from '@/components/ui/button';
 
-import type { EnrolledCourse, AvailableCourse } from '@/types/course';
+import type {
+    EnrolledCourse,
+    AvailableCourse,
+    LearningApiResponse,
+    PaginationInfo,
+} from '@/types/course';
 import SkeletonLoader from './SkeletonLoader';
 import CourseCarousel from '@/components/CourseCarousel';
 
@@ -63,66 +68,71 @@ export default function Learning() {
     const [currentPage, setCurrentPage] = useState(1);
     const [sortOrder, setSortOrder] = useState('a-z');
     const [searchTerm, setSearchTerm] = useState('');
+    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
+    const [paginationInfo, setPaginationInfo] = useState<PaginationInfo | null>(null);
 
     const [isCoursesLoading, setIsCoursesLoading] = useState(true);
 
     const isLoggedInLearner = profile?.role === 'learner';
+    const coursesPerPage = isLoggedInLearner ? 6 : 12;
 
+    // Debounce search term
     useEffect(() => {
-        if (isUserLoading) {
-            return;
-        }
+        const timer = setTimeout(() => {
+            setDebouncedSearchTerm(searchTerm);
+        }, 500);
 
-        if (!user) {
-            setEnrolledCourses([]);
-            setAvailableCourses([]);
-            setIsCoursesLoading(false);
-        }
+        return () => clearTimeout(timer);
+    }, [searchTerm]);
 
-        setIsCoursesLoading(true);
-        fetch(`/api/learning?userId=${user?.id}`)
-            .then((res) => res.json())
-            .then((data) => {
+    // Function to fetch courses with server-side pagination
+    const fetchCourses = useCallback(
+        async (page: number, search: string, sort: string) => {
+            if (isUserLoading) return;
+
+            setIsCoursesLoading(true);
+
+            try {
+                const params = new URLSearchParams({
+                    page: page.toString(),
+                    limit: coursesPerPage.toString(),
+                    search: search.trim(),
+                    sort: sort,
+                });
+
+                if (user) {
+                    params.append('userId', user.id);
+                }
+
+                const response = await fetch(`/api/learning?${params.toString()}`);
+                const data: LearningApiResponse = await response.json();
+
                 setEnrolledCourses(data.enrolledCourses || []);
                 setAvailableCourses(data.availableCourses || []);
-            })
-            .catch((error) => {
-                console.error('Failed to fetch dashboard data:', error);
-
+                setPaginationInfo(data.pagination);
+            } catch (error) {
+                console.error('Failed to fetch courses:', error);
                 setEnrolledCourses([]);
                 setAvailableCourses([]);
-            })
-            .finally(() => {
+                setPaginationInfo(null);
+            } finally {
                 setIsCoursesLoading(false);
-            });
-    }, [user, isUserLoading]);
+            }
+        },
+        [isUserLoading, coursesPerPage, user]
+    );
+
+    // Load courses effect - triggers when dependencies change
+    useEffect(() => {
+        fetchCourses(currentPage, debouncedSearchTerm, sortOrder);
+    }, [user, isUserLoading, currentPage, debouncedSearchTerm, sortOrder, fetchCourses]);
+
+    // Reset to page 1 when search term or sort changes
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [debouncedSearchTerm, sortOrder]);
 
     const coursesWithProgress = useMemo(() => enrolledCourses, [enrolledCourses]);
-
-    const filteredAndSortedCourses = useMemo(() => {
-        let filtered = availableCourses;
-        if (searchTerm.trim()) {
-            filtered = filtered.filter((course) =>
-                course.title.toLowerCase().includes(searchTerm.trim().toLowerCase())
-            );
-        }
-        return [...filtered].sort((a, b) => {
-            switch (sortOrder) {
-                case 'z-a':
-                    return b.title.localeCompare(a.title);
-                case 'a-z':
-                default:
-                    return a.title.localeCompare(b.title);
-            }
-        });
-    }, [availableCourses, sortOrder, searchTerm]);
-
-    const coursesPerPage = isLoggedInLearner ? 6 : 12;
-    const totalPages = Math.ceil(filteredAndSortedCourses.length / coursesPerPage);
-    const currentCoursesToDisplay = filteredAndSortedCourses.slice(
-        (currentPage - 1) * coursesPerPage,
-        currentPage * coursesPerPage
-    );
 
     if (isUserLoading || isCoursesLoading) {
         return <SkeletonLoader />;
@@ -177,30 +187,27 @@ export default function Learning() {
                     <input
                         type="text"
                         value={searchTerm}
-                        onChange={(e) => {
-                            setSearchTerm(e.target.value);
-                            setCurrentPage(1);
-                        }}
+                        onChange={(e) => setSearchTerm(e.target.value)}
                         placeholder="Search courses..."
                         className="border border-gray-300 shadow-sm rounded-lg px-5 py-2 w-full max-w-xs"
                     />
 
-                    <Select onValueChange={setSortOrder} defaultValue="a-z">
+                    <Select value={sortOrder} onValueChange={setSortOrder}>
                         <SelectTrigger className="border border-gray-300 shadow-sm rounded-lg px-5 py-5 h-full w-full max-w-xs">
                             <SelectValue placeholder="Sort by" />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="a-z">Title: A-Z</SelectItem>
                             <SelectItem value="z-a">Title: Z-A</SelectItem>
-                            <SelectItem value="created-desc">Newest First</SelectItem>
-                            <SelectItem value="created-asc">Oldest First</SelectItem>
+                            <SelectItem value="desc">Newest First</SelectItem>
+                            <SelectItem value="asc">Oldest First</SelectItem>
                         </SelectContent>
                     </Select>
                 </div>
 
                 {/* Course Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-4 -mx-2">
-                    {currentCoursesToDisplay.map((course) => (
+                    {availableCourses.map((course) => (
                         <CourseCard
                             key={course.id}
                             id={course.id}
@@ -214,24 +221,51 @@ export default function Learning() {
                 </div>
 
                 {/* Pagination */}
-                {totalPages > 1 && (
+                {paginationInfo && paginationInfo.totalPages > 1 && (
                     <Pagination className="mt-8">
                         <PaginationContent>
                             <PaginationItem>
                                 <PaginationPrevious
                                     onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+                                    className={
+                                        !paginationInfo.hasPreviousPage
+                                            ? 'pointer-events-none opacity-50'
+                                            : 'cursor-pointer'
+                                    }
                                 />
                             </PaginationItem>
-                            {renderPageNumbers(currentPage, totalPages, setCurrentPage)}
+                            {renderPageNumbers(
+                                currentPage,
+                                paginationInfo.totalPages,
+                                setCurrentPage
+                            )}
                             <PaginationItem>
                                 <PaginationNext
                                     onClick={() =>
-                                        setCurrentPage((p) => Math.min(totalPages, p + 1))
+                                        setCurrentPage((p) =>
+                                            Math.min(paginationInfo.totalPages, p + 1)
+                                        )
+                                    }
+                                    className={
+                                        !paginationInfo.hasNextPage
+                                            ? 'pointer-events-none opacity-50'
+                                            : 'cursor-pointer'
                                     }
                                 />
                             </PaginationItem>
                         </PaginationContent>
                     </Pagination>
+                )}
+
+                {/* No results message */}
+                {!isCoursesLoading && availableCourses.length === 0 && (
+                    <div className="text-center py-8">
+                        <p className="text-gray-500">
+                            {searchTerm.trim()
+                                ? `No courses found matching "${searchTerm}"`
+                                : 'No courses available at the moment.'}
+                        </p>
+                    </div>
                 )}
             </section>
         </div>
