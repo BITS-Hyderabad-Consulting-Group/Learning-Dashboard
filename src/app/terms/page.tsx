@@ -1,59 +1,33 @@
 import React from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
+import Link from 'next/link';
 import {
     Mail,
-    Shield,
-    Database,
-    UserCheck,
-    Trash2,
     FileText,
-    CheckCircle,
-    Info,
+    User,
+    ClipboardCheck,
+    Copyright,
+    AlertTriangle,
+    XCircle,
+    RefreshCw,
 } from 'lucide-react';
-import Link from 'next/link';
+import { Badge } from '@/components/ui/badge';
+import { SectionCard } from '@/components/SectionCard';
+import { BulletPoint } from '@/components/BulletPoint';
 
-const SectionCard = ({
-    icon,
-    title,
-    children,
-}: {
-    icon: React.ReactNode;
-    title: string;
-    children: React.ReactNode;
-}) => (
-    <Card className="rounded-2xl shadow-sm border-0 bg-white">
-        <CardHeader className="pb-4">
-            <CardTitle className="flex items-center gap-3 text-xl font-semibold text-gray-900">
-                {icon}
-                {title}
-            </CardTitle>
-        </CardHeader>
-        <CardContent className="pt-0">{children}</CardContent>
-    </Card>
-);
-
-const BulletPoint = ({ children }: { children: React.ReactNode }) => (
-    <div className="flex items-start gap-3">
-        <div className="w-2 h-2 bg-teal-400 rounded-full mt-2 flex-shrink-0" />
-        <span className="text-gray-700 leading-relaxed">{children}</span>
-    </div>
-);
-
-const PrivacyPolicyPage: React.FC = () => {
+const TermsAndConditionsPage: React.FC = () => {
     return (
         <div className="min-h-screen bg-white">
             <div className="container mx-auto px-4 py-12 lg:py-8 max-w-4xl">
                 {/* Header */}
                 <div className="text-left lg:text-center mb-12">
                     <h1 className="text-3xl lg:text-4xl font-bold text-teal-800 mb-6">
-                        Privacy Policy
+                        Terms and Conditions
                     </h1>
                     <Badge
                         variant="outline"
                         className="mb-6 px-4 py-2 border-teal-200 text-teal-700"
                     >
-                        Effective Date: July 22, 2025
+                        Last Updated: July 25, 2025
                     </Badge>
                     <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
                         Learning Dashboard - Developed by BITS Hyderabad Consulting Group
@@ -63,124 +37,150 @@ const PrivacyPolicyPage: React.FC = () => {
                 {/* Introduction */}
                 <div className="bg-white rounded-2xl p-6 lg:p-8 mb-8 shadow-sm border border-gray-100">
                     <p className="text-lg text-gray-700 leading-relaxed">
-                        BITS Hyderabad Consulting Group values your privacy and is committed to
-                        protecting your personal information. By using our platform, you agree to
-                        these terms which outline how we collect, use, protect, and manage your
-                        data.
+                        These Terms and Conditions ("Terms") govern your access to and use of the
+                        Learning Dashboard platform and its associated services (collectively, the
+                        "Service"), provided by BITS Hyderabad Consulting Group ("we," "us," or
+                        "our"). By accessing or using the Service, you agree to be bound by these
+                        Terms. If you do not agree to these Terms, you are prohibited from using the
+                        Service.
                     </p>
                 </div>
 
                 <div className="space-y-6">
-                    {/* Information We Collect */}
+                    {/* User Accounts */}
                     <SectionCard
-                        icon={<Database className="h-6 w-6 text-teal-500" />}
-                        title="Information We Collect"
-                    >
-                        <p className="text-gray-600 mb-6 leading-relaxed">
-                            We only collect minimal personal information through secure Google OAuth
-                            authentication:
-                        </p>
-                        <div className="space-y-3 mb-6">
-                            <BulletPoint>Google Email Address</BulletPoint>
-                            <BulletPoint>Your Full Name (from your Google account)</BulletPoint>
-                            <BulletPoint>Your Profile Picture</BulletPoint>
-                        </div>
-                        <p className="text-teal-800 text-sm font-medium flex items-center gap-2">
-                            <CheckCircle className="w-4 h-4 min-w-4 min-h-4" />
-                            Personal information and sensitive identifiers are never collected or
-                            stored.
-                        </p>
-                    </SectionCard>
-
-                    {/* How We Use Your Information */}
-                    <SectionCard
-                        icon={<UserCheck className="h-6 w-6 text-teal-500" />}
-                        title="How We Use Your Information"
-                    >
-                        <p className="text-gray-600 mb-6 leading-relaxed">
-                            We use your information solely to:
-                        </p>
-                        <div className="space-y-4 mb-6">
-                            <BulletPoint>
-                                Authenticate and log you into the platform securely via Supabase
-                            </BulletPoint>
-                            <BulletPoint>
-                                Personalize your dashboard experience with your name and profile
-                                image
-                            </BulletPoint>
-                            <BulletPoint>
-                                Track your course progress, XP, and quiz submissions
-                            </BulletPoint>
-                            <BulletPoint>
-                                Associate your activity (like submissions and course enrollment)
-                                with your account
-                            </BulletPoint>
-                        </div>
-                        <p className="text-blue-800 text-sm font-medium flex items-center gap-2">
-                            <Info className="w-4 h-4 min-w-4 min-h-4" />
-                            We do not send promotional emails, nor do we sell, share, or transfer
-                            your data to third parties.
-                        </p>
-                    </SectionCard>
-
-                    {/* Data Protection */}
-                    <SectionCard
-                        icon={<Shield className="h-6 w-6 text-teal-500" />}
-                        title="Data Protection"
+                        icon={<User className="h-6 w-6 text-teal-500" />}
+                        title="User Accounts"
                     >
                         <div className="space-y-4">
                             <BulletPoint>
-                                All user data is stored securely using industry-standard practices
+                                Account registration requires authentication via Google OAuth. You
+                                agree to provide and maintain accurate account information.
                             </BulletPoint>
                             <BulletPoint>
-                                Access to personal information is strictly limited to authorized
-                                platform administrators
+                                You are solely responsible for maintaining the confidentiality of
+                                your account and for all activities that occur under it.
                             </BulletPoint>
                             <BulletPoint>
-                                We do not collect any passwords — authentication is fully handled by
-                                Google OAuth via Supabase
+                                You must notify us immediately upon becoming aware of any breach of
+                                security or unauthorized use of your account.
                             </BulletPoint>
                         </div>
                     </SectionCard>
 
-                    {/* Your Rights */}
+                    {/* License and Acceptable Use */}
                     <SectionCard
-                        icon={<FileText className="h-6 w-6 text-teal-500" />}
-                        title="Your Rights"
+                        icon={<ClipboardCheck className="h-6 w-6 text-teal-500" />}
+                        title="License and Acceptable Use"
                     >
-                        <p className="text-gray-600 mb-6 leading-relaxed">
-                            You have full control over your data:
-                        </p>
                         <div className="space-y-4">
                             <BulletPoint>
-                                You can delete your account and associated data at any time
+                                We grant you a limited, non-exclusive, non-transferable license to
+                                access and use the Service for personal, non-commercial educational
+                                purposes, in compliance with these Terms.
                             </BulletPoint>
                             <BulletPoint>
-                                You can request a copy of the data we store about you via our
-                                support team
+                                You agree not to use the Service for any unlawful purpose or to
+                                engage in any activity that disrupts, diminishes the quality of, or
+                                interferes with the performance of the Service.
+                            </BulletPoint>
+                            <BulletPoint>
+                                The use of any bots, scripts, or other automated tools to access or
+                                interact with the platform is strictly prohibited.
+                            </BulletPoint>
+                            <BulletPoint>
+                                Engaging in any form of academic dishonesty is a material breach of
+                                these Terms and will result in immediate termination of your access.
                             </BulletPoint>
                         </div>
                     </SectionCard>
 
-                    {/* Account Deletion */}
+                    {/* Intellectual Property Rights */}
                     <SectionCard
-                        icon={<Trash2 className="h-6 w-6 text-teal-500" />}
-                        title="Account Deletion"
+                        icon={<Copyright className="h-6 w-6 text-teal-500" />}
+                        title="Intellectual Property Rights"
+                    >
+                        <div className="space-y-4">
+                            <BulletPoint>
+                                The Service and its entire contents, features, and functionality are
+                                owned by BITS Hyderabad Consulting Group and are protected by
+                                copyright and other intellectual property laws.
+                            </BulletPoint>
+                            <BulletPoint>
+                                No right, title, or interest in or to the Service or any content on
+                                the Service is transferred to you, and all rights not expressly
+                                granted are reserved by us.
+                            </BulletPoint>
+                        </div>
+                    </SectionCard>
+
+                    {/* Disclaimer of Warranties and Limitation of Liability */}
+                    <SectionCard
+                        icon={<AlertTriangle className="h-6 w-6 text-teal-500" />}
+                        title="Disclaimer & Limitation of Liability"
+                    >
+                        <div className="space-y-4">
+                            <BulletPoint>
+                                The Service is provided on an "AS IS" and "AS AVAILABLE" basis,
+                                without any warranties of any kind, either express or implied,
+                                including but not limited to the accuracy, reliability, or
+                                availability of the Service.
+                            </BulletPoint>
+                            <BulletPoint>
+                                To the fullest extent permitted by law, in no event will BITS
+                                Hyderabad Consulting Group be liable for damages of any kind arising
+                                out of or in connection with your use, or inability to use, the
+                                Service.
+                            </BulletPoint>
+                            <BulletPoint>
+                                We strive to maintain the accuracy and availability of the Service,
+                                but cannot guarantee 100% accuracy or uptime. You acknowledge that
+                                interruptions, errors, or inaccuracies may occur and agree that we
+                                are not liable for any resulting consequences.
+                            </BulletPoint>
+                        </div>
+                    </SectionCard>
+
+                    {/* Termination */}
+                    <SectionCard
+                        icon={<XCircle className="h-6 w-6 text-teal-500" />}
+                        title="Termination"
+                    >
+                        <div className="space-y-4">
+                            <BulletPoint>
+                                We may terminate or suspend your access to the Service, without
+                                prior notice or liability, for any reason, including any breach of
+                                these Terms.
+                            </BulletPoint>
+                            <BulletPoint>
+                                Upon termination, your right to use the Service will immediately
+                                cease. All provisions of the Terms which by their nature should
+                                survive termination shall survive.
+                            </BulletPoint>
+                        </div>
+                    </SectionCard>
+
+                    {/* Amendments to Terms */}
+                    <SectionCard
+                        icon={<RefreshCw className="h-6 w-6 text-teal-500" />}
+                        title="Amendments to Terms"
                     >
                         <p className="text-gray-700 leading-relaxed">
-                            To request account deletion and permanent removal of your information
-                            from our system, please contact us using the email below.
+                            We reserve the right, at our sole discretion, to modify or replace these
+                            Terms at any time. We will provide notice by updating the "Last Updated"
+                            date. Your continued use of the Service after any such changes
+                            constitutes your acceptance of the new Terms.
                         </p>
                     </SectionCard>
 
                     {/* Contact Information */}
                     <SectionCard
                         icon={<Mail className="h-6 w-6 text-teal-500" />}
-                        title="Contact Us"
+                        title="Contact Information"
                     >
                         <p className="text-gray-600 mb-6 leading-relaxed">
-                            If you have questions, concerns, or feedback regarding this Privacy
-                            Policy or our data handling practices, please reach out to:
+                            For any inquiries regarding these Terms and Conditions, please direct
+                            your correspondence to:
                         </p>
                         <div className="space-y-4">
                             <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
@@ -200,4 +200,4 @@ const PrivacyPolicyPage: React.FC = () => {
     );
 };
 
-export default PrivacyPolicyPage;
+export default TermsAndConditionsPage;
