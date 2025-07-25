@@ -1,7 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase-server'; // Use your existing utility
 import type { EnrolledCourse, AvailableCourse } from '@/types/course';
-import { supabase } from '@/lib/supabase-client';
 
 // Remove the direct client creation
 // const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -11,7 +10,7 @@ import { supabase } from '@/lib/supabase-client';
 type CourseDetails = {
     id: string;
     title: string;
-    duration: number;
+    total_duration: number;
     modules_count: number;
 };
 
@@ -136,14 +135,14 @@ export async function GET(req: NextRequest) {
                 id: course.id,
                 title: course.title,
                 modules: course.modules_count,
-                total_duration: course.duration,
+                total_duration: course.total_duration,
             };
 
             if (userId && enrolledCourseIds.includes(course.id)) {
                 enrolledCourses.push({
                     ...courseData,
                     progress: progressMap.get(course.id) ?? 0,
-                    total_duration: course.duration,
+                    total_duration: course.total_duration,
                 });
             } else {
                 // Otherwise, add it to the general 'availableCourses' list.
