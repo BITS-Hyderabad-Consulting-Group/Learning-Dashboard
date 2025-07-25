@@ -7,8 +7,11 @@ import LayoutWrapper from '@/components/LayoutWrapper';
 import ToasterClient from '@/components/ui/ToasterClient';
 
 export const metadata: Metadata = {
-    title: 'BHCG Learning Dashboard',
-    description: 'BITS Hyderabad Consulting Group',
+    title: 'Learning Dashboard | BHCG',
+    description: 'Learning Dashboard by BITS Hyderabad Consulting Group (BHCG)',
+    icons: {
+        icon: '/favicon.ico',
+    },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
