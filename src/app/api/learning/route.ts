@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase-server'; // Use your existing utility
 import type { EnrolledCourse, AvailableCourse } from '@/types/course';
+import { supabase } from '@/lib/supabase-client';
 
 // Remove the direct client creation
 // const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
