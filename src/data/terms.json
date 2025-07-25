@@ -1,0 +1,66 @@
+{
+    "lastUpdated": "July 25, 2025",
+    "headerSubtitle": "Learning Dashboard - Developed by BITS Hyderabad Consulting Group",
+    "introText": "These Terms and Conditions (\"Terms\") govern your access to and use of the Learning Dashboard platform and its associated services (collectively, the \"Service\"), provided by BITS Hyderabad Consulting Group (\"we,\" \"us,\" or \"our\"). By accessing or using the Service, you agree to be bound by these Terms. If you do not agree to these Terms, you are prohibited from using the Service.",
+    "sections": [
+        {
+            "title": "User Accounts",
+            "icon": "User",
+            "bullets": [
+                "Account registration requires authentication via Google OAuth. You agree to provide and maintain accurate account information.",
+                "You are solely responsible for maintaining the confidentiality of your account and for all activities that occur under it.",
+                "You must notify us immediately upon becoming aware of any breach of security or unauthorized use of your account."
+            ]
+        },
+        {
+            "title": "License and Acceptable Use",
+            "icon": "ClipboardCheck",
+            "bullets": [
+                "We grant you a limited, non-exclusive, non-transferable license to access and use the Service for personal, non-commercial educational purposes, in compliance with these Terms.",
+                "You agree not to use the Service for any unlawful purpose or to engage in any activity that disrupts, diminishes the quality of, or interferes with the performance of the Service.",
+                "The use of any bots, scripts, or other automated tools to access or interact with the platform is strictly prohibited.",
+                "Engaging in any form of academic dishonesty is a material breach of these Terms and will result in immediate termination of your access."
+            ]
+        },
+        {
+            "title": "Intellectual Property Rights",
+            "icon": "Copyright",
+            "bullets": [
+                "The Service and its entire contents, features, and functionality are owned by BITS Hyderabad Consulting Group and are protected by copyright and other intellectual property laws.",
+                "No right, title, or interest in or to the Service or any content on the Service is transferred to you, and all rights not expressly granted are reserved by us."
+            ]
+        },
+        {
+            "title": "Disclaimer & Limitation of Liability",
+            "icon": "AlertTriangle",
+            "bullets": [
+                "The Service is provided on an \"AS IS\" and \"AS AVAILABLE\" basis, without any warranties of any kind, either express or implied, including but not limited to the accuracy, reliability, or availability of the Service.",
+                "To the fullest extent permitted by law, in no event will BITS Hyderabad Consulting Group be liable for damages of any kind arising out of or in connection with your use, or inability to use, the Service.",
+                "We strive to maintain the accuracy and availability of the Service, but cannot guarantee 100% accuracy or uptime. You acknowledge that interruptions, errors, or inaccuracies may occur and agree that we are not liable for any resulting consequences."
+            ]
+        },
+        {
+            "title": "Termination",
+            "icon": "XCircle",
+            "bullets": [
+                "We may terminate or suspend your access to the Service, without prior notice or liability, for any reason, including any breach of these Terms.",
+                "Upon termination, your right to use the Service will immediately cease. All provisions of the Terms which by their nature should survive termination shall survive."
+            ]
+        },
+        {
+            "title": "Amendments to Terms",
+            "icon": "RefreshCw",
+            "content": [
+                "We reserve the right, at our sole discretion, to modify or replace these Terms at any time. We will provide notice by updating the \"Last Updated\" date. Your continued use of the Service after any such changes constitutes your acceptance of the new Terms."
+            ]
+        },
+        {
+            "title": "Contact Information",
+            "icon": "Mail",
+            "content": [
+                "For any inquiries regarding these Terms and Conditions, please direct your correspondence to:"
+            ],
+            "email": "bhcg@hyderabad.bits-pilani.ac.in"
+        }
+    ]
+}

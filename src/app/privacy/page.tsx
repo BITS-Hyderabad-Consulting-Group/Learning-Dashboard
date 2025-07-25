@@ -1,4 +1,5 @@
 import React from 'react';
+import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -11,9 +12,20 @@ import {
     CheckCircle,
     Info,
 } from 'lucide-react';
-import Link from 'next/link';
 import { SectionCard } from '@/components/SectionCard';
 import { BulletPoint } from '@/components/BulletPoint';
+import privacy from '@/data/privacy.json';
+
+const iconMap = {
+    Mail: <Mail className="h-6 w-6 text-teal-500" />,
+    Shield: <Shield className="h-6 w-6 text-teal-500" />,
+    Database: <Database className="h-6 w-6 text-teal-500" />,
+    UserCheck: <UserCheck className="h-6 w-6 text-teal-500" />,
+    Trash2: <Trash2 className="h-6 w-6 text-teal-500" />,
+    FileText: <FileText className="h-6 w-6 text-teal-500" />,
+    CheckCircle: <CheckCircle className="w-4 h-4 min-w-4 min-h-4" />,
+    Info: <Info className="w-4 h-4 min-w-4 min-h-4" />,
+};
 
 const PrivacyPolicyPage: React.FC = () => {
     return (
@@ -28,147 +40,60 @@ const PrivacyPolicyPage: React.FC = () => {
                         variant="outline"
                         className="mb-6 px-4 py-2 border-teal-200 text-teal-700"
                     >
-                        Effective Date: July 22, 2025
+                        Effective Date: {privacy.effectiveDate}
                     </Badge>
                     <p className="text-lg text-gray-600 max-w-2xl mx-auto leading-relaxed">
-                        Learning Dashboard - Developed by BITS Hyderabad Consulting Group
+                        {privacy.headerSubtitle}
                     </p>
                 </div>
 
-                {/* Introduction */}
+                {/* Intro */}
                 <div className="bg-white rounded-2xl p-6 lg:p-8 mb-8 shadow-sm border border-gray-100">
-                    <p className="text-lg text-gray-700 leading-relaxed">
-                        BITS Hyderabad Consulting Group values your privacy and is committed to
-                        protecting your personal information. By using our platform, you agree to
-                        these terms which outline how we collect, use, protect, and manage your
-                        data.
-                    </p>
+                    <p className="text-lg text-gray-700 leading-relaxed">{privacy.introText}</p>
                 </div>
 
                 <div className="space-y-6">
-                    {/* Information We Collect */}
-                    <SectionCard
-                        icon={<Database className="h-6 w-6 text-teal-500" />}
-                        title="Information We Collect"
-                    >
-                        <p className="text-gray-600 mb-6 leading-relaxed">
-                            We only collect minimal personal information through secure Google OAuth
-                            authentication:
-                        </p>
-                        <div className="space-y-3 mb-6">
-                            <BulletPoint>Google Email Address</BulletPoint>
-                            <BulletPoint>Your Full Name (from your Google account)</BulletPoint>
-                            <BulletPoint>Your Profile Picture</BulletPoint>
-                        </div>
-                        <p className="text-teal-800 text-sm font-medium flex items-center gap-2">
-                            <CheckCircle className="w-4 h-4 min-w-4 min-h-4" />
-                            Personal information and sensitive identifiers are never collected or
-                            stored.
-                        </p>
-                    </SectionCard>
-
-                    {/* How We Use Your Information */}
-                    <SectionCard
-                        icon={<UserCheck className="h-6 w-6 text-teal-500" />}
-                        title="How We Use Your Information"
-                    >
-                        <p className="text-gray-600 mb-6 leading-relaxed">
-                            We use your information solely to:
-                        </p>
-                        <div className="space-y-4 mb-6">
-                            <BulletPoint>
-                                Authenticate and log you into the platform securely via Supabase
-                            </BulletPoint>
-                            <BulletPoint>
-                                Personalize your dashboard experience with your name and profile
-                                image
-                            </BulletPoint>
-                            <BulletPoint>
-                                Track your course progress, XP, and quiz submissions
-                            </BulletPoint>
-                            <BulletPoint>
-                                Associate your activity (like submissions and course enrollment)
-                                with your account
-                            </BulletPoint>
-                        </div>
-                        <p className="text-blue-800 text-sm font-medium flex items-center gap-2">
-                            <Info className="w-4 h-4 min-w-4 min-h-4" />
-                            We do not send promotional emails, nor do we sell, share, or transfer
-                            your data to third parties.
-                        </p>
-                    </SectionCard>
-
-                    {/* Data Protection */}
-                    <SectionCard
-                        icon={<Shield className="h-6 w-6 text-teal-500" />}
-                        title="Data Protection"
-                    >
-                        <div className="space-y-4">
-                            <BulletPoint>
-                                All user data is stored securely using industry-standard practices
-                            </BulletPoint>
-                            <BulletPoint>
-                                Access to personal information is strictly limited to authorized
-                                platform administrators
-                            </BulletPoint>
-                            <BulletPoint>
-                                We do not collect any passwords — authentication is fully handled by
-                                Google OAuth via Supabase
-                            </BulletPoint>
-                        </div>
-                    </SectionCard>
-
-                    {/* Your Rights */}
-                    <SectionCard
-                        icon={<FileText className="h-6 w-6 text-teal-500" />}
-                        title="Your Rights"
-                    >
-                        <p className="text-gray-600 mb-6 leading-relaxed">
-                            You have full control over your data:
-                        </p>
-                        <div className="space-y-4">
-                            <BulletPoint>
-                                You can delete your account and associated data at any time
-                            </BulletPoint>
-                            <BulletPoint>
-                                You can request a copy of the data we store about you via our
-                                support team
-                            </BulletPoint>
-                        </div>
-                    </SectionCard>
-
-                    {/* Account Deletion */}
-                    <SectionCard
-                        icon={<Trash2 className="h-6 w-6 text-teal-500" />}
-                        title="Account Deletion"
-                    >
-                        <p className="text-gray-700 leading-relaxed">
-                            To request account deletion and permanent removal of your information
-                            from our system, please contact us using the email below.
-                        </p>
-                    </SectionCard>
-
-                    {/* Contact Information */}
-                    <SectionCard
-                        icon={<Mail className="h-6 w-6 text-teal-500" />}
-                        title="Contact Us"
-                    >
-                        <p className="text-gray-600 mb-6 leading-relaxed">
-                            If you have questions, concerns, or feedback regarding this Privacy
-                            Policy or our data handling practices, please reach out to:
-                        </p>
-                        <div className="space-y-4">
-                            <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
-                                <Mail className="h-5 w-5 text-teal-500" />
-                                <Link
-                                    href="mailto:bhcg@hyderabad.bits-pilani.ac.in"
-                                    className="text-teal-600 hover:underline font-medium break-all"
+                    {privacy.sections.map((section, index) => (
+                        <SectionCard
+                            key={index}
+                            icon={iconMap[section.icon as keyof typeof iconMap]}
+                            title={section.title}
+                        >
+                            {section.content?.map((line, i) => (
+                                <p key={i} className="text-gray-600 mb-6 leading-relaxed">
+                                    {line}
+                                </p>
+                            ))}
+                            {section.bullets && (
+                                <div className="space-y-3 mb-6">
+                                    {section.bullets.map((point, i) => (
+                                        <BulletPoint key={i}>{point}</BulletPoint>
+                                    ))}
+                                </div>
+                            )}
+                            {section.note && (
+                                <p
+                                    className={`text-${section.note.color}-800 text-sm font-medium flex items-center gap-2`}
                                 >
-                                    bhcg@hyderabad.bits-pilani.ac.in
-                                </Link>
-                            </div>
-                        </div>
-                    </SectionCard>
+                                    {iconMap[section.note.icon as keyof typeof iconMap]}
+                                    {section.note.text}
+                                </p>
+                            )}
+                            {section.email && (
+                                <div className="space-y-4">
+                                    <div className="flex items-center gap-3 p-4 bg-gray-50 rounded-xl">
+                                        <Mail className="h-5 w-5 text-teal-500" />
+                                        <Link
+                                            href={`mailto:${section.email}`}
+                                            className="text-teal-600 hover:underline font-medium break-all"
+                                        >
+                                            {section.email}
+                                        </Link>
+                                    </div>
+                                </div>
+                            )}
+                        </SectionCard>
+                    ))}
                 </div>
             </div>
         </div>
