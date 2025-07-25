@@ -107,7 +107,7 @@ export default function Learning() {
             ignore = true;
         };
         // eslint-disable-next-line
-    }, [searchTerm, sortOrder, currentPage, coursesPerPage]);
+    }, [searchTerm, sortOrder, currentPage, coursesPerPage, user]);
 
     useEffect(() => {
         setCurrentPage(1);

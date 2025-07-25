@@ -7,11 +7,13 @@ import type { EnrolledCourse, AvailableCourse } from '@/types/course';
 // const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
 // const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
 
-type CourseDetails = {
+type CourseWithModules = {
     id: string;
     title: string;
     total_duration: number;
-    modules_count: number;
+    weeks: {
+        modules: { id: string }[];
+    }[];
 };
 
 // GET /api/learning?userId=xxx&page=1&limit=12&search=&sort=a-z (userId is now optional)
@@ -32,6 +34,7 @@ export async function GET(req: NextRequest) {
         // --- Conditional User-Specific Logic ---
         let enrolledCourseIds: string[] = [];
         const progressMap = new Map<string, number>();
+        const enrolledCourses: EnrolledCourse[] = [];
 
         if (userId) {
             const { data: enrollmentData, error: enrollmentError } = await supabaseServer
@@ -67,12 +70,64 @@ export async function GET(req: NextRequest) {
                     }
                 );
             }
+
+            // Fetch enrolled courses separately (unfiltered)
+            if (enrolledCourseIds.length > 0) {
+                const { data: enrolledCoursesData, error: enrolledError } = await supabaseServer
+                    .from('courses')
+                    .select(
+                        `
+                        id,
+                        title,
+                        total_duration,
+                        weeks!inner(
+                            modules(id)
+                        )
+                    `
+                    )
+                    .in('id', enrolledCourseIds);
+
+                if (enrolledError) {
+                    console.error('Error fetching enrolled courses:', enrolledError);
+                } else if (enrolledCoursesData) {
+                    enrolledCoursesData.forEach((course: CourseWithModules) => {
+                        const moduleCount =
+                            course.weeks?.reduce(
+                                (total: number, week: { modules: { id: string }[] }) => {
+                                    return total + (week.modules?.length || 0);
+                                },
+                                0
+                            ) || 0;
+
+                        enrolledCourses.push({
+                            id: course.id,
+                            title: course.title,
+                            modules: moduleCount,
+                            total_duration: course.total_duration,
+                            progress: progressMap.get(course.id) ?? 0,
+                        });
+                    });
+                }
+            }
         }
 
-        // --- Publicly Accessible Logic with Server-Side Filtering ---
+        // Build the query with search and sorting for available courses only
+        let query = supabaseServer.from('courses').select(
+            `
+            id,
+            title,
+            total_duration,
+            weeks!inner(
+                modules(id)
+            )
+        `,
+            { count: 'exact' }
+        );
 
-        // Build the query with search and sorting
-        let query = supabaseServer.from('courses').select('*', { count: 'exact' }); // Include count for total pages calculation
+        // Exclude enrolled courses from available courses
+        if (enrolledCourseIds.length > 0) {
+            query = query.not('id', 'in', `(${enrolledCourseIds.join(',')})`);
+        }
 
         // Apply search filter if provided
         if (search.length > 0) {
@@ -100,21 +155,34 @@ export async function GET(req: NextRequest) {
         // Apply pagination
         query = query.range(offset, offset + limit - 1);
 
-        const {
-            data: allCoursesDetails,
-            error: coursesError,
-            count: totalCount,
-        } = await query.returns<CourseDetails[]>();
+        const { data: availableCoursesData, error: coursesError, count: totalCount } = await query;
 
         if (coursesError) {
-            console.error('Error fetching from course_details view:', coursesError);
+            console.error('Error fetching available courses:', coursesError);
             return NextResponse.json({ error: 'Failed to fetch course details' }, { status: 500 });
         }
 
-        // If no courses found, always return empty arrays and correct pagination
-        if (!allCoursesDetails || allCoursesDetails.length === 0) {
+        // Convert available courses data
+        const availableCourses: AvailableCourse[] = (availableCoursesData || []).map(
+            (course: CourseWithModules) => {
+                const moduleCount =
+                    course.weeks?.reduce((total: number, week: { modules: { id: string }[] }) => {
+                        return total + (week.modules?.length || 0);
+                    }, 0) || 0;
+
+                return {
+                    id: course.id,
+                    title: course.title,
+                    modules: moduleCount,
+                    total_duration: course.total_duration,
+                };
+            }
+        );
+
+        // If no available courses found, return appropriate response
+        if (!availableCoursesData || availableCoursesData.length === 0) {
             return NextResponse.json({
-                enrolledCourses: [],
+                enrolledCourses,
                 availableCourses: [],
                 pagination: {
                     currentPage: page,
@@ -127,34 +195,8 @@ export async function GET(req: NextRequest) {
             });
         }
 
-        const enrolledCourses: EnrolledCourse[] = [];
-        const availableCourses: AvailableCourse[] = [];
-
-        for (const course of allCoursesDetails) {
-            const courseData = {
-                id: course.id,
-                title: course.title,
-                modules: course.modules_count,
-                total_duration: course.total_duration,
-            };
-
-            if (userId && enrolledCourseIds.includes(course.id)) {
-                enrolledCourses.push({
-                    ...courseData,
-                    progress: progressMap.get(course.id) ?? 0,
-                    total_duration: course.total_duration,
-                });
-            } else {
-                // Otherwise, add it to the general 'availableCourses' list.
-                availableCourses.push(courseData);
-            }
-        }
-
         // Calculate pagination metadata
-        const safeTotalCount =
-            typeof totalCount === 'number' && totalCount >= 0
-                ? totalCount
-                : availableCourses.length + enrolledCourses.length;
+        const safeTotalCount = typeof totalCount === 'number' && totalCount >= 0 ? totalCount : 0;
         const totalPages = Math.ceil(safeTotalCount / limit);
         const hasNextPage = page < totalPages;
         const hasPreviousPage = page > 1;
