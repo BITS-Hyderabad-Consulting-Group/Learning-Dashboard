@@ -23,7 +23,7 @@ const Footer: React.FC = () => {
         name: 'Aravind Sathesh',
         role: 'Design & Technical Lead',
         icon: Crown,
-        url: 'https://bhcg.netlify.app',
+        url: 'https://bhcg.site',
     };
 
     const teams = [
@@ -100,7 +100,7 @@ const Footer: React.FC = () => {
                                 <Linkedin size={16} />
                             </a>
                             <a
-                                href="https://bhcg.netlify.app"
+                                href="https://bhcg.site"
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="w-8 h-8 bg-white/10 rounded-lg flex items-center justify-center hover:bg-white/20 transition-colors"

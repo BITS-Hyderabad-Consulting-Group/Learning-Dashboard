@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState, useCallback } from 'react';
+import { useEffect, useState } from 'react';
 import { useUser } from '@/context/UserContext';
 import { CourseCard } from '@/components/CourseCard';
 import {
@@ -20,14 +20,10 @@ import {
 } from '@/components/ui/pagination';
 import { Button } from '@/components/ui/button';
 
-import type {
-    EnrolledCourse,
-    AvailableCourse,
-    LearningApiResponse,
-    PaginationInfo,
-} from '@/types/course';
+import type { EnrolledCourse, AvailableCourse, PaginationInfo } from '@/types/course';
 import SkeletonLoader from './SkeletonLoader';
 import CourseCarousel from '@/components/CourseCarousel';
+import CourseCardSkeleton from '@/components/CourseCardSkeleton';
 
 const renderPageNumbers = (
     currentPage: number,
@@ -68,73 +64,58 @@ export default function Learning() {
     const [currentPage, setCurrentPage] = useState(1);
     const [sortOrder, setSortOrder] = useState('a-z');
     const [searchTerm, setSearchTerm] = useState('');
-    const [debouncedSearchTerm, setDebouncedSearchTerm] = useState('');
-    const [paginationInfo, setPaginationInfo] = useState<PaginationInfo | null>(null);
-
     const [isCoursesLoading, setIsCoursesLoading] = useState(true);
+    const [paginationInfo, setPaginationInfo] = useState<PaginationInfo | null>(null);
 
     const isLoggedInLearner = profile?.role === 'learner';
     const coursesPerPage = isLoggedInLearner ? 6 : 12;
 
-    // Debounce search term
     useEffect(() => {
-        const timer = setTimeout(() => {
-            setDebouncedSearchTerm(searchTerm);
-        }, 500);
-
-        return () => clearTimeout(timer);
-    }, [searchTerm]);
-
-    // Function to fetch courses with server-side pagination
-    const fetchCourses = useCallback(
-        async (page: number, search: string, sort: string) => {
-            if (isUserLoading) return;
-
-            setIsCoursesLoading(true);
-
-            try {
-                const params = new URLSearchParams({
-                    page: page.toString(),
-                    limit: coursesPerPage.toString(),
-                    search: search.trim(),
-                    sort: sort,
-                });
-
-                if (user) {
-                    params.append('userId', user.id);
-                }
-
-                const response = await fetch(`/api/learning?${params.toString()}`);
-                const data: LearningApiResponse = await response.json();
-
+        let ignore = false;
+        setIsCoursesLoading(true);
+        const params = new URLSearchParams({
+            page: currentPage.toString(),
+            limit: coursesPerPage.toString(),
+            sort: sortOrder,
+        });
+        if (searchTerm.trim()) {
+            params.append('search', searchTerm.trim());
+        }
+        if (user) {
+            params.append('userId', user.id);
+        }
+        fetch(`/api/learning?${params.toString()}`)
+            .then((res) => res.json())
+            .then((data) => {
+                if (ignore) return;
                 setEnrolledCourses(data.enrolledCourses || []);
                 setAvailableCourses(data.availableCourses || []);
-                setPaginationInfo(data.pagination);
-            } catch (error) {
-                console.error('Failed to fetch courses:', error);
-                setEnrolledCourses([]);
+                setPaginationInfo(data.pagination || null);
+            })
+            .catch(() => {
+                if (ignore) return;
                 setAvailableCourses([]);
                 setPaginationInfo(null);
-            } finally {
+                // Only clear enrolledCourses if user is a learner
+                if (isLoggedInLearner) setEnrolledCourses([]);
+            })
+            .finally(() => {
+                if (ignore) return;
                 setIsCoursesLoading(false);
-            }
-        },
-        [isUserLoading, coursesPerPage, user]
-    );
+            });
+        return () => {
+            ignore = true;
+        };
+        // eslint-disable-next-line
+    }, [searchTerm, sortOrder, currentPage, coursesPerPage]);
 
-    // Load courses effect - triggers when dependencies change
-    useEffect(() => {
-        fetchCourses(currentPage, debouncedSearchTerm, sortOrder);
-    }, [user, isUserLoading, currentPage, debouncedSearchTerm, sortOrder, fetchCourses]);
-
-    // Reset to page 1 when search term or sort changes
     useEffect(() => {
         setCurrentPage(1);
-    }, [debouncedSearchTerm, sortOrder]);
+    }, [sortOrder]);
 
-    const coursesWithProgress = useMemo(() => enrolledCourses, [enrolledCourses]);
+    // No longer needed: const coursesWithProgress = useMemo(() => enrolledCourses, [enrolledCourses]);
 
-    if (isUserLoading || isCoursesLoading) {
+    if (isUserLoading) {
         return <SkeletonLoader />;
     }
 
@@ -161,13 +142,13 @@ export default function Learning() {
             </div>
 
             {/* Continue Learning Carousel */}
-            {isLoggedInLearner && (
+            {isLoggedInLearner && !isUserLoading && (
                 <section className="container mx-auto">
                     <h2 className="text-gray-800 text-2xl font-semibold mb-6">Continue Learning</h2>
-                    {coursesWithProgress.length > 0 ? (
+                    {enrolledCourses.length > 0 ? (
                         <CourseCarousel
                             enrolled={true}
-                            courses={coursesWithProgress.slice(0, 6)}
+                            courses={enrolledCourses.slice(0, 6)}
                             basis="1/3"
                         />
                     ) : (
@@ -207,17 +188,19 @@ export default function Learning() {
 
                 {/* Course Grid */}
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-4 -mx-2">
-                    {availableCourses.map((course) => (
-                        <CourseCard
-                            key={course.id}
-                            id={course.id}
-                            name={course.title}
-                            modules={course.modules}
-                            duration={course.total_duration}
-                            progress={0}
-                            showProgress={false}
-                        />
-                    ))}
+                    {isCoursesLoading
+                        ? Array.from({ length: 3 }).map((_, i) => <CourseCardSkeleton key={i} />)
+                        : availableCourses.map((course) => (
+                              <CourseCard
+                                  key={course.id}
+                                  id={course.id}
+                                  name={course.title}
+                                  modules={course.modules}
+                                  duration={course.total_duration}
+                                  progress={0}
+                                  showProgress={false}
+                              />
+                          ))}
                 </div>
 
                 {/* Pagination */}
