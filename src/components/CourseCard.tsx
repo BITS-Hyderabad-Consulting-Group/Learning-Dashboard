@@ -3,7 +3,7 @@
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
-import { Calendar, SquareArrowOutUpRight, Timer } from 'lucide-react';
+import { FileText, SquareArrowOutUpRight, Timer } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 
 type Course = {
@@ -62,7 +62,7 @@ export function CourseCard({
                 <CardContent className="pb-2">
                     <div className="flex items-center justify-start space-x-3 text-sm text-slate-500">
                         <div className="flex items-center space-x-1.5">
-                            <Calendar className="h-4 w-4" />
+                            <FileText className="h-4 w-4" />
                             <span>{modules} Modules</span>
                         </div>
                         <div className="flex items-center space-x-1.5">
