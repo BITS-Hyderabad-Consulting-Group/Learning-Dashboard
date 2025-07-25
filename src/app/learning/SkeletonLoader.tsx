@@ -3,7 +3,7 @@ import React from 'react';
 
 const SkeletonLoader = () => {
     return (
-        <div className="p-8 space-y-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Header */}
             <div className="container mx-auto space-y-6 pt-6 pb-2">
                 <div className="w-80 h-10 bg-gray-300 rounded-lg animate-pulse mb-4"></div>

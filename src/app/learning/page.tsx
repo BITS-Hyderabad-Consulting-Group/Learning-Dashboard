@@ -77,11 +77,10 @@ export default function Learning() {
             setEnrolledCourses([]);
             setAvailableCourses([]);
             setIsCoursesLoading(false);
-            return;
         }
 
         setIsCoursesLoading(true);
-        fetch(`/api/learning?userId=${user.id}`)
+        fetch(`/api/learning?userId=${user?.id}`)
             .then((res) => res.json())
             .then((data) => {
                 setEnrolledCourses(data.enrolledCourses || []);
@@ -130,7 +129,7 @@ export default function Learning() {
     }
 
     return (
-        <div className="p-8 space-y-10">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Header */}
             <div className="container mx-auto space-y-6 pt-6 pb-2">
                 <h3 className="text-gray-600 text-lg font-semibold p-0 m-0">Welcome back, </h3>
@@ -147,9 +146,7 @@ export default function Learning() {
                     !
                 </h1>
                 <h2 className="text-gray-700 text-xl">
-                    {isLoggedInLearner
-                        ? 'Continue your learning journey'
-                        : 'Explore our latest learning tracks'}
+                    {isLoggedInLearner ? '' : 'Explore our latest learning tracks'}
                 </h2>
             </div>
 
@@ -172,7 +169,7 @@ export default function Learning() {
             )}
 
             {/* Available/All Courses */}
-            <section className="container mx-auto py-8">
+            <section className="container mx-auto my-8">
                 <h2 className="text-gray-800 text-2xl font-semibold mb-6">Available Courses</h2>
 
                 {/* Filters */}
