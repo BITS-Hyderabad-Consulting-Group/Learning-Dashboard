@@ -8,9 +8,11 @@ import {
     CarouselPrevious,
 } from '@/components/ui/carousel';
 import { CourseCard } from '@/components/CourseCard';
-import SwipeIndicator from '@/components/SwipeIndicator';
 import { EnrolledCourse as Course } from '@/types/course';
 import CourseCardSkeleton from './CourseCardSkeleton';
+import { useRef } from 'react';
+import Autoplay from 'embla-carousel-autoplay';
+import type { EmblaCarouselType } from 'embla-carousel';
 
 interface CourseCarouselProps {
     enrolled: boolean;
@@ -26,6 +28,8 @@ export default function CourseCarousel({
     basis = '1/2',
 }: CourseCarouselProps) {
     const [isMobile, setIsMobile] = useState(false);
+    const emblaRef = useRef<EmblaCarouselType | null>(null);
+    const [selectedIndex, setSelectedIndex] = useState(0);
 
     useEffect(() => {
         const handleResize = () => {
@@ -38,7 +42,24 @@ export default function CourseCarousel({
 
     return (
         <>
-            <Carousel opts={{ align: 'start', loop: true }} className="w-full px-0 lg:px-8">
+            <Carousel
+                plugins={[
+                    Autoplay({
+                        delay: 2000,
+                    }),
+                ]}
+                opts={{ align: 'start', loop: true }}
+                className="w-full px-0 lg:px-8"
+                setApi={(api) => {
+                    emblaRef.current = api ?? null;
+                    if (api) {
+                        setSelectedIndex(api.selectedScrollSnap());
+                        api.on('select', () => {
+                            setSelectedIndex(api.selectedScrollSnap());
+                        });
+                    }
+                }}
+            >
                 <CarouselContent>
                     {loading
                         ? Array.from({ length: 3 }).map((_, index) => (
@@ -76,7 +97,19 @@ export default function CourseCarousel({
                 )}
             </Carousel>
 
-            {isMobile && <SwipeIndicator />}
+            {isMobile && (
+                <div className="flex justify-center mt-4 gap-2">
+                    {courses.map((_, index) => (
+                        <button
+                            key={index}
+                            className={`h-2 w-2 rounded-full transition-all duration-300 ${
+                                selectedIndex === index ? 'bg-teal-800 w-3' : 'bg-gray-400'
+                            }`}
+                            onClick={() => emblaRef.current?.scrollTo(index)}
+                        />
+                    ))}
+                </div>
+            )}
         </>
     );
 }
