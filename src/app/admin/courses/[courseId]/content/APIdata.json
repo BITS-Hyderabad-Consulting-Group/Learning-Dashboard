@@ -1,6 +1,6 @@
 {
   "course": {
-    "id": "course_001",
+    "id": "course_101",
     "title": "Business Excellence: Consulting, Data Analysis & Product Management",
     "description": "Master the essential skills of modern business through comprehensive training in consulting methodologies, data-driven decision making, and product management best practices. This integrated course prepares you for leadership roles in today's data-driven business environment.",
     "instructorId": "instructor_001",
@@ -20,7 +20,7 @@
   "weeks": [
     {
       "id": "week_001",
-      "courseId": "course_001",
+      "courseId": "course_101",
       "weekNumber": 1,
       "title": "Consulting Fundamentals & Problem-Solving Frameworks",
       "description": "Learn core consulting methodologies, structured problem-solving approaches, and client engagement strategies used by top consulting firms.",
@@ -33,7 +33,7 @@
     },
     {
       "id": "week_002",
-      "courseId": "course_001",
+      "courseId": "course_101",
       "weekNumber": 2,
       "title": "Data Analysis & Business Intelligence",
       "description": "Master data collection, analysis techniques, visualization tools, and deriving actionable insights from business data.",
@@ -46,7 +46,7 @@
     },
     {
       "id": "week_003",
-      "courseId": "course_001",
+      "courseId": "course_101",
       "weekNumber": 3,
       "title": "Product Management Essentials",
       "description": "Understand product lifecycle management, user research, roadmap planning, and cross-functional team leadership in product development.",
@@ -59,7 +59,7 @@
     },
     {
       "id": "week_004",
-      "courseId": "course_001",
+      "courseId": "course_101",
       "weekNumber": 4,
       "title": "Integration & Strategic Implementation",
       "description": "Combine consulting, data analysis, and product management skills to develop comprehensive business strategies and implementation plans.",

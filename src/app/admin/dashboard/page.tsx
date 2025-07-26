@@ -16,8 +16,8 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft } from 'lucide-react';
-import data from './APIdata.json';
-import { CourseCard } from '@/components/CourseCard';
+import data from '../../admin/APIdata.json';
+import { AdminCourseCard } from '@/components/AdminCourseCard';
 
 // Define types for our new data structure
 type AdminCourse = (typeof data.courses)[0];
@@ -121,13 +121,13 @@ export default function AdminDashboardPage() {
                                             </TableCell>
                                             <TableCell className="text-right flex items-center justify-end gap-2">
                                                 <span>{enrollment.progress}%</span>
+                                                {enrollment.progress < 30 && (
+                                                    <Badge variant="destructive">Struggling</Badge>
+                                                )}
                                                 <Progress
                                                     value={enrollment.progress}
                                                     className="w-24"
                                                 />
-                                                {enrollment.progress < 30 && (
-                                                    <Badge variant="destructive">Struggling</Badge>
-                                                )}
                                             </TableCell>
                                         </TableRow>
                                     ))}
@@ -257,59 +257,15 @@ export default function AdminDashboardPage() {
                         const enrollmentCount = enrollments.filter(
                             (e) => e.courseId === course.id
                         ).length;
-                        const avgProgress =
-                            enrollmentCount > 0
-                                ? enrollments
-                                      .filter((e) => e.courseId === course.id)
-                                      .reduce((sum, e) => sum + e.progress, 0) / enrollmentCount
-                                : 0;
-
                         return (
-                            <div key={course.id} className="flex flex-col gap-2">
-                                <CourseCard
-                                    id={course.id}
-                                    name={course.name}
-                                    modules={course.modules.length}
-                                    duration={Number(course.duration)}
-                                    progress={avgProgress}
-                                    showProgress={false}
-                                />
-                                <div className="grid grid-cols-2 gap-2 text-center p-2 rounded-lg bg-gray-50 border">
-                                    <div>
-                                        <p className="text-xs text-muted-foreground">Enrollments</p>
-                                        <p className="font-semibold text-sm">{enrollmentCount}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-xs text-muted-foreground">Status</p>
-                                        <p className="font-semibold text-sm">
-                                            <Badge
-                                                variant={
-                                                    course.status === 'active'
-                                                        ? 'default'
-                                                        : 'secondary'
-                                                }
-                                            >
-                                                {course.status}
-                                            </Badge>
-                                        </p>
-                                    </div>
-                                </div>
-                                <Button variant="outline" onClick={() => setSelectedCourse(course)}>
-                                    View Detailed Analytics
-                                </Button>
-                                <div className="grid grid-cols-2 gap-2">
-                                    <Button asChild variant="outline" size="sm">
-                                        <Link href={`/admin/courses/${course.id}`}>
-                                            Edit Course
-                                        </Link>
-                                    </Button>
-                                    <Button asChild variant="outline" size="sm">
-                                        <Link href={`/admin/quizzes/${course.id}`}>
-                                            Quiz Submissions
-                                        </Link>
-                                    </Button>
-                                </div>
-                            </div>
+                            <AdminCourseCard
+                                key={course.id}
+                                id={course.id}
+                                name={course.name}
+                                enrollments={enrollmentCount}
+                                status={course.status}
+                                onViewDetailsClick={() => setSelectedCourse(course)}
+                            />
                         );
                     })}
                 </div>

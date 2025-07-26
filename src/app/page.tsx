@@ -98,7 +98,7 @@ export default function HomePage() {
                         through comprehensive learning in business, data, and technology.
                     </p>
                     <div className="mt-8">
-                        <Link href="/(student)/courses">
+                        <Link href="/learning">
                             <span className="inline-block bg-[#007975] text-white font-semibold rounded-full px-8 py-3 hover:bg-[#005f5c] transition-colors duration-300 shadow-md">
                                 Explore Courses
                             </span>
@@ -110,7 +110,7 @@ export default function HomePage() {
                     <section className="w-full">
                         <div className="flex justify-between items-baseline mb-6">
                             <h2 className="text-2xl font-bold text-gray-900">Featured Courses</h2>
-                            <Link href="/courses/featured">
+                            <Link href="/learning">
                                 <span className="text-sm font-semibold text-teal-800 hover:underline">
                                     See all
                                 </span>
