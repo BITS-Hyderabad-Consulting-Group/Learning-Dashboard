@@ -1,12 +1,13 @@
 {
     "name": "learning-dashboard",
-    "version": "0.1.0",
+    "version": "0.1.1",
     "private": true,
     "scripts": {
         "dev": "next dev --turbopack",
         "build": "next build",
         "start": "next start",
-        "lint": "next lint"
+        "lint": "next lint",
+        "release": "standard-version"
     },
     "dependencies": {
         "@radix-ui/react-accordion": "^1.2.11",
