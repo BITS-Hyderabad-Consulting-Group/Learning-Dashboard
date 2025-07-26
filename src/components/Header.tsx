@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
+import Link from 'next/link';
 import clsx from 'clsx';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Menu, X } from 'lucide-react';
@@ -78,20 +79,22 @@ export const Header: React.FC<{
     return (
         <header ref={headerRef} className="w-full bg-[#B4DEDD] h-[80px] relative">
             <div className="mx-auto flex max-w-7xl h-full items-center justify-between px-6 lg:px-8">
-                <motion.div
-                    className="flex items-center"
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.5 }}
-                >
-                    <Image
-                        src="/LogoTeal.png"
-                        alt="BHCG Logo"
-                        width={602}
-                        height={512}
-                        className="h-18 w-auto object-contain"
-                    />
-                </motion.div>
+                <Link href="/" className="flex items-center">
+                    <motion.div
+                        className="flex items-center"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.5 }}
+                    >
+                        <Image
+                            src="/LogoTeal.png"
+                            alt="BHCG Logo"
+                            width={602}
+                            height={512}
+                            className="h-18 w-auto object-contain"
+                        />
+                    </motion.div>
+                </Link>
 
                 {/* Desktop Navigation */}
                 <nav className="hidden lg:block">
