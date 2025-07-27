@@ -19,12 +19,15 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft } from 'lucide-react';
-import data from '../../admin/APIdata.json';
+import data from '../APIdata.json';
 import { supabase } from '@/lib/supabase-client';
 import { AdminCourseCard } from '@/components/AdminCourseCard';
 
 // Define types for our new data structure
 type AdminCourse = (typeof data.courses)[0];
+type Enrollment = (typeof data.enrollments)[0];
+type QuizSubmission = (typeof data.quizSubmissions)[0];
+type Module = (typeof data.courses)[0]['modules'][0];
 
 export default function AdminDashboardPage() {
     const { profile, loading } = useUser();
@@ -32,16 +35,19 @@ export default function AdminDashboardPage() {
     const [selectedCourse, setSelectedCourse] = useState<AdminCourse | null>(null);
     const { admin, courses, students, enrollments, quizSubmissions } = data;
     const myCourses = useMemo(
-        () => courses.filter((c) => c.owner_id === admin.id),
+        () => courses.filter((c: AdminCourse) => c.owner_id === admin.id),
         [courses, admin.id]
     );
-    const studentMap = useMemo(() => new Map(students.map((s) => [s.id, s.name])), [students]);
+    const studentMap = useMemo(
+        () => new Map(students.map((s: { id: string; name: string }) => [s.id, s.name])),
+        [students]
+    );
     const overviewStats = useMemo(
         () => ({
             totalCourses: myCourses.length,
-            activeCourses: myCourses.filter((c) => c.status === 'active').length,
-            totalEnrollments: enrollments.filter((e) =>
-                myCourses.some((mc) => mc.id === e.courseId)
+            activeCourses: myCourses.filter((c: AdminCourse) => c.status === 'active').length,
+            totalEnrollments: enrollments.filter((e: { courseId: string }) =>
+                myCourses.some((mc: AdminCourse) => mc.id === e.courseId)
             ).length,
         }),
         [myCourses, enrollments]
@@ -83,12 +89,18 @@ export default function AdminDashboardPage() {
     };
     // --- RENDER LOGIC: DETAIL VIEW ---
     if (selectedCourse) {
-        const courseEnrollments = enrollments.filter((e) => e.courseId === selectedCourse.id);
-        const courseSubmissions = quizSubmissions.filter((q) => q.courseId === selectedCourse.id);
+        const courseEnrollments = enrollments.filter(
+            (e: { courseId: string }) => e.courseId === selectedCourse.id
+        );
+        const courseSubmissions = quizSubmissions.filter(
+            (q: { courseId: string }) => q.courseId === selectedCourse.id
+        );
         const avgCompletion =
             courseEnrollments.length > 0
-                ? courseEnrollments.reduce((sum, e) => sum + e.progress, 0) /
-                  courseEnrollments.length
+                ? courseEnrollments.reduce(
+                      (sum: number, e: { progress: number }) => sum + e.progress,
+                      0
+                  ) / courseEnrollments.length
                 : 0;
 
         return (
@@ -151,10 +163,13 @@ export default function AdminDashboardPage() {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {courseEnrollments.map((enrollment) => (
+                                    {courseEnrollments.map((enrollment: Enrollment) => (
                                         <TableRow key={enrollment.enrollmentId}>
                                             <TableCell className="font-medium">
-                                                {studentMap.get(enrollment.studentId) || 'Unknown'}
+                                                {String(
+                                                    studentMap.get(enrollment.studentId) ||
+                                                        'Unknown'
+                                                )}
                                             </TableCell>
                                             <TableCell className="text-right flex items-center justify-end gap-2">
                                                 <span>{enrollment.progress}%</span>
@@ -191,7 +206,7 @@ export default function AdminDashboardPage() {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {selectedCourse.modules.map((module) => (
+                                    {selectedCourse.modules.map((module: Module) => (
                                         <TableRow key={module.id}>
                                             <TableCell className="font-medium">
                                                 {module.title}
@@ -223,10 +238,10 @@ export default function AdminDashboardPage() {
                                     </TableRow>
                                 </TableHeader>
                                 <TableBody>
-                                    {courseSubmissions.map((sub) => (
+                                    {courseSubmissions.map((sub: QuizSubmission) => (
                                         <TableRow key={sub.submissionId}>
                                             <TableCell className="font-medium">
-                                                {studentMap.get(sub.studentId) || 'Unknown'}
+                                                {String(studentMap.get(sub.studentId) || 'Unknown')}
                                             </TableCell>
                                             <TableCell>{sub.quizTitle}</TableCell>
                                             <TableCell className="text-right">
@@ -290,58 +305,11 @@ export default function AdminDashboardPage() {
             <section>
                 <h2 className="text-2xl font-bold mb-6">My Courses Overview</h2>
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {myCourses.map((course) => {
+                    {myCourses.map((course: AdminCourse) => {
                         const enrollmentCount = enrollments.filter(
-                            (e) => e.courseId === course.id
+                            (e: { courseId: string }) => e.courseId === course.id
                         ).length;
                         return (
-<<<<<<< HEAD:src/app/instructor/dashboard/page.tsx
-                            <div key={course.id} className="flex flex-col gap-2">
-                                <CourseCard
-                                    id={course.id}
-                                    name={course.name}
-                                    modules={course.modules.length}
-                                    duration={Number(course.duration)}
-                                    progress={avgProgress}
-                                    showProgress={false}
-                                />
-                                <div className="grid grid-cols-2 gap-2 text-center p-2 rounded-lg bg-gray-50 border">
-                                    <div>
-                                        <p className="text-xs text-muted-foreground">Enrollments</p>
-                                        <p className="font-semibold text-sm">{enrollmentCount}</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-xs text-muted-foreground">Status</p>
-                                        <p className="font-semibold text-sm">
-                                            <Badge
-                                                variant={
-                                                    course.status === 'active'
-                                                        ? 'default'
-                                                        : 'secondary'
-                                                }
-                                            >
-                                                {course.status}
-                                            </Badge>
-                                        </p>
-                                    </div>
-                                </div>
-                                <Button variant="outline" onClick={() => setSelectedCourse(course)}>
-                                    View Detailed Analytics
-                                </Button>
-                                <div className="grid grid-cols-2 gap-2">
-                                    <Button asChild variant="outline" size="sm">
-                                        <Link href={`/instructor/courses/${course.id}`}>
-                                            Edit Course
-                                        </Link>
-                                    </Button>
-                                    <Button asChild variant="outline" size="sm">
-                                        <Link href={`/instructor/quizzes/${course.id}`}>
-                                            Quiz Submissions
-                                        </Link>
-                                    </Button>
-                                </div>
-                            </div>
-=======
                             <AdminCourseCard
                                 key={course.id}
                                 id={course.id}
@@ -350,7 +318,6 @@ export default function AdminDashboardPage() {
                                 status={course.status}
                                 onViewDetailsClick={() => setSelectedCourse(course)}
                             />
->>>>>>> 3c9bd97bc9f5e2c307c69e9ad7c44138d0e65f4e:src/app/admin/dashboard/page.tsx
                         );
                     })}
                 </div>
