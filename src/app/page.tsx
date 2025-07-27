@@ -41,7 +41,7 @@ export default function HomePage() {
                 // Get first 6 available courses for featured section
                 setFeaturedCourses(data.availableCourses.slice(0, 6));
             } catch (error) {
-                console.error('Error fetching courses:', error);
+                // removed debug
             } finally {
                 setLoading(false);
             }

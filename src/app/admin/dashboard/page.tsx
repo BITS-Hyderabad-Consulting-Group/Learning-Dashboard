@@ -1,5 +1,8 @@
 'use client';
 
+import { useUser } from '@/context/UserContext';
+import { useRouter } from 'next/navigation';
+
 import { useMemo, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
@@ -24,38 +27,15 @@ import { AdminCourseCard } from '@/components/AdminCourseCard';
 type AdminCourse = (typeof data.courses)[0];
 
 export default function AdminDashboardPage() {
-    // Call admin API on initial load
-    useEffect(() => {
-        testAdminAPI();
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
-
-    const { admin, courses, students, enrollments, quizSubmissions } = data;
+    const { profile, loading } = useUser();
+    const router = useRouter();
     const [selectedCourse, setSelectedCourse] = useState<AdminCourse | null>(null);
-    const testAdminAPI = async () => {
-        try {
-            // Retrieve current session to get access token
-            const { data: { session } } = await supabase.auth.getSession();
-            const token = session?.access_token;
-
-            const response = await fetch('/api/admin/dashboard', {
-                headers: token ? { Authorization: `Bearer ${token}` } : undefined,
-            });
-            const data = await response.json();
-            console.log('Admin API response:', data);
-            alert('Check console for API response!');
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Error calling API - check console');
-        }
-    };
+    const { admin, courses, students, enrollments, quizSubmissions } = data;
     const myCourses = useMemo(
         () => courses.filter((c) => c.owner_id === admin.id),
         [courses, admin.id]
     );
     const studentMap = useMemo(() => new Map(students.map((s) => [s.id, s.name])), [students]);
-
-    // High-level overview stats
     const overviewStats = useMemo(
         () => ({
             totalCourses: myCourses.length,
@@ -66,7 +46,41 @@ export default function AdminDashboardPage() {
         }),
         [myCourses, enrollments]
     );
+    useEffect(() => {
+        if (!loading) {
+            if (!profile || profile.role !== 'admin') {
+                router.replace('/learning');
+            }
+        }
+    }, [profile, loading, router]);
+    useEffect(() => {
+        if (!loading && profile && profile.role === 'admin') {
+            testAdminAPI();
+        }
+    }, [loading, profile]);
+    if (loading) {
+        return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+    }
+    if (!profile || profile.role !== 'admin') {
+        return null;
+    }
 
+    const testAdminAPI = async () => {
+        try {
+            // Retrieve current session to get access token
+            const {
+                data: { session },
+            } = await supabase.auth.getSession();
+            const token = session?.access_token;
+
+            const response = await fetch('/api/admin/dashboard', {
+                headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+            });
+            await response.json();
+        } catch {
+            // silently fail
+        }
+    };
     // --- RENDER LOGIC: DETAIL VIEW ---
     if (selectedCourse) {
         const courseEnrollments = enrollments.filter((e) => e.courseId === selectedCourse.id);
