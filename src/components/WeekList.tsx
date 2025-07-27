@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Clock, CheckCheck, Bookmark, BookOpen, Video, FileCheck2 } from 'lucide-react';
+import Link from 'next/link';
 
 interface Module {
     id?: string;
@@ -191,7 +192,14 @@ export default function WeekList({ weeks, enrolled = true }: Props) {
                                                 <div className="flex justify-between items-center py-3 sm:py-3 text-sm text-[#065F5F]">
                                                     {/* Title */}
                                                     <p className="font-medium flex-1 pr-2">
-                                                        {enrolled ? (
+                                                        {enrolled && mod.id ? (
+                                                            <Link
+                                                                href={`/modules/${mod.id}`}
+                                                                className="cursor-pointer text-[#065F5F] hover:text-[#007C6A] hover:underline transition-colors"
+                                                            >
+                                                                {mod.title}
+                                                            </Link>
+                                                        ) : enrolled ? (
                                                             <span className="cursor-pointer text-[#065F5F]">
                                                                 {mod.title}
                                                             </span>

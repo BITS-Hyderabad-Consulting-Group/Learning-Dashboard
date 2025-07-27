@@ -219,7 +219,7 @@ export default function AdminDashboardPage() {
                     <p className="text-muted-foreground">Welcome back, {admin.full_name}!</p>
                 </div>
                 <Button asChild className="bg-teal-700 hover:bg-teal-800">
-                    <Link href="/admin/courses/new">Create New Course</Link>
+                    <Link href="/instructor/courses/new">Create New Course</Link>
                 </Button>
             </div>
 
@@ -299,12 +299,12 @@ export default function AdminDashboardPage() {
                                 </Button>
                                 <div className="grid grid-cols-2 gap-2">
                                     <Button asChild variant="outline" size="sm">
-                                        <Link href={`/admin/courses/${course.id}`}>
+                                        <Link href={`/instructor/courses/${course.id}`}>
                                             Edit Course
                                         </Link>
                                     </Button>
                                     <Button asChild variant="outline" size="sm">
-                                        <Link href={`/admin/quizzes/${course.id}`}>
+                                        <Link href={`/instructor/quizzes/${course.id}`}>
                                             Quiz Submissions
                                         </Link>
                                     </Button>
