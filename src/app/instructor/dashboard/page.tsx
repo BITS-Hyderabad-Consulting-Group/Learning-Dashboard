@@ -79,7 +79,7 @@ export default function AdminDashboardPage() {
             } = await supabase.auth.getSession();
             const token = session?.access_token;
 
-            const response = await fetch('/api/admin/dashboard', {
+            const response = await fetch('/api/instructor/dashboard', {
                 headers: token ? { Authorization: `Bearer ${token}` } : undefined,
             });
             await response.json();
