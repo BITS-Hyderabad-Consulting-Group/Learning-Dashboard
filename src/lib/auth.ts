@@ -1,6 +1,5 @@
 import { supabase } from '@/lib/supabase-client';
 import { NextRequest } from 'next/server';
-import { createServerClient } from '@supabase/ssr';
 
 export const signInWithGoogle = async () => {
     const { error } = await 
@@ -29,37 +28,45 @@ process.env.NEXT_PUBLIC_SUPABASE_URL!;
     const supabaseAnonKey = 
 process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!;
     
-    // Create Supabase client for server-side with cookies
-    const supabase = createServerClient(supabaseUrl, 
-supabaseAnonKey, {
+        // Try to read access token from Authorization header as fallback (e.g., fetch with Bearer token)
+    let headerToken = null;
+    const authHeader = request.headers.get('authorization');
+    if (authHeader && authHeader.toLowerCase().startsWith('bearer ')) {
+      headerToken = authHeader.slice(7).trim();
+    }
+
+    // Create a server-side Supabase client that automatically reads the auth cookies
+    const { createServerClient } = await import('@supabase/ssr');
+    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
       cookies: {
         get(name: string) {
           return request.cookies.get(name)?.value;
         },
-        set(name: string, value: string, options: any) {
-          // For API routes, we can't set cookies in the response here
-          // This will be handled by the response in the route handler
-        },
-        remove(name: string, options: any) {
-          // Similar to set, this would be handled in the route handler
-        },
+        set() {},
+        remove() {},
       },
     });
 
-    // Get the current user instead of session for better reliability
-    const { data: { user }, error: userError } = await 
-supabase.auth.getUser();
-    
+        // Fetch the currently authenticated user (based on cookies or Bearer token)
+    if (headerToken) {
+      // If Bearer token provided, set it temporarily so getUser() works
+      await supabase.auth.setSession({ access_token: headerToken, refresh_token: headerToken });
+    }
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+
     if (userError || !user) {
-      console.error('User authentication error:', 
-userError);
-      return { error: 'Authentication required', status: 
-401 };
+      console.log('User not authenticated:', userError?.message);
+      return { error: 'Authentication required', status: 401 };
     }
 
-    // Check if user has admin role
+    console.log('User authenticated:', user.email);
+
+    // Import service-role client for privileged queries after user authenticated
+    const { supabaseServer } = await import('@/lib/supabase-server');
+
+    // Check if user has admin role using server client
     const { data: profile, error: profileError } = await 
-supabase
+supabaseServer
       .from('profiles')
       .select('role, full_name')
       .eq('id', user.id)
@@ -79,11 +86,13 @@ user.id, role: profile?.role });
 403 };
     }
 
+    console.log('Admin auth successful for:', 
+user.email);
     return { 
       success: true,
       user, 
       profile,
-      supabase // Return supabase client for further use if needed
+      supabase: supabaseServer // Return server client for further operations
     };
   } catch (error) {
     console.error('Admin auth error:', error);
@@ -91,3 +100,4 @@ user.id, role: profile?.role });
 };
   }
 }
+yashvia@Yashvis-MacBook-Air lib % 
