@@ -1,7 +1,7 @@
 import React from 'react';
 import Image from 'next/image';
 import { motion, Variants } from 'framer-motion';
-import APIData from '../app/APIdata.json';
+import allCompanies from '@/data/alumni-firms.json';
 
 type Company = {
     id: string;
@@ -55,8 +55,6 @@ const ScrollerRow = ({
 };
 
 export const Scroller = () => {
-    const allCompanies = APIData.Companies;
-
     // Split the companies into two lists for the two rows
     const halfwayIndex = Math.ceil(allCompanies.length / 2);
     const topRowCompanies = allCompanies.slice(0, halfwayIndex);
