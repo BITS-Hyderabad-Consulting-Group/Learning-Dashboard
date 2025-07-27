@@ -66,8 +66,7 @@ await supabaseServer
 (courseEnrollmentCounts[courseId] || 0) + 1;
       });
     }
-    // Transform recent courses to include enrollment 
-counts
+    // Transform recent courses to include enrollment counts
     const transformedRecentCourses = 
 recentCourses?.map(course => 
 ({
