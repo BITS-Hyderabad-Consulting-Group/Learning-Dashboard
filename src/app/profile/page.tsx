@@ -5,6 +5,7 @@ import { useState, useEffect } from 'react';
 import { Briefcase, Mail, Calendar, Star, FileText, UserRound } from 'lucide-react';
 import { EnrolledCourse as Course } from '@/types/course';
 import { useUser } from '@/context/UserContext';
+import { Pencil, Save } from 'lucide-react';
 import ProfilePageSkeleton from './ProfileSkeleton';
 import CourseCarousel from '@/components/CourseCarousel';
 import Image from 'next/image';
@@ -14,24 +15,24 @@ export default function ProfilePage() {
     const [completedCourses, setCompletedCourses] = useState<Course[]>([]);
     const [coursesLoading, setCoursesLoading] = useState<boolean>(true);
     const { profile } = useUser();
+    const [isEditing, setIsEditing] = useState(false);
+    const [bioText, setBioText] = useState(profile?.biodata || '');
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const fetchUserCourses = async () => {
             setCoursesLoading(true);
-
             try {
                 const response = await fetch(`/api/profile/${profile?.id}`);
-
                 if (!response.ok) {
                     const errorData = await response.json();
                     throw new Error(errorData.error || 'Failed to fetch courses');
                 }
-
                 const data = await response.json();
                 setCurrentCourses(data.currentCourses);
                 setCompletedCourses(data.completedCourses);
-            } catch (err: unknown) {
-                console.error('Fetch error:', err);
+            } catch {
+                // silently fail
             } finally {
                 setCoursesLoading(false);
             }
@@ -42,7 +43,7 @@ export default function ProfilePage() {
         }
     }, [profile?.id]);
 
-    // ✅ 3. Combined loading state check
+    // 3. Combined loading state check
     // We show the skeleton if the profile is loading OR if the courses are loading.
     if (!profile || coursesLoading) {
         return <ProfilePageSkeleton />;
@@ -74,6 +75,33 @@ export default function ProfilePage() {
             transition: { duration: 0.3 },
         },
     };
+
+    const handleSave = async () => {
+        setLoading(true);
+        try {
+            const response = await fetch(`/api/profile/${profile.id}/biodata`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    biodata: bioText,
+                }),
+            });
+            if (!response.ok) {
+                // silently fail
+                return;
+            }
+            setIsEditing(false);
+            profile.biodata = bioText;
+        } catch {
+            // silently fail
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const hasBio = !!(profile.biodata && profile.biodata.trim().length > 0);
 
     return (
         <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
@@ -223,12 +251,67 @@ export default function ProfilePage() {
                                 <div className="flex items-start gap-3">
                                     <FileText className="w-5 h-5 text-gray-500 mt-1 flex-shrink-0" />
                                     <div className="flex-1">
-                                        <h4 className="text-base font-semibold text-gray-700 mb-2">
-                                            About
-                                        </h4>
-                                        <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
-                                            {profile.biodata}
-                                        </p>
+                                        <div className="flex items-center justify-between mb-2">
+                                            <h4 className="text-base font-semibold text-gray-700">
+                                                About
+                                            </h4>
+
+                                            {/* Show Edit or Add button */}
+                                            {hasBio || isEditing ? (
+                                                <button
+                                                    onClick={() => {
+                                                        if (isEditing) handleSave();
+                                                        else setIsEditing(true);
+                                                    }}
+                                                    className="text-teal-700 hover:text-teal-900 flex items-center gap-1 text-sm"
+                                                >
+                                                    {isEditing ? (
+                                                        <>
+                                                            <Save className="w-4 h-4" />
+                                                            Save
+                                                        </>
+                                                    ) : (
+                                                        <>
+                                                            <Pencil className="w-4 h-4" />
+                                                            Edit
+                                                        </>
+                                                    )}
+                                                </button>
+                                            ) : (
+                                                <button
+                                                    onClick={() => setIsEditing(true)}
+                                                    className="text-teal-700 hover:text-teal-900 flex items-center gap-1 text-sm"
+                                                >
+                                                    <Pencil className="w-4 h-4" />
+                                                    Add About
+                                                </button>
+                                            )}
+                                        </div>
+
+                                        {/* Bio text or textarea */}
+                                        {isEditing ? (
+                                            <>
+                                                <textarea
+                                                    value={bioText}
+                                                    onChange={(e) => setBioText(e.target.value)}
+                                                    className="w-full border border-gray-300 rounded-md p-2 text-sm sm:text-base"
+                                                    rows={4}
+                                                />
+                                                <button
+                                                    onClick={() => {
+                                                        setIsEditing(false);
+                                                        setBioText(profile.biodata || '');
+                                                    }}
+                                                    className="text-sm text-gray-600 mt-1 hover:underline"
+                                                >
+                                                    Cancel
+                                                </button>
+                                            </>
+                                        ) : hasBio ? (
+                                            <p className="text-gray-600 text-sm sm:text-base leading-relaxed">
+                                                {profile.biodata}
+                                            </p>
+                                        ) : null}
                                     </div>
                                 </div>
                             </div>

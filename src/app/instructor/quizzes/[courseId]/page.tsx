@@ -1,6 +1,6 @@
 'use client';
 
-import { use, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { notFound } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -8,14 +8,14 @@ import { Button } from '@/components/ui/button';
 import { Check, X, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import data from './APIdata.json';
+import data from '../../../admin/APIdata.json';
 
 // Define types for our detailed data
 type Quiz = (typeof data.quizzes)[0];
 type Question = Quiz['questions'][0];
 
 export default function QuizSubmissionsPage({ params }: { params: Promise<{ courseId: string }> }) {
-    const { courseId } = use(params);
+    const { courseId } = React.use(params);
     const { courses, students, quizzes, quizSubmissions } = data;
 
     const [selectedSubmissionId, setSelectedSubmissionId] = useState<string | null>(null);
@@ -95,7 +95,7 @@ export default function QuizSubmissionsPage({ params }: { params: Promise<{ cour
                                 </Badge>
                             </div>
                             <p className="text-sm text-muted-foreground">
-                                {quizzes.find((q) => q.quizId === submission.quizId)?.title}
+                                {quizzes.find((q) => q.quizId === submission.quizId)?.quizTitle}
                             </p>
                         </button>
                     ))}

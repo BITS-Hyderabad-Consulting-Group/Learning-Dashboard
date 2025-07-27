@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useMemo } from 'react';
+import { use, useState, useEffect, useCallback, useMemo } from 'react';
 import { toast } from 'sonner';
 import { useUser } from '@/context/UserContext';
 import { format, isValid, parseISO } from 'date-fns';
@@ -8,8 +8,6 @@ import WeekList from '@/components/WeekList';
 import { motion, AnimatePresence } from 'framer-motion';
 
 import { CourseData } from '@/types/course';
-
-import { use } from 'react';
 
 // Helper function to format module type strings for display
 const formatModuleTypeForDisplay = (type: string): 'Video' | 'Article' | 'Evaluative' => {

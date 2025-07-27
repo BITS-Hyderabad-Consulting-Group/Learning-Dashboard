@@ -36,7 +36,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
                     .maybeSingle();
 
                 if (profileError) {
-                    console.error('Error fetching profile:', profileError);
+                    // removed debug
                 } else {
                     setProfile(profileData);
                 }

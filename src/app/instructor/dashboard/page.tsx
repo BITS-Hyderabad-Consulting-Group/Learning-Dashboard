@@ -1,6 +1,9 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useUser } from '@/context/UserContext';
+import { useRouter } from 'next/navigation';
+
+import { useMemo, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -16,23 +19,23 @@ import {
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft } from 'lucide-react';
-import data from './APIdata.json';
-import { CourseCard } from '@/components/CourseCard';
+import data from '../../admin/APIdata.json';
+import { supabase } from '@/lib/supabase-client';
+import { AdminCourseCard } from '@/components/AdminCourseCard';
 
 // Define types for our new data structure
 type AdminCourse = (typeof data.courses)[0];
 
 export default function AdminDashboardPage() {
-    const { admin, courses, students, enrollments, quizSubmissions } = data;
+    const { profile, loading } = useUser();
+    const router = useRouter();
     const [selectedCourse, setSelectedCourse] = useState<AdminCourse | null>(null);
-
+    const { admin, courses, students, enrollments, quizSubmissions } = data;
     const myCourses = useMemo(
         () => courses.filter((c) => c.owner_id === admin.id),
         [courses, admin.id]
     );
     const studentMap = useMemo(() => new Map(students.map((s) => [s.id, s.name])), [students]);
-
-    // High-level overview stats
     const overviewStats = useMemo(
         () => ({
             totalCourses: myCourses.length,
@@ -43,7 +46,41 @@ export default function AdminDashboardPage() {
         }),
         [myCourses, enrollments]
     );
+    useEffect(() => {
+        if (!loading) {
+            if (!profile || profile.role !== 'admin') {
+                router.replace('/learning');
+            }
+        }
+    }, [profile, loading, router]);
+    useEffect(() => {
+        if (!loading && profile && profile.role === 'admin') {
+            testAdminAPI();
+        }
+    }, [loading, profile]);
+    if (loading) {
+        return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+    }
+    if (!profile || profile.role !== 'admin') {
+        return null;
+    }
 
+    const testAdminAPI = async () => {
+        try {
+            // Retrieve current session to get access token
+            const {
+                data: { session },
+            } = await supabase.auth.getSession();
+            const token = session?.access_token;
+
+            const response = await fetch('/api/admin/dashboard', {
+                headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+            });
+            await response.json();
+        } catch {
+            // silently fail
+        }
+    };
     // --- RENDER LOGIC: DETAIL VIEW ---
     if (selectedCourse) {
         const courseEnrollments = enrollments.filter((e) => e.courseId === selectedCourse.id);
@@ -121,13 +158,13 @@ export default function AdminDashboardPage() {
                                             </TableCell>
                                             <TableCell className="text-right flex items-center justify-end gap-2">
                                                 <span>{enrollment.progress}%</span>
+                                                {enrollment.progress < 30 && (
+                                                    <Badge variant="destructive">Struggling</Badge>
+                                                )}
                                                 <Progress
                                                     value={enrollment.progress}
                                                     className="w-24"
                                                 />
-                                                {enrollment.progress < 30 && (
-                                                    <Badge variant="destructive">Struggling</Badge>
-                                                )}
                                             </TableCell>
                                         </TableRow>
                                     ))}
@@ -257,14 +294,8 @@ export default function AdminDashboardPage() {
                         const enrollmentCount = enrollments.filter(
                             (e) => e.courseId === course.id
                         ).length;
-                        const avgProgress =
-                            enrollmentCount > 0
-                                ? enrollments
-                                      .filter((e) => e.courseId === course.id)
-                                      .reduce((sum, e) => sum + e.progress, 0) / enrollmentCount
-                                : 0;
-
                         return (
+<<<<<<< HEAD:src/app/instructor/dashboard/page.tsx
                             <div key={course.id} className="flex flex-col gap-2">
                                 <CourseCard
                                     id={course.id}
@@ -310,6 +341,16 @@ export default function AdminDashboardPage() {
                                     </Button>
                                 </div>
                             </div>
+=======
+                            <AdminCourseCard
+                                key={course.id}
+                                id={course.id}
+                                name={course.name}
+                                enrollments={enrollmentCount}
+                                status={course.status}
+                                onViewDetailsClick={() => setSelectedCourse(course)}
+                            />
+>>>>>>> 3c9bd97bc9f5e2c307c69e9ad7c44138d0e65f4e:src/app/admin/dashboard/page.tsx
                         );
                     })}
                 </div>
