@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import Link from 'next/link';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -17,18 +17,30 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft } from 'lucide-react';
 import data from '../../admin/APIdata.json';
+import { supabase } from '@/lib/supabase-client';
 import { AdminCourseCard } from '@/components/AdminCourseCard';
 
 // Define types for our new data structure
 type AdminCourse = (typeof data.courses)[0];
 
 export default function AdminDashboardPage() {
+    // Call admin API on initial load
+    useEffect(() => {
+        testAdminAPI();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     const { admin, courses, students, enrollments, quizSubmissions } = data;
     const [selectedCourse, setSelectedCourse] = useState<AdminCourse | null>(null);
     const testAdminAPI = async () => {
         try {
-            const response = await 
-fetch('/api/admin/dashboard');
+            // Retrieve current session to get access token
+            const { data: { session } } = await supabase.auth.getSession();
+            const token = session?.access_token;
+
+            const response = await fetch('/api/admin/dashboard', {
+                headers: token ? { Authorization: `Bearer ${token}` } : undefined,
+            });
             const data = await response.json();
             console.log('Admin API response:', data);
             alert('Check console for API response!');
