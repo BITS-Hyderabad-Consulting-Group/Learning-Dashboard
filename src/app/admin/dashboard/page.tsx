@@ -25,7 +25,18 @@ type AdminCourse = (typeof data.courses)[0];
 export default function AdminDashboardPage() {
     const { admin, courses, students, enrollments, quizSubmissions } = data;
     const [selectedCourse, setSelectedCourse] = useState<AdminCourse | null>(null);
-
+    const testAdminAPI = async () => {
+        try {
+            const response = await 
+fetch('/api/admin/dashboard');
+            const data = await response.json();
+            console.log('Admin API response:', data);
+            alert('Check console for API response!');
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error calling API - check console');
+        }
+    };
     const myCourses = useMemo(
         () => courses.filter((c) => c.owner_id === admin.id),
         [courses, admin.id]
