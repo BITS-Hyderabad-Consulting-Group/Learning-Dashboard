@@ -1,54 +1,86 @@
 'use client';
 
-import React, { useMemo, useState } from 'react';
-import { notFound } from 'next/navigation';
+import React, { useMemo, useState, useEffect } from 'react';
+import { notFound, useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Check, X, ArrowLeft } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import data from '../../../admin/APIdata.json';
+import data from '@/app/instructor/APIdata.json';
+import { useUser } from '@/context/UserContext';
 
 // Define types for our detailed data
 type Quiz = (typeof data.quizzes)[0];
 type Question = Quiz['questions'][0];
 
 export default function QuizSubmissionsPage({ params }: { params: Promise<{ courseId: string }> }) {
-    const { courseId } = React.use(params);
+    const { profile, loading } = useUser();
+    const router = useRouter();
+    const [selectedSubmissionId, setSelectedSubmissionId] = useState<string | null>(null);
     const { courses, students, quizzes, quizSubmissions } = data;
 
-    const [selectedSubmissionId, setSelectedSubmissionId] = useState<string | null>(null);
+    // Get courseId from params
+    const [courseId, setCourseId] = useState<string | null>(null);
+    useEffect(() => {
+        (async () => {
+            const resolved = await params;
+            setCourseId(resolved.courseId);
+        })();
+    }, [params]);
 
-    // Find the course and its relevant data
-    const course = useMemo(() => courses.find((c) => c.id === courseId), [courses, courseId]);
+    // Find the course and its relevant data (hooks must always be called)
+    const course = useMemo(
+        () => courses.find((c: { id: string }) => c.id === courseId),
+        [courses, courseId]
+    );
     const courseQuizzes = useMemo(
-        () => quizzes.filter((q) => q.courseId === courseId),
+        () => quizzes.filter((q: { courseId: string }) => q.courseId === courseId),
         [quizzes, courseId]
     );
     const courseSubmissions = useMemo(
-        () => quizSubmissions.filter((s) => s.courseId === courseId),
+        () => quizSubmissions.filter((s: { courseId: string }) => s.courseId === courseId),
         [quizSubmissions, courseId]
     );
-
-    const studentMap = useMemo(() => new Map(students.map((s) => [s.id, s.name])), [students]);
-
-    // Create a map of all questions for quick lookup
+    const studentMap = useMemo(
+        () => new Map(students.map((s: { id: string; name: string }) => [s.id, s.name])),
+        [students]
+    );
     const questionMap = useMemo(() => {
         const map = new Map<string, Question>();
-        courseQuizzes.forEach((quiz) => {
-            quiz.questions.forEach((question) => {
+        courseQuizzes.forEach((quiz: Quiz) => {
+            quiz.questions.forEach((question: Question) => {
                 map.set(question.questionId, question);
             });
         });
         return map;
     }, [courseQuizzes]);
-
     const selectedSubmission = useMemo(() => {
         if (!selectedSubmissionId) return null;
-        return courseSubmissions.find((s) => s.submissionId === selectedSubmissionId);
+        return courseSubmissions.find(
+            (s: { submissionId: string }) => s.submissionId === selectedSubmissionId
+        );
     }, [selectedSubmissionId, courseSubmissions]);
 
+    useEffect(() => {
+        if (!loading) {
+            if (!profile || (profile.role !== 'admin' && profile.role !== 'instructor')) {
+                router.replace('/learning');
+            }
+        }
+    }, [profile, loading, router]);
+
+    // Wait for courseId to be set
+    if (!courseId) {
+        return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+    }
+    if (loading) {
+        return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+    }
+    if (!profile || (profile.role !== 'admin' && profile.role !== 'instructor')) {
+        return null;
+    }
     if (!course) {
         return notFound();
     }

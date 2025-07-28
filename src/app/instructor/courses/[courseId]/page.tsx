@@ -1,12 +1,14 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { notFound } from 'next/navigation';
+import { notFound, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import data from '../../../admin/APIdata.json';
+import Image from 'next/image';
+import data from '../../../instructor/APIdata.json';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BookOpen, Layers, Star, Image as ImageIcon } from 'lucide-react';
+import { useUser } from '@/context/UserContext';
 
 type Week = {
     id: string;
@@ -98,12 +100,25 @@ export default function CourseUpsertPage({ params }: { params: Promise<{ courseI
         setSubmitted(true);
     }
 
-    if (!isDataLoaded) {
+    // --- AUTH LOGIC ---
+    const { profile, loading } = useUser();
+    const router = useRouter();
+    useEffect(() => {
+        if (!loading) {
+            if (!profile || (profile.role !== 'admin' && profile.role !== 'instructor')) {
+                router.replace('/learning');
+            }
+        }
+    }, [profile, loading, router]);
+    if (loading || !isDataLoaded) {
         return (
             <div className="flex justify-center items-center min-h-screen">
                 <p>Loading...</p>
             </div>
         );
+    }
+    if (!profile || (profile.role !== 'admin' && profile.role !== 'instructor')) {
+        return null;
     }
 
     return (
@@ -309,10 +324,18 @@ export default function CourseUpsertPage({ params }: { params: Promise<{ courseI
                                 className="w-full border border-gray-200 rounded-lg px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-teal-500"
                             />
                             {bannerPreview && (
-                                <img
+                                <Image
                                     src={bannerPreview}
                                     alt="Banner Preview"
                                     className="mt-4 rounded-lg max-h-48 w-full object-cover border"
+                                    width={800}
+                                    height={192}
+                                    style={{
+                                        objectFit: 'cover',
+                                        width: '100%',
+                                        height: 'auto',
+                                        maxHeight: '12rem',
+                                    }}
                                 />
                             )}
                         </section>

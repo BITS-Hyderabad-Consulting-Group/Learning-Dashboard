@@ -54,20 +54,20 @@ export default function AdminDashboardPage() {
     );
     useEffect(() => {
         if (!loading) {
-            if (!profile || profile.role !== 'admin') {
+            if (!profile || (profile.role !== 'admin' && profile.role !== 'instructor')) {
                 router.replace('/learning');
             }
         }
     }, [profile, loading, router]);
     useEffect(() => {
-        if (!loading && profile && profile.role === 'admin') {
+        if (!loading && profile && (profile.role === 'admin' || profile.role === 'instructor')) {
             testAdminAPI();
         }
     }, [loading, profile]);
     if (loading) {
         return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
     }
-    if (!profile || profile.role !== 'admin') {
+    if (!profile || (profile.role !== 'admin' && profile.role !== 'instructor')) {
         return null;
     }
 
