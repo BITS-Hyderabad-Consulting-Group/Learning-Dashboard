@@ -23,6 +23,11 @@ function PageLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const router = useRouter();
     const { user, profile, loading } = useUser();
+    // Debug: log user and profile
+    if (typeof window !== 'undefined') {
+        console.log('User:', user);
+        console.log('Profile:', profile);
+    }
 
     const handleGoogleSignIn = async () => {
         await signInWithGoogle();
@@ -32,36 +37,31 @@ function PageLayout({ children }: { children: React.ReactNode }) {
         await signOut();
     };
 
-    const navItems = [
-        { label: 'Home', path: '/', icon: Home },
-        { label: 'Learning', path: '/learning', icon: LibraryBig },
+    const navItems: NavItem[] = [{ label: 'Home', path: '/', icon: Home }];
 
-        user && { label: 'Profile', path: '/profile', icon: UserRound },
+    // Only show nav items if profile is loaded
+    if (!loading && profile) {
+        if (profile.role === 'learner') {
+            navItems.push({ label: 'Learning', path: '/learning', icon: LibraryBig });
+        } else if (profile.role === 'admin' || profile.role === 'instructor') {
+            navItems.push({ label: 'Dashboard', path: '/instructor/dashboard', icon: PencilRuler });
+        }
+    }
 
-        profile &&
-            (profile.role === 'admin' || profile.role === 'instructor') && {
-                label: 'Dashboard',
-                path: '/instructor/dashboard',
-                icon: PencilRuler,
-            },
+    if (!loading && user) {
+        navItems.push({ label: 'Profile', path: '/profile', icon: UserRound });
+        navItems.push({ label: 'Logout', path: '#', icon: LogOut, onClick: handleSignOut });
+    }
 
-        user && {
-            label: 'Logout',
+    if (!loading && !user) {
+        navItems.push({
+            label: 'Login',
             path: '#',
-            icon: LogOut,
-            onClick: handleSignOut,
-        },
-
-        !loading && !user
-            ? {
-                  label: 'Login',
-                  path: '#',
-                  icon: FcGoogle,
-                  isButton: true,
-                  onClick: handleGoogleSignIn,
-              }
-            : null,
-    ].filter(Boolean) as NavItem[];
+            icon: FcGoogle,
+            isButton: true,
+            onClick: handleGoogleSignIn,
+        });
+    }
 
     return (
         <div className="flex flex-col min-h-screen">

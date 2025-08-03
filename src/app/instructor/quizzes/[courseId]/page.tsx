@@ -78,7 +78,11 @@ export default function QuizSubmissionsPage({ params }: { params: Promise<{ cour
     if (loading) {
         return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
     }
+    // Only allow admin or instructor
     if (!profile || (profile.role !== 'admin' && profile.role !== 'instructor')) {
+        if (typeof window !== 'undefined') {
+            window.location.replace('/learning');
+        }
         return null;
     }
     if (!course) {
