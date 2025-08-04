@@ -54,7 +54,7 @@ export async function GET(request: NextRequest) {
         course_id,
         courses(title)
       `);
-        let courseEnrollmentCounts: Record<string, number> = {};
+        const courseEnrollmentCounts: Record<string, number> = {};
         if (enrollmentStats && !enrollmentError) {
             enrollmentStats.forEach((enrollment) => {
                 const courseId = enrollment.course_id;

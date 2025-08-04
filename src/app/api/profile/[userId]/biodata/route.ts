@@ -1,16 +1,17 @@
 import { supabase } from '@/lib/supabase-client';
 
-export async function POST(req: Request, { params }: { params: { userId: string } }) {
-  const { biodata } = await req.json();
+// Define the params type as a Promise for Next.js 15
+type Params = Promise<{ userId: string }>;
 
-  const { error } = await supabase
-    .from('profiles')
-    .update({ biodata })
-    .eq('id', params.userId);
+export async function POST(req: Request, { params }: { params: Params }) {
+    const { biodata } = await req.json();
+    const { userId } = await params;
 
-  if (error) {
-    return new Response(JSON.stringify({ error: error.message }), { status: 500 });
-  }
+    const { error } = await supabase.from('profiles').update({ biodata }).eq('id', userId);
 
-  return new Response(JSON.stringify({ success: true }), { status: 200 });
+    if (error) {
+        return new Response(JSON.stringify({ error: error.message }), { status: 500 });
+    }
+
+    return new Response(JSON.stringify({ success: true }), { status: 200 });
 }

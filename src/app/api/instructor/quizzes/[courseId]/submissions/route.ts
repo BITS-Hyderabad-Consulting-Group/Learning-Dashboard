@@ -2,14 +2,17 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase-server';
 import { verifyAdminAuth } from '@/lib/auth';
 
+// Define the params type as a Promise for Next.js 15
+type Params = Promise<{ courseId: string }>;
+
 // GET /api/admin/quizzes/[courseId]/submissions - Get quiz submissions
-export async function GET(request: NextRequest, { params }: { params: { courseId: string } }) {
+export async function GET(request: NextRequest, { params }: { params: Params }) {
     try {
         const authResult = await verifyAdminAuth(request);
         if ('error' in authResult) {
             return NextResponse.json({ error: authResult.error }, { status: authResult.status });
         }
-        const { courseId } = params;
+        const { courseId } = await params;
         const { searchParams } = new URL(request.url);
         const quizId = searchParams.get('quizId');
 

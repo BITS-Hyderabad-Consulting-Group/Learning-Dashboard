@@ -1,9 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase-server';
 import { verifyAdminAuth } from '@/lib/auth';
-type RouteParams = { courseId: string };
+
+// Define the params type as a Promise for Next.js 15
+type Params = Promise<{ courseId: string }>;
+
 // GET /api/admin/quizzes/[courseId] - Get quizzes for course
-export async function GET(request: NextRequest, { params }: { params: Promise<RouteParams> }) {
+export async function GET(request: NextRequest, { params }: { params: Params }) {
     try {
         const authResult = await verifyAdminAuth(request);
         if ('error' in authResult) {
@@ -64,7 +67,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<Ro
     }
 }
 // POST /api/admin/quizzes/[courseId] - Create new quiz
-export async function POST(request: NextRequest, { params }: { params: Promise<RouteParams> }) {
+export async function POST(request: NextRequest) {
     try {
         const authResult = await verifyAdminAuth(request);
         if ('error' in authResult) {
@@ -75,7 +78,7 @@ export async function POST(request: NextRequest, { params }: { params: Promise<R
                 }
             );
         }
-        const { courseId } = await params;
+        // courseId is unused and params removed to silence lint
         const body = await request.json();
 
         const { title, moduleId, questions } = body;

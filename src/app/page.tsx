@@ -40,7 +40,7 @@ export default function HomePage() {
                 const data: ApiResponse = await response.json();
                 // Get first 6 available courses for featured section
                 setFeaturedCourses(data.availableCourses.slice(0, 6));
-            } catch (error) {
+            } catch {
                 // removed debug
             } finally {
                 setLoading(false);

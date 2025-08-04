@@ -17,8 +17,11 @@ function mapModuleType(type: string): 'video' | 'article' | 'evaluative' | 'mark
     }
 }
 
-export async function GET(req: NextRequest, { params }: { params: { moduleId: string } }) {
-    const { moduleId } = params;
+// Define the params type as a Promise for Next.js 15
+type Params = Promise<{ moduleId: string }>;
+
+export async function GET(req: NextRequest, { params }: { params: Params }) {
+    const { moduleId } = await params;
     try {
         // First, fetch the module
         const { data: module, error: moduleError } = await supabaseServer

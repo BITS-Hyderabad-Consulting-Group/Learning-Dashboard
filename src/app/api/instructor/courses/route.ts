@@ -17,7 +17,7 @@ export async function GET(request: NextRequest) {
         const limit = parseInt(searchParams.get('limit') || '10');
         const search = searchParams.get('search') || '';
         const status = searchParams.get('status') || '';
-        const domain = searchParams.get('domain') || '';
+        // const domain = searchParams.get('domain') || ''; // unused variable removed
         const offset = (page - 1) * limit;
         // Build query
         let query = supabaseServer.from('courses').select(

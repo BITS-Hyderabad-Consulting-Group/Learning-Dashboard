@@ -17,7 +17,7 @@ export default function ProfilePage() {
     const { profile } = useUser();
     const [isEditing, setIsEditing] = useState(false);
     const [bioText, setBioText] = useState(profile?.biodata || '');
-    const [loading, setLoading] = useState(false);
+    // const [loading, setLoading] = useState(false); // unused variable removed
 
     useEffect(() => {
         const fetchUserCourses = async () => {
@@ -77,7 +77,7 @@ export default function ProfilePage() {
     };
 
     const handleSave = async () => {
-        setLoading(true);
+        // setLoading(true); // removed unused loading state
         try {
             const response = await fetch(`/api/profile/${profile.id}/biodata`, {
                 method: 'POST',
@@ -97,7 +97,7 @@ export default function ProfilePage() {
         } catch {
             // silently fail
         } finally {
-            setLoading(false);
+            // setLoading(false); // removed unused loading state
         }
     };
 

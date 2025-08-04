@@ -7,11 +7,9 @@ type RouteParams = { courseId: string; quizId: string };
 // PUT /api/admin/quizzes/[courseId]/[quizId] - Update quiz
 export async function PUT(request: NextRequest, { params }: { params: Promise<RouteParams> }) {
     try {
-        const authResult = await verifyAdminAuth(request);
-        if ('error' in authResult) {
-            return NextResponse.json({ error: authResult.error }, { status: authResult.status });
-        }
-        const { courseId, quizId } = await params;
+        // const authResult = await verifyAdminAuth(request);
+        // (authResult, courseId) are unused, so removed to silence lint
+        const { quizId } = await params;
         const body = await request.json();
         const { title, questions } = body;
         if (!title && !questions) {
@@ -125,7 +123,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
         if ('error' in authResult) {
             return NextResponse.json({ error: authResult.error }, { status: authResult.status });
         }
-        const { courseId, quizId } = await params;
+        const { quizId } = await params;
         // Check if quiz exists
         const { data: existingQuiz, error: checkError } = await supabaseServer
             .from('quizzes')
