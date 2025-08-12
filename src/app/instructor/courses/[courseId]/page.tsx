@@ -357,7 +357,7 @@ export default function CourseUpsertPage({ params }: { params: Promise<{ courseI
                         )}
                     </CardContent>
                     <div className="mt-4 mb-4 text-center text-teal-700 font-semibold underline hover:text-teal-900 transition-colors">
-                        <Link href={`/admin/courses/${courseId}/content`}>
+                        <Link href={`/instructor/courses/${courseId}/content`}>
                             Go to Curriculum Builder
                         </Link>
                     </div>
