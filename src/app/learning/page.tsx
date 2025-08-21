@@ -68,7 +68,7 @@ export default function Learning() {
     const [paginationInfo, setPaginationInfo] = useState<PaginationInfo | null>(null);
 
     const isLoggedInLearner = profile?.role === 'learner';
-    const coursesPerPage = isLoggedInLearner ? 6 : 12;
+    const coursesPerPage = isLoggedInLearner ? 20 : 20; // Temporarily increased to show all courses
 
     useEffect(() => {
         let ignore = false;
@@ -88,6 +88,11 @@ export default function Learning() {
             .then((res) => res.json())
             .then((data) => {
                 if (ignore) return;
+                console.log('Frontend Learning Debug:');
+                console.log('- API Response:', data);
+                console.log('- Available courses count:', data.availableCourses?.length);
+                console.log('- Enrolled courses count:', data.enrolledCourses?.length);
+                console.log('- Pagination info:', data.pagination);
                 setEnrolledCourses(data.enrolledCourses || []);
                 setAvailableCourses(data.availableCourses || []);
                 setPaginationInfo(data.pagination || null);

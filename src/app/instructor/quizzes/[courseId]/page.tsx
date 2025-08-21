@@ -1,28 +1,66 @@
 'use client';
 
 import React, { useMemo, useState, useEffect } from 'react';
-import { notFound, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Check, X, ArrowLeft } from 'lucide-react';
+import { Check, X, ArrowLeft, Loader2 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
-import data from '@/app/instructor/APIdata.json';
 import { useUser } from '@/context/UserContext';
+import { supabase } from '@/lib/supabase-client';
 
-// Define types for our detailed data
-type Quiz = (typeof data.quizzes)[0];
-type Question = Quiz['questions'][0];
+// Define types for our API data
+type Submission = {
+    submissionId: string;
+    quizId: string;
+    courseId: string;
+    studentId: string;
+    studentName: string;
+    quizTitle: string;
+    score: number | null;
+    status: string;
+    answers: {
+        questionId: string;
+        selectedAnswerId: string | null;
+        submittedText: string | null;
+    }[];
+    submittedAt: string | null;
+    gradedAt: string | null;
+    instructorFeedback: string | null;
+};
+
+type Question = {
+    id: string;
+    question_text: string;
+    question_type: string;
+    order_index: number;
+    answers: {
+        id: string;
+        answer_text: string;
+        is_correct: boolean;
+    }[];
+};
+
+type Course = {
+    id: string;
+    title: string;
+    description: string;
+};
 
 export default function QuizSubmissionsPage({ params }: { params: Promise<{ courseId: string }> }) {
     const { profile, loading } = useUser();
     const router = useRouter();
     const [selectedSubmissionId, setSelectedSubmissionId] = useState<string | null>(null);
-    const { courses, students, quizzes, quizSubmissions } = data;
+    const [courseId, setCourseId] = useState<string | null>(null);
+    const [course, setCourse] = useState<Course | null>(null);
+    const [submissions, setSubmissions] = useState<Submission[]>([]);
+    const [questions, setQuestions] = useState<Question[]>([]);
+    const [isLoading, setIsLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     // Get courseId from params
-    const [courseId, setCourseId] = useState<string | null>(null);
     useEffect(() => {
         (async () => {
             const resolved = await params;
@@ -30,38 +68,83 @@ export default function QuizSubmissionsPage({ params }: { params: Promise<{ cour
         })();
     }, [params]);
 
-    // Find the course and its relevant data (hooks must always be called)
-    const course = useMemo(
-        () => courses.find((c: { id: string }) => c.id === courseId),
-        [courses, courseId]
-    );
-    const courseQuizzes = useMemo(
-        () => quizzes.filter((q: { courseId: string }) => q.courseId === courseId),
-        [quizzes, courseId]
-    );
-    const courseSubmissions = useMemo(
-        () => quizSubmissions.filter((s: { courseId: string }) => s.courseId === courseId),
-        [quizSubmissions, courseId]
-    );
-    const studentMap = useMemo(
-        () => new Map(students.map((s: { id: string; name: string }) => [s.id, s.name])),
-        [students]
-    );
-    const questionMap = useMemo(() => {
-        const map = new Map<string, Question>();
-        courseQuizzes.forEach((quiz: Quiz) => {
-            quiz.questions.forEach((question: Question) => {
-                map.set(question.questionId, question);
-            });
-        });
-        return map;
-    }, [courseQuizzes]);
+    // Fetch data from API
+    useEffect(() => {
+        const fetchData = async () => {
+            if (!courseId) return;
+            setIsLoading(true);
+            setError(null);
+            
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+                if (session?.access_token) headers.Authorization = `Bearer ${session.access_token}`;
+
+                // Fetch course details, submissions, and questions in parallel
+                const [courseRes, submissionsRes, quizzesRes] = await Promise.all([
+                    fetch(`/api/instructor/courses/${courseId}`, { headers }),
+                    fetch(`/api/instructor/quizzes/${courseId}/submissions`, { headers }),
+                    fetch(`/api/instructor/quizzes/${courseId}`, { headers })
+                ]);
+
+                if (!courseRes.ok) {
+                    throw new Error('Failed to fetch course');
+                }
+                if (!submissionsRes.ok) {
+                    throw new Error('Failed to fetch submissions');
+                }
+                if (!quizzesRes.ok) {
+                    throw new Error('Failed to fetch quizzes');
+                }
+
+                const [courseData, submissionsData, quizzesData] = await Promise.all([
+                    courseRes.json(),
+                    submissionsRes.json(),
+                    quizzesRes.json()
+                ]);
+
+                setCourse({ 
+                    id: courseData.id, 
+                    title: courseData.name || courseData.title,
+                    description: courseData.description || ''
+                });
+                setSubmissions(submissionsData.submissions || []);
+                
+                // Extract all questions from all quizzes for answer lookup
+                const allQuestions: Question[] = [];
+                (quizzesData.quizzes || []).forEach((quiz: { questions?: Question[] }) => {
+                    if (quiz.questions) {
+                        allQuestions.push(...quiz.questions);
+                    }
+                });
+                setQuestions(allQuestions);
+                
+            } catch (err: unknown) {
+                let errorMsg = 'Failed to load data';
+                if (typeof err === 'object' && err && 'message' in err && typeof (err as { message?: string }).message === 'string') {
+                    errorMsg = (err as { message: string }).message;
+                }
+                setError(errorMsg);
+            } finally {
+                setIsLoading(false);
+            }
+        };
+
+        if (!loading && profile && (profile.role === 'admin' || profile.role === 'instructor')) {
+            fetchData();
+        }
+    }, [courseId, loading, profile]);
+
     const selectedSubmission = useMemo(() => {
         if (!selectedSubmissionId) return null;
-        return courseSubmissions.find(
-            (s: { submissionId: string }) => s.submissionId === selectedSubmissionId
-        );
-    }, [selectedSubmissionId, courseSubmissions]);
+        return submissions.find(s => s.submissionId === selectedSubmissionId);
+    }, [selectedSubmissionId, submissions]);
+
+    const questionMap = useMemo(() => {
+        const map = new Map<string, Question>();
+        questions.forEach(q => map.set(q.id, q));
+        return map;
+    }, [questions]);
 
     useEffect(() => {
         if (!loading) {
@@ -75,8 +158,13 @@ export default function QuizSubmissionsPage({ params }: { params: Promise<{ cour
     if (!courseId) {
         return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
     }
-    if (loading) {
-        return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+    if (loading || isLoading) {
+        return (
+            <div className="flex justify-center items-center min-h-screen">
+                <Loader2 className="h-6 w-6 animate-spin mr-2" />
+                Loading quiz submissions...
+            </div>
+        );
     }
     // Only allow admin or instructor
     if (!profile || (profile.role !== 'admin' && profile.role !== 'instructor')) {
@@ -85,8 +173,20 @@ export default function QuizSubmissionsPage({ params }: { params: Promise<{ cour
         }
         return null;
     }
+    if (error) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-screen">
+                <p className="text-red-600 mb-4">{error}</p>
+                <Button onClick={() => window.location.reload()}>Retry</Button>
+            </div>
+        );
+    }
     if (!course) {
-        return notFound();
+        return (
+            <div className="flex items-center justify-center min-h-screen">
+                Course not found.
+            </div>
+        );
     }
 
     return (
@@ -98,14 +198,14 @@ export default function QuizSubmissionsPage({ params }: { params: Promise<{ cour
                     </Link>
                 </Button>
                 <p className="text-muted-foreground">Quiz Submissions for</p>
-                <h1 className="text-3xl font-bold text-gray-900">{course.name}</h1>
+                <h1 className="text-3xl font-bold text-gray-900">{course.title}</h1>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 items-start">
                 {/* Left Column: List of Submissions */}
                 <div className="md:col-span-1 space-y-2">
                     <h2 className="text-lg font-semibold px-2">Student Submissions</h2>
-                    {courseSubmissions.map((submission) => (
+                    {submissions.map((submission) => (
                         <button
                             key={submission.submissionId}
                             onClick={() => setSelectedSubmissionId(submission.submissionId)}
@@ -118,7 +218,7 @@ export default function QuizSubmissionsPage({ params }: { params: Promise<{ cour
                         >
                             <div className="flex justify-between items-center">
                                 <p className="font-semibold text-gray-800">
-                                    {studentMap.get(submission.studentId) || 'Unknown'}
+                                    {submission.studentName}
                                 </p>
                                 <Badge
                                     variant={
@@ -127,15 +227,15 @@ export default function QuizSubmissionsPage({ params }: { params: Promise<{ cour
                                             : 'secondary'
                                     }
                                 >
-                                    {submission.score}%
+                                    {submission.score ? `${submission.score}%` : 'N/A'}
                                 </Badge>
                             </div>
                             <p className="text-sm text-muted-foreground">
-                                {quizzes.find((q) => q.quizId === submission.quizId)?.quizTitle}
+                                {submission.quizTitle}
                             </p>
                         </button>
                     ))}
-                    {courseSubmissions.length === 0 && (
+                    {submissions.length === 0 && (
                         <p className="text-sm text-muted-foreground p-3">
                             No submissions yet for this course.
                         </p>
@@ -149,9 +249,7 @@ export default function QuizSubmissionsPage({ params }: { params: Promise<{ cour
                             <CardTitle>Submission Details</CardTitle>
                             <CardDescription>
                                 {selectedSubmission
-                                    ? `Viewing submission for ${studentMap.get(
-                                          selectedSubmission.studentId
-                                      )}`
+                                    ? `Viewing submission for ${selectedSubmission.studentName}`
                                     : 'Select a student submission to view details.'}
                             </CardDescription>
                         </CardHeader>
@@ -165,23 +263,23 @@ export default function QuizSubmissionsPage({ params }: { params: Promise<{ cour
                                     {selectedSubmission.answers.map((answer) => {
                                         const question = questionMap.get(answer.questionId);
                                         if (!question) return null;
-                                        const isCorrect =
-                                            answer.studentAnswer === question.correctAnswer;
+                                        
+                                        // Find the correct answer
+                                        const correctAnswer = question.answers.find(a => a.is_correct);
+                                        const isCorrect = answer.selectedAnswerId === correctAnswer?.id;
 
                                         return (
                                             <div key={answer.questionId}>
                                                 <p className="font-semibold text-gray-800 mb-2">
-                                                    {question.text}
+                                                    {question.question_text}
                                                 </p>
                                                 <div className="space-y-2">
-                                                    {question.options.map((option) => {
-                                                        const isSelected =
-                                                            option === answer.studentAnswer;
-                                                        const isTheCorrectAnswer =
-                                                            option === question.correctAnswer;
+                                                    {question.answers.map((option) => {
+                                                        const isSelected = option.id === answer.selectedAnswerId;
+                                                        const isTheCorrectAnswer = option.is_correct;
                                                         return (
                                                             <div
-                                                                key={option}
+                                                                key={option.id}
                                                                 className={cn(
                                                                     'flex items-center justify-between p-3 rounded-md border text-sm',
                                                                     isSelected &&
@@ -195,7 +293,7 @@ export default function QuizSubmissionsPage({ params }: { params: Promise<{ cour
                                                                         'border-green-300'
                                                                 )}
                                                             >
-                                                                <span>{option}</span>
+                                                                <span>{option.answer_text}</span>
                                                                 {isSelected && !isCorrect && (
                                                                     <X className="h-5 w-5 text-red-500" />
                                                                 )}
@@ -210,6 +308,12 @@ export default function QuizSubmissionsPage({ params }: { params: Promise<{ cour
                                                         );
                                                     })}
                                                 </div>
+                                                {answer.submittedText && (
+                                                    <div className="mt-2 p-3 bg-gray-50 rounded-md">
+                                                        <p className="text-sm font-medium text-gray-700">Text Answer:</p>
+                                                        <p className="text-sm text-gray-600">{answer.submittedText}</p>
+                                                    </div>
+                                                )}
                                             </div>
                                         );
                                     })}

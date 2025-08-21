@@ -80,7 +80,7 @@ export async function GET(req: NextRequest) {
                         id,
                         title,
                         total_duration,
-                        weeks!inner(
+                        weeks(
                             modules(id)
                         )
                     `
@@ -117,17 +117,39 @@ export async function GET(req: NextRequest) {
             id,
             title,
             total_duration,
-            weeks!inner(
+            is_active,
+            weeks(
                 modules(id)
             )
         `,
             { count: 'exact' }
         );
 
+        // Debug: Check total active courses before filtering
+        const { count: totalActiveCourses } = await supabaseServer
+            .from('courses')
+            .select('id', { count: 'exact', head: true })
+            .eq('is_active', true);
+        
+        console.log('- Total active courses in DB:', totalActiveCourses);
+
         // Exclude enrolled courses from available courses
         if (enrolledCourseIds.length > 0) {
+            console.log('- Excluding enrolled courses:', enrolledCourseIds);
             query = query.not('id', 'in', `(${enrolledCourseIds.join(',')})`);
+        } else {
+            console.log('- No enrolled courses to exclude');
         }
+
+        // Only show active courses
+        query = query.eq('is_active', true);
+        
+        // Debug: Check count after active filter
+        const { count: afterActiveFilter } = await supabaseServer
+            .from('courses')
+            .select('id', { count: 'exact', head: true })
+            .eq('is_active', true);
+        console.log('- Courses after active filter:', afterActiveFilter);
 
         // Apply search filter if provided
         if (search.length > 0) {
@@ -152,10 +174,22 @@ export async function GET(req: NextRequest) {
                 break;
         }
 
-        // Apply pagination
-        query = query.range(offset, offset + limit - 1);
+        // Apply pagination (temporarily disabled for debugging)
+        // query = query.range(offset, offset + limit - 1);
+        console.log('- Pagination temporarily disabled for debugging');
 
         const { data: availableCoursesData, error: coursesError, count: totalCount } = await query;
+
+        console.log('Learning API Debug:');
+        console.log('- Search params:', Object.fromEntries(searchParams.entries()));
+        console.log('- User ID:', userId);
+        console.log('- Enrolled course IDs:', enrolledCourseIds);
+        console.log('- Pagination:', { page, limit, offset });
+        console.log('- Available courses count:', totalCount);
+        console.log('- Available courses data length:', availableCoursesData?.length);
+        console.log('- Courses error:', coursesError);
+        console.log('- Search term:', search);
+        console.log('- Sort order:', sort);
 
         if (coursesError) {
             console.error('Error fetching available courses:', coursesError);

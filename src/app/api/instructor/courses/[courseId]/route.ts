@@ -26,19 +26,18 @@ export async function GET(
             .from('courses')
             .select(
                 `
-        id,
+            id,
         title,
         description,
-        duration,
+        total_duration,
         prerequisites,
         objectives,
         list_price,
-        difficulty_level,
         is_active,
-        created_at,
-        updated_at,
-        instructor:profiles(full_name)
-      `
+            created_at,
+            updated_at,
+            instructor_profile:profiles!instructor(full_name)
+          `
             )
             .eq('id', courseId)
             .single();
@@ -55,8 +54,9 @@ export async function GET(
             id: course.id,
             name: course.title,
             description: course.description,
-            duration: `${Math.ceil((course.duration || 0) / 60)} weeks`,
-            // Convert minutes to weeks
+            totalDuration: course.total_duration,
+            duration: `${Math.ceil((course.total_duration || 0) / 60)} weeks`,
+            // Convert minutes to weeks; keep totalDuration numeric
             modules: 0, // Will be calculated from weeks/modules
             attendees: enrollmentCount || 0,
             prereq: course.prerequisites || 'None',
@@ -66,9 +66,9 @@ export async function GET(
             banner_url: '', // Add this field to your table if needed
             date_created: course.created_at,
             date_updated: course.updated_at,
-            instructor: course.instructor?.[0].full_name || 'N/A',
+            instructor: course.instructor_profile?.[0]?.full_name || 'N/A',
             list_price: course.list_price,
-            difficulty_level: course.difficulty_level,
+            // difficulty removed from schema; omit difficultyLevel
             objectives: course.objectives,
         };
         return NextResponse.json(transformedCourse);
@@ -106,10 +106,10 @@ export async function PUT(
             title,
             description,
             duration,
+            total_duration,
             prerequisites,
             objectives,
             list_price,
-            difficulty_level,
             is_active,
         } = body;
         // Update course
@@ -118,11 +118,11 @@ export async function PUT(
             .update({
                 title,
                 description,
-                duration,
+                total_duration: duration || total_duration,
                 prerequisites,
                 objectives,
                 list_price,
-                difficulty_level,
+                // difficulty removed from schema; no difficulty mapping
                 is_active,
                 updated_at: new Date().toISOString(),
             })

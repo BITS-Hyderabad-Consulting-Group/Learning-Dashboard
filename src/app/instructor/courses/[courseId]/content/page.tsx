@@ -2,8 +2,40 @@
 
 import React, { useState, useEffect } from 'react';
 import { useUser } from '@/context/UserContext';
-import { useRouter } from 'next/navigation';
-import APIdata from './APIdata.json';
+import { useRouter, useParams } from 'next/navigation';
+import { supabase } from '@/lib/supabase-client';
+
+// Type definitions for API responses
+interface WeekApiResponse {
+    id: string;
+    weekNumber: number;
+    title: string;
+    description?: string;
+    duration?: number;
+    isPublished?: boolean;
+    unlockDate?: string;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+interface ModuleApiResponse {
+    id: string;
+    weekId: string;
+    moduleNumber: number;
+    title: string;
+    description?: string;
+    contentType?: string;
+    contentUrl?: string;
+    markdownContent?: string;
+    duration?: number;
+    points?: number;
+    orderIndex?: number;
+    isRequired?: boolean;
+    estimatedReadTime?: number | null;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -94,9 +126,9 @@ interface Course {
     description: string;
     instructorId: string;
     categoryId: string;
-    duration: number;
+    totalDuration?: number;
     price: number;
-    difficultyLevel: 'beginner' | 'intermediate' | 'advanced';
+    // difficulty removed from schema
     status: 'draft' | 'published' | 'archived';
     enrollmentLimit: number;
     prerequisites?: string;
@@ -107,19 +139,12 @@ interface Course {
     updatedAt: string;
 }
 
-const apiData = APIdata as { course: Course; weeks: Week[]; modules: Module[] };
-
 const contentTypeIcons = {
     article: FileText,
     video: Video,
     quiz: HelpCircle,
     assignment: Edit,
     resource: Award,
-};
-const difficultyColors = {
-    beginner: 'bg-green-100 text-green-800',
-    intermediate: 'bg-yellow-100 text-yellow-800',
-    advanced: 'bg-red-100 text-red-800',
 };
 const contentTypes: Module['contentType'][] = [
     'article',
@@ -132,14 +157,17 @@ const contentTypes: Module['contentType'][] = [
 export default function CourseContentPage() {
     const { profile, loading } = useUser();
     const router = useRouter();
+    const params = useParams();
+    const courseId = (params?.courseId as string) || '';
     const [course, setCourse] = useState<Course | null>(null);
     const [weeks, setWeeks] = useState<Week[]>([]);
     const [isSaving, setIsSaving] = useState(false);
     const [isWeekDialogOpen, setIsWeekDialogOpen] = useState(false);
     const [isModuleDialogOpen, setIsModuleDialogOpen] = useState(false);
+    
     const [editingWeek, setEditingWeek] = useState<Week | null>(null);
-    const [editingModule, setEditingModule] = useState<{ week: Week; module: Module | null }>({
-        week: weeks[0],
+    const [editingModule, setEditingModule] = useState<{ week: Week | null; module: Module | null }>({
+        week: null,
         module: null,
     });
     const [weekToDelete, setWeekToDelete] = useState<Week | null>(null);
@@ -163,6 +191,8 @@ export default function CourseContentPage() {
         points: 10,
         estimatedReadTime: 25,
     });
+    const [isLoadingContent, setIsLoadingContent] = useState(true);
+    const [contentError, setContentError] = useState<string | null>(null);
 
     useEffect(() => {
         if (!loading) {
@@ -172,15 +202,91 @@ export default function CourseContentPage() {
         }
     }, [profile, loading, router]);
 
+    // Fetch course content from backend
     useEffect(() => {
-        setCourse(apiData.course);
-        setWeeks(
-            apiData.weeks.map((week) => ({
-                ...week,
-                modules: apiData.modules.filter((m) => m.weekId === week.id),
-            }))
-        );
-    }, []);
+        const fetchContent = async () => {
+            if (!courseId) return;
+            setIsLoadingContent(true);
+            setContentError(null);
+            try {
+                const { data: { session } } = await supabase.auth.getSession();
+                const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+                if (session?.access_token) headers.Authorization = `Bearer ${session.access_token}`;
+                const res = await fetch(`/api/instructor/courses/${courseId}/content`, { headers });
+                if (!res.ok) {
+                    const errBody = await res.json().catch(() => ({}));
+                    throw new Error(errBody.error || 'Failed to load course content');
+                }
+                const data = await res.json();
+                // Map API response to local state shape
+                setCourse({
+                    id: data.course.id,
+                    title: data.course.title,
+                    description: data.course.description,
+                    instructorId: '',
+                    categoryId: '',
+                    totalDuration: data.course.totalDuration,
+                    price: data.course.price || 0,
+                    status: data.course.status || 'draft',
+                    enrollmentLimit: 0,
+                    prerequisites: '',
+                    learningObjectives: '',
+                    thumbnailUrl: '',
+                    isActive: data.course.isActive,
+                    createdAt: new Date().toISOString(),
+                    updatedAt: new Date().toISOString(),
+                });
+                const weekMap: Week[] = (data.weeks || []).map((w: WeekApiResponse) => ({
+                    id: w.id,
+                    courseId: data.course.id,
+                    weekNumber: w.weekNumber,
+                    title: w.title,
+                    description: w.description || '',
+                    duration: w.duration || 0,
+                    isPublished: w.isPublished || false,
+                    unlockDate: w.unlockDate || new Date().toISOString(),
+                    createdAt: w.createdAt || new Date().toISOString(),
+                    updatedAt: w.updatedAt || new Date().toISOString(),
+                    expanded: false,
+                    modules: [],
+                }));
+                const modules: Module[] = (data.modules || []).map((m: ModuleApiResponse) => ({
+                    id: m.id,
+                    weekId: m.weekId,
+                    moduleNumber: m.moduleNumber,
+                    title: m.title,
+                    description: m.description || '',
+                    contentType: (m.contentType || 'article') as Module['contentType'],
+                    markdownContent: m.contentType === 'article' ? '' : undefined,
+                    contentUrl: m.contentUrl || '',
+                    duration: m.duration || 0,
+                    isRequired: m.isRequired !== false,
+                    points: m.points || 0,
+                    orderIndex: m.orderIndex || 0,
+                    estimatedReadTime: m.estimatedReadTime || null,
+                    createdAt: m.createdAt || new Date().toISOString(),
+                    updatedAt: m.updatedAt || new Date().toISOString(),
+                }));
+                // Attach modules to weeks
+                const weekWithModules = weekMap.map((w) => ({
+                    ...w,
+                    modules: modules.filter((m) => m.weekId === w.id),
+                }));
+                setWeeks(weekWithModules);
+            } catch (e: unknown) {
+                let errorMsg = 'Failed to load';
+                if (typeof e === 'object' && e && 'message' in e && typeof (e as { message?: string }).message === 'string') {
+                    errorMsg = (e as { message: string }).message;
+                }
+                setContentError(errorMsg);
+            } finally {
+                setIsLoadingContent(false);
+            }
+        };
+        if (!loading && profile && (profile.role === 'admin' || profile.role === 'instructor')) {
+            fetchContent();
+        }
+    }, [courseId, loading, profile]);
 
     const formatDate = (d: string) =>
         new Date(d).toLocaleDateString('en-US', {
@@ -239,8 +345,10 @@ export default function CourseContentPage() {
         });
         setIsWeekDialogOpen(true);
     };
-    const handleSaveWeek = () => {
+    const handleSaveWeek = async () => {
+        if (!courseId) return;
         if (editingWeek) {
+            // Local update only (no dedicated update endpoint yet)
             setWeeks((w) =>
                 w.map((week) =>
                     week.id === editingWeek.id
@@ -253,26 +361,57 @@ export default function CourseContentPage() {
                         : week
                 )
             );
-            toast.success('Week updated!');
-        } else {
-            setWeeks((w) => [
-                ...w,
-                {
-                    id: `week_${Date.now()}`,
-                    courseId: course?.id || '',
-                    weekNumber: weeks.length + 1,
-                    ...weekForm,
-                    unlockDate: weekForm.unlockDate + 'T00:00:00Z',
-                    isPublished: false,
-                    createdAt: new Date().toISOString(),
-                    updatedAt: new Date().toISOString(),
-                    expanded: false,
-                    modules: [],
-                },
-            ]);
-            toast.success('New week added!');
+            toast.success('Week updated (local)');
+            setIsWeekDialogOpen(false);
+            return;
         }
-        setIsWeekDialogOpen(false);
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+            if (session?.access_token) headers.Authorization = `Bearer ${session.access_token}`;
+            const payload = {
+                type: 'week',
+                data: {
+                    title: weekForm.title,
+                    description: weekForm.description,
+                    duration: weekForm.duration,
+                    weekNumber: weeks.length + 1,
+                },
+            };
+            const res = await fetch(`/api/instructor/courses/${courseId}/content`, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify(payload),
+            });
+            if (!res.ok) {
+                const errBody = await res.json().catch(() => ({}));
+                throw new Error(errBody.error || 'Failed to create week');
+            }
+            const json = await res.json();
+            const newWeek: Week = {
+                id: json.week.id,
+                courseId,
+                weekNumber: weeks.length + 1,
+                title: weekForm.title,
+                description: weekForm.description,
+                duration: weekForm.duration,
+                isPublished: false,
+                unlockDate: new Date().toISOString(),
+                createdAt: json.week.created_at || new Date().toISOString(),
+                updatedAt: json.week.updated_at || new Date().toISOString(),
+                expanded: false,
+                modules: [],
+            };
+            setWeeks((w) => [...w, newWeek]);
+            toast.success('Week created');
+            setIsWeekDialogOpen(false);
+        } catch (e: unknown) {
+            let errorMsg = 'Failed to create week';
+            if (typeof e === 'object' && e && 'message' in e && typeof (e as { message?: string }).message === 'string') {
+                errorMsg = (e as { message: string }).message;
+            }
+            toast.error(errorMsg);
+        }
     };
 
     const handleAddModule = (week: Week) => {
@@ -305,53 +444,155 @@ export default function CourseContentPage() {
         });
         setIsModuleDialogOpen(true);
     };
-    const handleSaveModule = () => {
+    const handleSaveModule = async () => {
+        if (!courseId || !editingModule.week) {
+            toast.error('Missing courseId or week - cannot save module');
+            return;
+        }
         if (editingModule.module) {
-            setWeeks((w) =>
-                w.map((week) =>
-                    week.id === editingModule.week.id
-                        ? {
-                              ...week,
-                              modules: week.modules?.map((m) =>
-                                  m.id === editingModule.module!.id
-                                      ? {
-                                            ...m,
-                                            ...moduleForm,
-                                            estimatedReadTime:
-                                                moduleForm.contentType === 'article'
-                                                    ? moduleForm.estimatedReadTime
-                                                    : null,
-                                            updatedAt: new Date().toISOString(),
-                                        }
-                                      : m
-                              ),
-                          }
-                        : week
-                )
-            );
-            toast.success('Module updated!');
-        } else {
+            try {
+                console.log('Updating existing module via API');
+                const { data: { session } } = await supabase.auth.getSession();
+                const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+                if (session?.access_token) headers.Authorization = `Bearer ${session.access_token}`;
+                
+                const payload = {
+                    type: 'module',
+                    id: editingModule.module.id,
+                    data: {
+                        title: moduleForm.title,
+                        description: moduleForm.description,
+                        contentType: moduleForm.contentType,
+                        contentUrl: moduleForm.contentUrl,
+                        markdownContent: moduleForm.markdownContent,
+                        duration: moduleForm.duration,
+                        isRequired: moduleForm.isRequired,
+                        points: moduleForm.points,
+                        orderIndex: editingModule.module.orderIndex,
+                    },
+                };
+                
+                console.log('Update payload:', payload);
+                const res = await fetch(`/api/instructor/courses/${courseId}/content`, {
+                    method: 'PUT',
+                    headers,
+                    body: JSON.stringify(payload),
+                });
+                
+                console.log('Update response status:', res.status, res.ok);
+                
+                if (!res.ok) {
+                    const errBody = await res.json().catch(() => ({}));
+                    console.log('Update error:', errBody);
+                    throw new Error(errBody.error || 'Failed to update module');
+                }
+                
+                const responseData = await res.json();
+                console.log('Update success response:', responseData);
+                
+                // Update local state with the response from the API
+                setWeeks((w) =>
+                    w.map((week) =>
+                        week.id === editingModule.week!.id
+                            ? {
+                                  ...week,
+                                  modules: week.modules?.map((m) =>
+                                      m.id === editingModule.module!.id
+                                          ? {
+                                                ...m,
+                                                ...moduleForm,
+                                                estimatedReadTime:
+                                                    moduleForm.contentType === 'article'
+                                                        ? moduleForm.estimatedReadTime
+                                                        : null,
+                                                updatedAt: new Date().toISOString(),
+                                            }
+                                          : m
+                                  ),
+                              }
+                            : week
+                    )
+                );
+                
+                toast.success('Module updated successfully');
+                setIsModuleDialogOpen(false);
+                return;
+                
+            } catch (e: unknown) {
+                console.log('Error updating module:', e);
+                let errorMsg = 'Failed to update module';
+                if (typeof e === 'object' && e && 'message' in e && typeof (e as { message?: string }).message === 'string') {
+                    errorMsg = (e as { message: string }).message;
+                }
+                toast.error(errorMsg);
+                return;
+            }
+        }
+        try {
+            const { data: { session } } = await supabase.auth.getSession();
+            const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+            if (session?.access_token) headers.Authorization = `Bearer ${session.access_token}`;
+            const payload = {
+                type: 'module',
+                data: {
+                    weekId: editingModule.week!.id,
+                    title: moduleForm.title,
+                    description: moduleForm.description,
+                    contentType: moduleForm.contentType,
+                    contentUrl: moduleForm.contentUrl,
+                    markdownContent: moduleForm.markdownContent,
+                    duration: moduleForm.duration,
+                    isRequired: moduleForm.isRequired,
+                    points: moduleForm.points,
+                    orderIndex: (editingModule.week!.modules?.length || 0) + 1,
+                },
+            };
+            const res = await fetch(`/api/instructor/courses/${courseId}/content`, {
+                method: 'POST',
+                headers,
+                body: JSON.stringify(payload),
+            });
+            
+            if (!res.ok) {
+                const errBody = await res.json().catch(() => ({}));
+                toast.error('API Error: ' + (errBody.error || `Status ${res.status}: ${res.statusText}`));
+                throw new Error(errBody.error || 'Failed to create module');
+            }
+            const json = await res.json();
             const newModule: Module = {
-                id: `module_${Date.now()}`,
-                weekId: editingModule.week.id,
-                moduleNumber: (editingModule.week.modules?.length || 0) + 1,
-                ...moduleForm,
-                orderIndex: (editingModule.week.modules?.length || 0) + 1,
+                id: json.module.id,
+                weekId: editingModule.week!.id,
+                moduleNumber: (editingModule.week!.modules?.length || 0) + 1,
+                title: moduleForm.title,
+                description: moduleForm.description,
+                contentType: moduleForm.contentType,
+                markdownContent: moduleForm.contentType === 'article' ? moduleForm.markdownContent : '',
+                contentUrl: moduleForm.contentUrl,
+                duration: moduleForm.duration,
+                isRequired: moduleForm.isRequired,
+                points: moduleForm.points,
+                orderIndex: (editingModule.week!.modules?.length || 0) + 1,
                 estimatedReadTime:
                     moduleForm.contentType === 'article' ? moduleForm.estimatedReadTime : null,
-                createdAt: new Date().toISOString(),
-                updatedAt: new Date().toISOString(),
+                createdAt: json.module.created_at || new Date().toISOString(),
+                updatedAt: json.module.updated_at || new Date().toISOString(),
             };
             setWeeks((w) =>
                 w.map((week) =>
-                    week.id === editingModule.week.id
+                    week.id === editingModule.week!.id
                         ? { ...week, modules: [...(week.modules || []), newModule] }
                         : week
                 )
             );
-            toast.success('New module added!');
+            toast.success('Module created successfully');
+            setIsModuleDialogOpen(false);
+        } catch (e: unknown) {
+            let errorMsg = 'Failed to create module';
+            if (typeof e === 'object' && e && 'message' in e && typeof (e as { message?: string }).message === 'string') {
+                errorMsg = (e as { message: string }).message;
+            }
+            toast.error(errorMsg);
         }
-        setIsModuleDialogOpen(false);
     };
 
     const handleDeleteWeek = () => {
@@ -380,8 +621,30 @@ export default function CourseContentPage() {
         }
     };
 
-    if (!course)
-        return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
+    if (isLoadingContent) {
+        return (
+            <div className="min-h-screen flex items-center justify-center text-sm text-muted-foreground">
+                Loading course content...
+            </div>
+        );
+    }
+    if (contentError) {
+        return (
+            <div className="min-h-screen flex flex-col gap-4 items-center justify-center text-center px-4">
+                <p className="text-red-600 font-medium">{contentError}</p>
+                <Button variant="outline" onClick={() => router.refresh()}>
+                    Retry
+                </Button>
+            </div>
+        );
+    }
+    if (!course) {
+        return (
+            <div className="min-h-screen flex items-center justify-center text-sm text-muted-foreground">
+                Course not found.
+            </div>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-gray-50 p-6">
@@ -400,9 +663,7 @@ export default function CourseContentPage() {
                                     >
                                         {course.status}
                                     </Badge>
-                                    <Badge className={difficultyColors[course.difficultyLevel]}>
-                                        {course.difficultyLevel}
-                                    </Badge>
+                                    {/* difficulty removed */}
                                 </div>
                                 <p className="text-gray-600 mb-4">{course.description}</p>
                                 <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
@@ -781,10 +1042,10 @@ export default function CourseContentPage() {
                     <DialogContent className="sm:max-w-7xl max-h-[95vh] flex flex-col">
                         <DialogHeader className="flex-shrink-0">
                             <DialogTitle>
-                                {editingModule.module ? 'Edit Module' : 'Add New Module'}
+                                {editingModule?.module ? 'Edit Module' : 'Add New Module'}
                             </DialogTitle>
                             <DialogDescription>
-                                {editingModule.module
+                                {editingModule?.module
                                     ? 'Update the module information below.'
                                     : 'Create a new module by filling out the form below.'}
                             </DialogDescription>

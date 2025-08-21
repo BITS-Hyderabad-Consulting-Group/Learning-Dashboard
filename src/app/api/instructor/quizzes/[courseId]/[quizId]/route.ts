@@ -25,8 +25,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<Ro
             const { error: titleError } = await supabaseServer
                 .from('quizzes')
                 .update({ title })
-                .eq('id', quizId)
-                .is('deleted_at', null);
+                .eq('id', quizId);
             if (titleError) {
                 console.error('Error updating quiz title:', titleError);
                 return NextResponse.json({ error: 'Failed to update quiz title' }, { status: 500 });
@@ -104,7 +103,6 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<Ro
       `
             )
             .eq('id', quizId)
-            .is('deleted_at', null)
             .single();
         if (fetchError || !quiz) {
             return NextResponse.json({ error: 'Quiz not found' }, { status: 404 });
@@ -129,15 +127,14 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
             .from('quizzes')
             .select('id')
             .eq('id', quizId)
-            .is('deleted_at', null)
             .single();
         if (checkError || !existingQuiz) {
             return NextResponse.json({ error: 'Quiz not found' }, { status: 404 });
         }
-        // Soft delete the quiz by setting deleted_at
+        // Hard delete the quiz since deleted_at column doesn't exist
         const { error } = await supabaseServer
             .from('quizzes')
-            .update({ deleted_at: new Date().toISOString() })
+            .delete()
             .eq('id', quizId);
         if (error) {
             console.error('Error deleting quiz:', error);

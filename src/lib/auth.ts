@@ -25,10 +25,14 @@ export async function verifyAdminAuth(request: NextRequest) {
 
         // Try to read access token from Authorization header as fallback (e.g., fetch with Bearer token)
         let headerToken = null;
-        const authHeader = request.headers.get('authorization');
+    const authHeader = request.headers.get('authorization');
         if (authHeader && authHeader.toLowerCase().startsWith('bearer ')) {
             headerToken = authHeader.slice(7).trim();
         }
+
+    // Non-sensitive debug info
+    const cookieHeader = request.headers.get('cookie');
+    console.debug('[verifyAdminAuth] headerTokenPresent:', !!headerToken, 'cookieHeaderPresent:', !!cookieHeader);
 
         // Create a server-side Supabase client that automatically reads the auth cookies
         const { createServerClient } = await import('@supabase/ssr');
@@ -56,7 +60,12 @@ export async function verifyAdminAuth(request: NextRequest) {
         } = await supabase.auth.getUser();
 
         if (userError || !user) {
-            return { error: 'Authentication required', status: 401 };
+            return {
+                error: 'Authentication required',
+                status: 401,
+                // include non-sensitive diagnostics to help debugging (no tokens)
+                debug: { hasAuthHeader: !!headerToken, hasCookieHeader: !!cookieHeader },
+            };
         }
 
         // Import service-role client for privileged queries after user authenticated
@@ -73,8 +82,9 @@ export async function verifyAdminAuth(request: NextRequest) {
             return { error: 'Failed to fetch user profile', status: 500 };
         }
 
-        if (profile?.role !== 'admin') {
-            return { error: 'Admin access required', status: 403 };
+        // Allow both admin and instructor roles to access instructor APIs
+        if (!(profile?.role === 'admin' || profile?.role === 'instructor')) {
+            return { error: 'Admin or instructor access required', status: 403 };
         }
 
         return {

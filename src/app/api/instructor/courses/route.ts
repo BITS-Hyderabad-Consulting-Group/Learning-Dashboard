@@ -96,11 +96,11 @@ export async function POST(request: NextRequest) {
             title,
             description,
             duration,
+            total_duration,
             prerequisites,
             objectives,
             list_price,
-            difficulty_level,
-            instructor_id,
+            instructor,
         } = body;
         // Validate required fields
         if (!title || !description) {
@@ -116,12 +116,11 @@ export async function POST(request: NextRequest) {
                 {
                     title,
                     description,
-                    duration: duration || 0,
+                    total_duration: duration || total_duration || 0,
                     prerequisites: prerequisites || '',
                     objectives: objectives || [],
                     list_price: list_price || 0,
-                    difficulty_level: difficulty_level || 'beginner',
-                    instructor_id: instructor_id || authResult.user.id,
+                    instructor: instructor || authResult.user.id,
                     is_active: false, // Start as draft
                     created_at: new Date().toISOString(),
                     updated_at: new Date().toISOString(),
@@ -131,7 +130,11 @@ export async function POST(request: NextRequest) {
             .single();
         if (createError) {
             console.error('Error creating course:', createError);
-            return NextResponse.json({ error: 'Failed to create course' }, { status: 500 });
+            // Return DB error message/details to help debug from client/network tab
+            return NextResponse.json(
+                { error: createError.message || 'Failed to create course', details: createError },
+                { status: 500 }
+            );
         }
         return NextResponse.json(
             {
@@ -140,8 +143,15 @@ export async function POST(request: NextRequest) {
             },
             { status: 201 }
         );
-    } catch (error) {
+    } catch (error: unknown) {
         console.error('Create course error:', error);
-        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+        let errorMsg = 'Internal server error';
+        if (typeof error === 'object' && error && 'message' in error && typeof (error as { message?: string }).message === 'string') {
+            errorMsg = (error as { message: string }).message;
+        }
+        return NextResponse.json(
+            { error: errorMsg, details: error },
+            { status: 500 }
+        );
     }
 }

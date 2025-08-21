@@ -24,7 +24,7 @@ export async function GET(
         // Get course basic info
         const { data: course, error: courseError } = await supabaseServer
             .from('courses')
-            .select('id, title, description, duration, list_price, difficulty_level, is_active')
+            .select('id, title, description, total_duration, list_price, is_active')
             .eq('id', courseId)
             .single();
         if (courseError || !course) {
@@ -38,26 +38,16 @@ export async function GET(
         id,
         week_number,
         title,
-        description,
-        duration,
-        is_published,
-        unlock_date,
         created_at,
-        updated_at,
         modules(
           id,
-          module_number,
           title,
-          description,
-          content_type,
-          content_url,
+          module_type,
+          content,
           duration,
-          is_required,
-          points,
+          xp,
           order_in_week,
-          estimated_read_time,
-          created_at,
-          updated_at
+          created_at
         )
       `
             )
@@ -75,12 +65,12 @@ export async function GET(
                 courseId,
                 weekNumber: week.week_number,
                 title: week.title,
-                description: week.description,
-                duration: week.duration,
-                isPublished: week.is_published,
-                unlockDate: week.unlock_date,
+                description: '', // Default since description doesn't exist in schema
+                duration: 0, // Default since duration doesn't exist in schema
+                isPublished: false, // Default since is_published doesn't exist in schema
+                unlockDate: week.created_at, // Use created_at since unlock_date doesn't exist
                 createdAt: week.created_at,
-                updatedAt: week.updated_at,
+                updatedAt: week.created_at, // Use created_at since updated_at doesn't exist
                 expanded: false, // Default value for UI
             })) || [];
         const transformedModules =
@@ -89,18 +79,20 @@ export async function GET(
                     week.modules?.map((module) => ({
                         id: module.id,
                         weekId: week.id,
-                        moduleNumber: module.module_number,
+                        moduleNumber: module.order_in_week || 1, // Use order_in_week as module number
                         title: module.title,
-                        description: module.description,
-                        contentType: module.content_type,
-                        contentUrl: module.content_url,
+                        description: '', // Description field not stored in database
+                        contentType: module.module_type,
+                        // For articles, content goes to markdownContent; for others, to contentUrl
+                        markdownContent: module.module_type === 'article' ? module.content || '' : '',
+                        contentUrl: module.module_type !== 'article' ? module.content || '' : '',
                         duration: module.duration,
-                        isRequired: module.is_required,
-                        points: module.points,
+                        isRequired: true, // Default to true since is_required field doesn't exist
+                        points: module.xp, // xp field maps to points
                         orderIndex: module.order_in_week,
-                        estimatedReadTime: module.estimated_read_time,
+                        estimatedReadTime: null, // not in schema
                         createdAt: module.created_at,
-                        updatedAt: module.updated_at,
+                        updatedAt: module.created_at, // Use created_at since updated_at doesn't exist
                     })) || []
             ) || [];
         const courseContent = {
@@ -108,11 +100,12 @@ export async function GET(
                 id: course.id,
                 title: course.title,
                 description: course.description,
-                duration: course.duration,
                 price: course.list_price,
-                difficultyLevel: course.difficulty_level,
+                // difficulty removed from schema; omit difficultyLevel
                 status: course.is_active ? 'active' : 'draft',
                 isActive: course.is_active,
+                totalDuration: (course as { total_duration?: number }).total_duration,
+                duration: `${Math.ceil(((course as { total_duration?: number }).total_duration || 0) / 60)} weeks`,
             },
             weeks: transformedWeeks,
             modules: transformedModules,
@@ -146,7 +139,7 @@ export async function POST(
         const body = await request.json();
         const { type, data } = body;
         if (type === 'week') {
-            const { title, description, duration, weekNumber } = data;
+            const { title, weekNumber } = data;
             // Validate required fields
             if (!title || !weekNumber) {
                 return NextResponse.json(
@@ -162,12 +155,7 @@ export async function POST(
                         course_id: courseId,
                         week_number: weekNumber,
                         title,
-                        description: description || '',
-                        duration: duration || 0,
-                        is_published: false,
-                        unlock_date: new Date().toISOString(),
                         created_at: new Date().toISOString(),
-                        updated_at: new Date().toISOString(),
                     },
                 ])
                 .select()
@@ -187,11 +175,9 @@ export async function POST(
             const {
                 weekId,
                 title,
-                description,
                 contentType,
                 contentUrl,
-                duration,
-                isRequired,
+                markdownContent,
                 points,
                 orderIndex,
             } = data;
@@ -207,24 +193,23 @@ export async function POST(
                 .from('modules')
                 .select('id', { count: 'exact', head: true })
                 .eq('week_id', weekId);
+            
+            // For articles, save markdownContent; for others, save contentUrl
+            const contentToSave = contentType === 'article' ? markdownContent || '' : contentUrl || '';
+            
             // Create new module
             const { data: newModule, error: createError } = await supabaseServer
                 .from('modules')
                 .insert([
                     {
                         week_id: weekId,
-                        module_number: (moduleCount || 0) + 1,
                         title,
-                        description: description || '',
-                        content_type: contentType,
-                        content_url: contentUrl || '',
-                        duration: duration || 0,
-                        is_required: isRequired !== false,
-                        points: points || 0,
+                        module_type: contentType,
+                        content: contentToSave,
+                        xp: points || 10,
                         order_in_week: orderIndex || (moduleCount || 0) + 1,
-                        estimated_read_time: contentType === 'article' ? duration : null,
+                        duration: 0, // Set default duration
                         created_at: new Date().toISOString(),
-                        updated_at: new Date().toISOString(),
                     },
                 ])
                 .select()
@@ -244,6 +229,132 @@ export async function POST(
         return NextResponse.json({ error: 'Invalid type specified' }, { status: 400 });
     } catch (error) {
         console.error('Create content error:', error);
+        return NextResponse.json(
+            { error: 'Internal server error' },
+            {
+                status: 500,
+            }
+        );
+    }
+}
+
+// Update existing content (week or module)
+export async function PUT(request: NextRequest) {
+    try {
+        console.log('PUT request received');
+        const authResult = await verifyAdminAuth(request);
+        if ('error' in authResult) {
+            console.log('Auth failed:', authResult.error);
+            return NextResponse.json(
+                { error: authResult.error },
+                {
+                    status: authResult.status,
+                }
+            );
+        }
+        const body = await request.json();
+        console.log('PUT request body:', body);
+        const { type, id, data } = body;
+
+        if (type === 'module') {
+            console.log('Updating module with ID:', id);
+            const {
+                title,
+                contentType,
+                contentUrl,
+                markdownContent,
+                points,
+                orderIndex,
+            } = data;
+
+            console.log('Module update data:', {
+                title,
+                contentType,
+                contentUrl,
+                markdownContent,
+                points
+            });
+
+            // Validate required fields
+            if (!id || !title || !contentType) {
+                console.log('Validation failed - missing required fields');
+                return NextResponse.json(
+                    { error: 'Module ID, title, and content type are required' },
+                    { status: 400 }
+                );
+            }
+
+            // For articles, save markdownContent; for others, save contentUrl
+            const contentToSave = contentType === 'article' ? markdownContent || '' : contentUrl || '';
+            console.log('Content to save:', contentToSave);
+
+            // Update existing module
+            const { data: updatedModule, error: updateError } = await supabaseServer
+                .from('modules')
+                .update({
+                    title,
+                    module_type: contentType,
+                    content: contentToSave,
+                    xp: points || 10,
+                    order_in_week: orderIndex,
+                    duration: 0, // Default duration
+                })
+                .eq('id', id)
+                .select()
+                .single();
+
+            if (updateError) {
+                console.error('Error updating module:', updateError);
+                return NextResponse.json({ error: 'Failed to update module' }, { status: 500 });
+            }
+
+            console.log('Module updated successfully:', updatedModule);
+            return NextResponse.json(
+                {
+                    message: 'Module updated successfully',
+                    module: updatedModule,
+                },
+                { status: 200 }
+            );
+        } else if (type === 'week') {
+            const { title, weekNumber } = data;
+
+            // Validate required fields
+            if (!id || !title) {
+                return NextResponse.json(
+                    { error: 'Week ID and title are required' },
+                    { status: 400 }
+                );
+            }
+
+            // Update existing week
+            const { data: updatedWeek, error: updateError } = await supabaseServer
+                .from('weeks')
+                .update({
+                    title,
+                    week_number: weekNumber,
+                })
+                .eq('id', id)
+                .select()
+                .single();
+
+            if (updateError) {
+                console.error('Error updating week:', updateError);
+                return NextResponse.json({ error: 'Failed to update week' }, { status: 500 });
+            }
+
+            return NextResponse.json(
+                {
+                    message: 'Week updated successfully',
+                    week: updatedWeek,
+                },
+                { status: 200 }
+            );
+        }
+
+        return NextResponse.json({ error: 'Invalid type specified' }, { status: 400 });
+    } catch (error) {
+        console.error('Update content error:', error);
         return NextResponse.json(
             { error: 'Internal server error' },
             {

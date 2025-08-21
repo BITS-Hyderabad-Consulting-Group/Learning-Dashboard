@@ -27,7 +27,6 @@ export async function GET(request: NextRequest, { params }: { params: Params }) 
         title,
         module_id,
         created_at,
-        deleted_at,
         questions (
           id,
           question_text,
@@ -41,21 +40,36 @@ export async function GET(request: NextRequest, { params }: { params: Params }) 
         )
       `
             )
-            .is('deleted_at', null)
             .order('created_at', { ascending: false });
         if (error) {
             console.error('Error fetching quizzes:', error);
             return NextResponse.json({ error: 'Failed to fetch quizzes' }, { status: 500 });
         }
-        // Filter quizzes by courseId through modules
+        // Filter quizzes by courseId through the proper relationship: course → weeks → modules
+        // First, get all weeks for this course
+        const { data: weeks, error: weeksError } = await supabaseServer
+            .from('weeks')
+            .select('id')
+            .eq('course_id', courseId);
+        
+        if (weeksError) {
+            console.error('Error fetching weeks:', weeksError);
+            return NextResponse.json({ error: 'Failed to fetch course weeks' }, { status: 500 });
+        }
+        
+        const weekIds = weeks?.map((w) => w.id) || [];
+        
+        // Then get all modules for these weeks
         const { data: modules, error: moduleError } = await supabaseServer
             .from('modules')
             .select('id')
-            .eq('week_id', courseId); // Adjust as needed
+            .in('week_id', weekIds);
+            
         if (moduleError) {
             console.error('Error fetching modules:', moduleError);
             return NextResponse.json({ error: 'Failed to fetch course modules' }, { status: 500 });
         }
+        
         const moduleIds = modules?.map((m) => m.id) || [];
         const courseQuizzes = (quizzes || []).filter((quiz: { module_id: string }) =>
             moduleIds.includes(quiz.module_id)

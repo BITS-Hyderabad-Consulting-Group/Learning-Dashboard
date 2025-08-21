@@ -95,10 +95,10 @@ export const AdminCourseCard = ({
                     </Button>
                     <div className="grid grid-cols-2 gap-2 w-full">
                         <Button asChild variant="outline" size="sm" className="shadow-sm">
-                            <Link href={`/admin/courses/${id}`}>Edit Course</Link>
+                            <Link href={`/instructor/courses/${id}`}>Edit Course</Link>
                         </Button>
                         <Button asChild variant="outline" size="sm" className="shadow-sm">
-                            <Link href={`/admin/quizzes/${id}`}>Quiz Submissions</Link>
+                            <Link href={`/instructor/quizzes/${id}`}>Quiz Submissions</Link>
                         </Button>
                     </div>
                 </CardFooter>

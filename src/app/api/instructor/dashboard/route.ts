@@ -68,7 +68,7 @@ export async function GET(request: NextRequest) {
                 title: course.title,
                 created_at: course.created_at,
                 is_active: course.is_active,
-                instructor: course.instructor?.[0].full_name || 'N/A',
+                instructor: course.instructor?.[0]?.full_name ?? 'N/A',
                 enrollments: courseEnrollmentCounts[course.id] || 0,
             })) || [];
         const dashboardData = {

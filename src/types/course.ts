@@ -29,7 +29,7 @@ export type LearningApiResponse = {
     pagination: PaginationInfo;
 };
 
-export type CourseRow = { id: string; title: string; duration: number };
+export type CourseRow = { id: string; title: string; total_duration: number };
 export type WeekRow = { id: string; course_id: string };
 export type ModuleRow = { id: string; week_id: string };
 export type EnrollRow = { course_id: string; courses: CourseRow | CourseRow[] | null };
@@ -82,7 +82,6 @@ export interface DbModule {
     module_type: string;
     content: string;
     order_in_week: number;
-    difficulty: string;
 }
 
 export interface DbWeek {

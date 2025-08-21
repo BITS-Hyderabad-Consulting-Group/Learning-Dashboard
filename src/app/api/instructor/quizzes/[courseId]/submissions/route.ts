@@ -41,8 +41,7 @@ export async function GET(request: NextRequest, { params }: { params: Params }) 
         let quizQuery = supabaseServer
             .from('quizzes')
             .select('id')
-            .in('module_id', moduleIds)
-            .is('deleted_at', null);
+            .in('module_id', moduleIds);
 
         if (quizId) {
             quizQuery = quizQuery.eq('id', quizId);
@@ -56,7 +55,7 @@ export async function GET(request: NextRequest, { params }: { params: Params }) 
 
         // Get quiz submissions for these quizzes
         const { data: submissions, error } = await supabaseServer
-            .from('quiz_submissions')
+            .from('user_quiz_submissions')
             .select(
                 `
         id,
@@ -67,11 +66,16 @@ export async function GET(request: NextRequest, { params }: { params: Params }) 
         submitted_at,
         graded_at,
         instructor_feedback,
-        user_quiz_answers (
+        user_question_answers (
           id,
           submission_id,
           question_id,
-          selected_answer_id,
+          selected_answer_id
+        ),
+        user_text_submissions (
+          id,
+          submission_id,
+          question_id,
           submitted_text
         )
       `
@@ -101,6 +105,11 @@ export async function GET(request: NextRequest, { params }: { params: Params }) 
             submission_id: string;
             question_id: string;
             selected_answer_id: string | null;
+        };
+        type TextAnswer = {
+            id: string;
+            submission_id: string;
+            question_id: string;
             submitted_text: string | null;
         };
         type Submission = {
@@ -112,13 +121,29 @@ export async function GET(request: NextRequest, { params }: { params: Params }) 
             submitted_at: string | null;
             graded_at: string | null;
             instructor_feedback: string | null;
-            user_quiz_answers: QuizAnswer[];
+            user_question_answers: QuizAnswer[];
+            user_text_submissions: TextAnswer[];
         };
         type User = { id: string; full_name?: string };
         type Quiz = { id: string; title?: string };
         const transformedSubmissions = (submissions || []).map((submission: Submission) => {
             const user = users.find((u: User) => u.id === submission.user_id);
             const quiz = quizTitles.find((q: Quiz) => q.id === submission.quiz_id);
+            
+            // Combine both types of answers
+            const allAnswers = [
+                ...(submission.user_question_answers || []).map(a => ({
+                    questionId: a.question_id,
+                    selectedAnswerId: a.selected_answer_id,
+                    submittedText: null
+                })),
+                ...(submission.user_text_submissions || []).map(a => ({
+                    questionId: a.question_id,
+                    selectedAnswerId: null,
+                    submittedText: a.submitted_text
+                }))
+            ];
+            
             return {
                 submissionId: submission.id,
                 quizId: submission.quiz_id,
@@ -128,9 +153,7 @@ export async function GET(request: NextRequest, { params }: { params: Params }) 
                 quizTitle: quiz && quiz.title ? quiz.title : 'Unknown Quiz',
                 score: submission.score,
                 status: submission.status,
-                answers: Array.isArray(submission.user_quiz_answers)
-                    ? submission.user_quiz_answers
-                    : [],
+                answers: allAnswers,
                 submittedAt: submission.submitted_at,
                 gradedAt: submission.graded_at,
                 instructorFeedback: submission.instructor_feedback,
