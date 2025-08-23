@@ -105,6 +105,7 @@ export async function GET(req: NextRequest) {
                             modules: moduleCount,
                             total_duration: course.total_duration,
                             progress: progressMap.get(course.id) ?? 0,
+                            is_active: true, // Assuming enrolled courses are always active
                         });
                     });
                 }
@@ -198,7 +199,7 @@ export async function GET(req: NextRequest) {
 
         // Convert available courses data
         const availableCourses: AvailableCourse[] = (availableCoursesData || []).map(
-            (course: CourseWithModules) => {
+            (course: CourseWithModules & { is_active: boolean }) => {
                 const moduleCount =
                     course.weeks?.reduce((total: number, week: { modules: { id: string }[] }) => {
                         return total + (week.modules?.length || 0);
@@ -209,6 +210,7 @@ export async function GET(req: NextRequest) {
                     title: course.title,
                     modules: moduleCount,
                     total_duration: course.total_duration,
+                    is_active: course.is_active,
                 };
             }
         );
