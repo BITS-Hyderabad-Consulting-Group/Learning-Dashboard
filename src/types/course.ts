@@ -5,6 +5,7 @@ export type EnrolledCourse = {
     modules: number;
     total_duration: number;
     progress?: number;
+    is_active: boolean;
 };
 
 export type AvailableCourse = {
@@ -12,6 +13,7 @@ export type AvailableCourse = {
     title: string;
     modules: number;
     total_duration: number;
+    is_active: boolean;
 };
 
 export type PaginationInfo = {

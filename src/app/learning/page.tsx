@@ -124,6 +124,9 @@ export default function Learning() {
         return <SkeletonLoader />;
     }
 
+    // Only show enrolled courses that are active
+    const activeEnrolledCourses = enrolledCourses.filter((course) => course.is_active);
+
     return (
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             {/* Header */}
@@ -150,10 +153,10 @@ export default function Learning() {
             {isLoggedInLearner && !isUserLoading && (
                 <section className="container mx-auto">
                     <h2 className="text-gray-800 text-2xl font-semibold mb-6">Continue Learning</h2>
-                    {enrolledCourses.length > 0 ? (
+                    {activeEnrolledCourses.length > 0 ? (
                         <CourseCarousel
                             enrolled={true}
-                            courses={enrolledCourses.slice(0, 6)}
+                            courses={activeEnrolledCourses.slice(0, 6)}
                             basis="1/3"
                         />
                     ) : (
@@ -195,17 +198,22 @@ export default function Learning() {
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 lg:gap-4 -mx-2">
                     {isCoursesLoading
                         ? Array.from({ length: 3 }).map((_, i) => <CourseCardSkeleton key={i} />)
-                        : availableCourses.map((course) => (
-                              <CourseCard
-                                  key={course.id}
-                                  id={course.id}
-                                  name={course.title}
-                                  modules={course.modules}
-                                  duration={course.total_duration}
-                                  progress={0}
-                                  showProgress={false}
-                              />
-                          ))}
+                        : availableCourses
+                              .filter(
+                                  (course) =>
+                                      !enrolledCourses.some((enrolled) => enrolled.id === course.id)
+                              )
+                              .map((course) => (
+                                  <CourseCard
+                                      key={course.id}
+                                      id={course.id}
+                                      name={course.title}
+                                      modules={course.modules}
+                                      duration={course.total_duration}
+                                      progress={0}
+                                      showProgress={false}
+                                  />
+                              ))}
                 </div>
 
                 {/* Pagination */}
