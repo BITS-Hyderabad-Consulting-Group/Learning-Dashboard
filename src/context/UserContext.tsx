@@ -21,25 +21,45 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        const fetchProfileWithRetry = async (
+            userId: string,
+            retries = 2
+        ): Promise<Profile | null> => {
+            for (let attempt = 0; attempt <= retries; attempt++) {
+                try {
+                    const { data: profileData, error: profileError } = await supabase
+                        .from('profiles')
+                        .select('*')
+                        .eq('id', userId)
+                        .maybeSingle();
+                    if (profileError) {
+                        console.error('Profile fetch error:', profileError.message);
+                        if (attempt === retries) return null;
+                    } else {
+                        return profileData;
+                    }
+                } catch (err) {
+                    console.error('Profile fetch exception:', err);
+                    if (attempt === retries) return null;
+                }
+            }
+            return null;
+        };
+
         const getSessionAndProfile = async () => {
-            const {
-                data: { session },
-            } = await supabase.auth.getSession();
-            setSession(session);
-            setUser(session?.user ?? null);
+            try {
+                const {
+                    data: { session },
+                } = await supabase.auth.getSession();
+                setSession(session);
+                setUser(session?.user ?? null);
 
-            if (session?.user) {
-                const { data: profileData, error: profileError } = await supabase
-                    .from('profiles')
-                    .select('*')
-                    .eq('id', session.user.id)
-                    .maybeSingle();
-
-                if (profileError) {
-                    // removed debug
-                } else {
+                if (session?.user) {
+                    const profileData = await fetchProfileWithRetry(session.user.id);
                     setProfile(profileData);
                 }
+            } catch (err) {
+                console.error('Session/profile fetch exception:', err);
             }
             setLoading(false);
         };
@@ -51,17 +71,24 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
             setUser(session?.user ?? null);
 
             if (session?.user) {
-                const { data: profileData, error: profileError } = await supabase
-                    .from('profiles')
-                    .select('*')
-                    .eq('id', session.user.id)
-                    .single();
-
-                if (profileError) {
-                    setProfile(null);
-                } else {
-                    setProfile(profileData);
+                let profileData: Profile | null = null;
+                try {
+                    const { data, error } = await supabase
+                        .from('profiles')
+                        .select('*')
+                        .eq('id', session.user.id)
+                        .single();
+                    if (error) {
+                        console.error('Profile fetch error (authListener):', error.message);
+                        profileData = null;
+                    } else {
+                        profileData = data;
+                    }
+                } catch (err) {
+                    console.error('Profile fetch exception (authListener):', err);
+                    profileData = null;
                 }
+                setProfile(profileData);
             } else {
                 setProfile(null);
             }

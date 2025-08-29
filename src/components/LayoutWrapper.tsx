@@ -23,11 +23,6 @@ function PageLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const router = useRouter();
     const { user, profile, loading } = useUser();
-    // Debug: log user and profile
-    if (typeof window !== 'undefined') {
-        console.log('User:', user);
-        console.log('Profile:', profile);
-    }
 
     const handleGoogleSignIn = async () => {
         await signInWithGoogle();
