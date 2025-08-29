@@ -20,6 +20,7 @@ type CourseWithModules = {
 export async function GET(req: NextRequest) {
     const { searchParams } = new URL(req.url);
     const userId = searchParams.get('userId');
+    const domain = searchParams.get('domain') || '';
 
     // Pagination and filtering parameters
     const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
@@ -119,6 +120,7 @@ export async function GET(req: NextRequest) {
             title,
             total_duration,
             is_active,
+            domain,
             weeks(
                 modules(id)
             )
@@ -131,7 +133,7 @@ export async function GET(req: NextRequest) {
             .from('courses')
             .select('id', { count: 'exact', head: true })
             .eq('is_active', true);
-        
+
         console.log('- Total active courses in DB:', totalActiveCourses);
 
         // Exclude enrolled courses from available courses
@@ -144,7 +146,7 @@ export async function GET(req: NextRequest) {
 
         // Only show active courses
         query = query.eq('is_active', true);
-        
+
         // Debug: Check count after active filter
         const { count: afterActiveFilter } = await supabaseServer
             .from('courses')
@@ -155,6 +157,10 @@ export async function GET(req: NextRequest) {
         // Apply search filter if provided
         if (search.length > 0) {
             query = query.ilike('title', `%${search}%`);
+        }
+        // Apply domain filter if provided
+        if (domain.length > 0 && domain !== 'all') {
+            query = query.eq('domain', domain);
         }
 
         // Apply sorting
@@ -199,7 +205,7 @@ export async function GET(req: NextRequest) {
 
         // Convert available courses data
         const availableCourses: AvailableCourse[] = (availableCoursesData || []).map(
-            (course: CourseWithModules & { is_active: boolean }) => {
+            (course: CourseWithModules & { is_active: boolean; domain?: string }) => {
                 const moduleCount =
                     course.weeks?.reduce((total: number, week: { modules: { id: string }[] }) => {
                         return total + (week.modules?.length || 0);
@@ -211,6 +217,7 @@ export async function GET(req: NextRequest) {
                     modules: moduleCount,
                     total_duration: course.total_duration,
                     is_active: course.is_active,
+                    domain: course.domain || '',
                 };
             }
         );

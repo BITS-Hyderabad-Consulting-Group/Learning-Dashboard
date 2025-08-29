@@ -66,6 +66,7 @@ export default function Learning() {
     const [searchTerm, setSearchTerm] = useState('');
     const [isCoursesLoading, setIsCoursesLoading] = useState(true);
     const [paginationInfo, setPaginationInfo] = useState<PaginationInfo | null>(null);
+    const [selectedDomain, setSelectedDomain] = useState('all');
 
     const isLoggedInLearner = profile?.role === 'learner';
     const coursesPerPage = isLoggedInLearner ? 20 : 20; // Temporarily increased to show all courses
@@ -81,6 +82,9 @@ export default function Learning() {
         if (searchTerm.trim()) {
             params.append('search', searchTerm.trim());
         }
+        if (selectedDomain && selectedDomain !== 'all') {
+            params.append('domain', selectedDomain);
+        }
         if (user) {
             params.append('userId', user.id);
         }
@@ -88,11 +92,6 @@ export default function Learning() {
             .then((res) => res.json())
             .then((data) => {
                 if (ignore) return;
-                console.log('Frontend Learning Debug:');
-                console.log('- API Response:', data);
-                console.log('- Available courses count:', data.availableCourses?.length);
-                console.log('- Enrolled courses count:', data.enrolledCourses?.length);
-                console.log('- Pagination info:', data.pagination);
                 setEnrolledCourses(data.enrolledCourses || []);
                 setAvailableCourses(data.availableCourses || []);
                 setPaginationInfo(data.pagination || null);
@@ -101,7 +100,6 @@ export default function Learning() {
                 if (ignore) return;
                 setAvailableCourses([]);
                 setPaginationInfo(null);
-                // Only clear enrolledCourses if user is a learner
                 if (isLoggedInLearner) setEnrolledCourses([]);
             })
             .finally(() => {
@@ -112,7 +110,7 @@ export default function Learning() {
             ignore = true;
         };
         // eslint-disable-next-line
-    }, [searchTerm, sortOrder, currentPage, coursesPerPage, user]);
+    }, [searchTerm, sortOrder, currentPage, coursesPerPage, user, selectedDomain]);
 
     useEffect(() => {
         setCurrentPage(1);
@@ -190,6 +188,25 @@ export default function Learning() {
                             <SelectItem value="z-a">Title: Z-A</SelectItem>
                             <SelectItem value="desc">Newest First</SelectItem>
                             <SelectItem value="asc">Oldest First</SelectItem>
+                        </SelectContent>
+                    </Select>
+
+                    {/* Domain Filter */}
+                    <Select value={selectedDomain} onValueChange={setSelectedDomain}>
+                        <SelectTrigger className="border border-gray-300 shadow-sm rounded-lg px-5 py-5 h-full w-full max-w-xs">
+                            <SelectValue placeholder="Filter by Domain" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="all">All Domains</SelectItem>
+                            {Array.from(
+                                new Set(
+                                    availableCourses.map((course) => course.domain).filter(Boolean)
+                                )
+                            ).map((domain) => (
+                                <SelectItem key={domain} value={domain!}>
+                                    {domain}
+                                </SelectItem>
+                            ))}
                         </SelectContent>
                     </Select>
                 </div>
