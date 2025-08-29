@@ -46,7 +46,7 @@ export default function ModulePage() {
     if (!module) return null;
 
     return (
-        <div className="max-w-3xl mx-auto py-10 px-4">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-12">
             {/* Title, Course, Week Card */}
             <Card className="mb-6">
                 <CardHeader>
