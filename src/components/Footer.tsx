@@ -32,10 +32,9 @@ const Footer: React.FC = () => {
             icon: Paintbrush,
             members: [
                 { name: 'Arjun Rathore' },
-                { name: 'Arushi Chandurkar' },
                 { name: 'Aryan Saini' },
-                { name: 'Bhavya Gupta' },
                 { name: 'Garima Dwivedi' },
+                { name: 'Rithvik Vallivedu' },
             ],
         },
         {

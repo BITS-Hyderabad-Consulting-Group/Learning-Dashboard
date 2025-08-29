@@ -77,7 +77,7 @@ export const Header: React.FC<{
     };
 
     return (
-        <header ref={headerRef} className="w-full bg-[#B4DEDD] h-[80px] relative">
+        <       header ref={headerRef} className="w-full bg-[#B4DEDD] h-[80px] relative">
             <div className="mx-auto flex max-w-7xl h-full items-center justify-between px-6 lg:px-8">
                 <Link href="/" className="flex items-center">
                     <motion.div
@@ -93,6 +93,12 @@ export const Header: React.FC<{
                             height={512}
                             className="h-18 w-auto object-contain"
                         />
+                        <span
+                            className="ml-2 px-2 py-0.5 rounded bg-teal-800 text-white text-xs font-extrabold tracking-wide"
+                            style={{ display: 'inline-block' }}
+                        >
+                            BETA
+                        </span>
                     </motion.div>
                 </Link>
 
