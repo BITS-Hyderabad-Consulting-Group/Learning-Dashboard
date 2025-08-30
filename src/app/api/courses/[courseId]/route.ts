@@ -73,7 +73,7 @@ export async function GET(request: NextRequest, { params }: { params: Params }) 
         const { data: weeks, error: weeksError } = await supabaseServer
             .from('weeks')
             .select(
-                `id, title, week_number, modules (id, title, module_type, order_in_week,duration)`
+                `id, title, week_number, modules (id, title, module_type, order_in_week, duration, content)`
             )
             .eq('course_id', courseId)
             .order('week_number');
@@ -156,12 +156,14 @@ export async function GET(request: NextRequest, { params }: { params: Params }) 
 
                         if (markedForReviewStatus) markedForReview++;
 
+                        const isHyperlink = module.module_type === 'hyperlink';
                         return {
                             id: module.id,
                             title: module.title,
                             type: module.module_type || 'Article',
                             completed,
                             markedForReview: markedForReviewStatus,
+                            content: isHyperlink ? module.content : undefined,
                         };
                     });
 
