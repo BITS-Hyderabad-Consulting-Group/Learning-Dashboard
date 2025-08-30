@@ -18,6 +18,9 @@ export type AvailableCourse = {
     total_duration: number;
     is_active: boolean;
     domain?: string;
+    weeks: {
+        modules: { id: string; type?: string; content?: string }[];
+    }[];
 };
 
 export type PaginationInfo = {
