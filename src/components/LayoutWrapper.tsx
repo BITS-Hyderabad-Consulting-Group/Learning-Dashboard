@@ -8,6 +8,7 @@ import { signInWithGoogle, signOut } from '../lib/auth';
 import { FcGoogle } from 'react-icons/fc';
 
 import { Home, LibraryBig, UserRound, PencilRuler, LogOut } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 
 interface NavItem {
     label: string;
@@ -37,19 +38,17 @@ function PageLayout({ children }: { children: React.ReactNode }) {
         { label: 'Learning', path: '/learning', icon: LibraryBig },
     ];
 
-    // Only show nav items if profile is loaded
-    if (!loading && profile) {
-        if (profile.role === 'admin' || profile.role === 'instructor') {
-            navItems.push({ label: 'Dashboard', path: '/instructor/dashboard', icon: PencilRuler });
-        }
-    }
-
-    if (!loading && user) {
+    if (loading) {
+        navItems.push({
+            label: '',
+            path: '#',
+            icon: () => <Loader2 className="animate-spin h-6 w-6 text-teal-700" />, // Spinner icon
+            isButton: false,
+        });
+    } else if (user) {
         navItems.push({ label: 'Profile', path: '/profile', icon: UserRound });
         navItems.push({ label: 'Logout', path: '#', icon: LogOut, onClick: handleSignOut });
-    }
-
-    if (!loading && !user) {
+    } else {
         navItems.push({
             label: 'Login',
             path: '#',
