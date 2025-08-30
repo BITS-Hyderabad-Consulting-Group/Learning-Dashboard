@@ -68,8 +68,7 @@ export default function Learning() {
     const [paginationInfo, setPaginationInfo] = useState<PaginationInfo | null>(null);
     const [selectedDomain, setSelectedDomain] = useState('all');
 
-    const isLoggedInLearner = profile?.role === 'learner';
-    const coursesPerPage = isLoggedInLearner ? 20 : 20; // Temporarily increased to show all courses
+    const coursesPerPage = 6; // Temporarily increased to show all courses
 
     useEffect(() => {
         let ignore = false;
@@ -100,7 +99,7 @@ export default function Learning() {
                 if (ignore) return;
                 setAvailableCourses([]);
                 setPaginationInfo(null);
-                if (isLoggedInLearner) setEnrolledCourses([]);
+                setEnrolledCourses([]);
             })
             .finally(() => {
                 if (ignore) return;
@@ -143,12 +142,12 @@ export default function Learning() {
                     !
                 </h1>
                 <h2 className="text-gray-700 text-xl">
-                    {isLoggedInLearner ? '' : 'Explore our latest learning tracks'}
+                    {profile ? '' : 'Explore our latest learning tracks'}
                 </h2>
             </div>
 
             {/* Continue Learning Carousel */}
-            {isLoggedInLearner && !isUserLoading && (
+            {!isUserLoading && (
                 <section className="container mx-auto">
                     <h2 className="text-gray-800 text-2xl font-semibold mb-6">Continue Learning</h2>
                     {activeEnrolledCourses.length > 0 ? (
