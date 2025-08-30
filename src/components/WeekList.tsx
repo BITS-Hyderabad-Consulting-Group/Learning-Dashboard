@@ -18,6 +18,7 @@ interface Module {
     type: string;
     completed: boolean;
     markedForReview: boolean;
+    content?: string;
 }
 
 interface Week {
@@ -201,12 +202,23 @@ export default function WeekList({ weeks, enrolled = true }: Props) {
                                                     {/* Title */}
                                                     <p className="font-medium flex-1 pr-2">
                                                         {enrolled && mod.id ? (
-                                                            <Link
-                                                                href={`/modules/${mod.id}`}
-                                                                className="cursor-pointer text-[#065F5F] hover:text-[#007C6A] hover:underline transition-colors"
-                                                            >
-                                                                {mod.title}
-                                                            </Link>
+                                                            mod.type === 'Hyperlink' ? (
+                                                                <a
+                                                                    href={mod.content}
+                                                                    target="_blank"
+                                                                    rel="noopener noreferrer"
+                                                                    className="cursor-pointer text-[#065F5F] hover:text-[#007C6A] hover:underline transition-colors"
+                                                                >
+                                                                    {mod.title}
+                                                                </a>
+                                                            ) : (
+                                                                <Link
+                                                                    href={`/modules/${mod.id}`}
+                                                                    className="cursor-pointer text-[#065F5F] hover:text-[#007C6A] hover:underline transition-colors"
+                                                                >
+                                                                    {mod.title}
+                                                                </Link>
+                                                            )
                                                         ) : enrolled ? (
                                                             <span className="cursor-pointer text-[#065F5F]">
                                                                 {mod.title}
