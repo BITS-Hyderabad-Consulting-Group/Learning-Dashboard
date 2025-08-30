@@ -95,6 +95,21 @@ export async function GET(req: NextRequest) {
                                 0
                             ) || 0;
 
+                        // Ensure content field for hyperlink modules in weeks
+                        const weeksWithContent =
+                            course.weeks?.map((week) => ({
+                                ...week,
+                                modules: week.modules.map((mod) => {
+                                    if (mod.type?.toLowerCase() === 'hyperlink') {
+                                        return {
+                                            ...mod,
+                                            content: mod.content || '',
+                                        };
+                                    }
+                                    return mod;
+                                }),
+                            })) || [];
+
                         enrolledCourses.push({
                             id: course.id,
                             title: course.title,
@@ -102,6 +117,7 @@ export async function GET(req: NextRequest) {
                             total_duration: course.total_duration,
                             progress: progressMap.get(course.id) ?? 0,
                             is_active: true, // Assuming enrolled courses are always active
+                            weeks: weeksWithContent,
                         });
                     });
                 }

@@ -6,6 +6,9 @@ export type EnrolledCourse = {
     total_duration: number;
     progress?: number;
     is_active: boolean;
+    weeks: {
+        modules: { id: string; type?: string; content?: string }[];
+    }[];
 };
 
 export type AvailableCourse = {
