@@ -31,11 +31,10 @@ A cross-functional team of designers and developers from BITS Hyderabad Consulti
 
 ### 🎨 Design Team
 
--   Arushi Chandurkar
--   Bhavya Gupta
 -   Aryan Saini
 -   Arjun Rathore
 -   Garima Dwivedi
+-   Rithvik Vallivedu
 
 ### 💻 Tech Team
 
