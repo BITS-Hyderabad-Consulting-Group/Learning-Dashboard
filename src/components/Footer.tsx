@@ -8,28 +8,29 @@ import {
     Globe,
     Mail,
     Code2,
-    Paintbrush,
     Crown,
     MapPin,
+    PenTool,
 } from 'lucide-react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useUser } from '@/context/UserContext';
 
 const Footer: React.FC = () => {
     const [isCreditsVisible, setIsCreditsVisible] = useState(false);
     const year = new Date().getFullYear();
-
+    const { user, loading } = useUser();
     const lead = {
         name: 'Aravind Sathesh',
-        role: 'Design & Technical Lead',
+        role: 'Technical & Design Lead',
         icon: Crown,
-        url: 'https://bhcg.site',
+        url: 'https://github.com/Aravind-Sathesh',
     };
 
     const teams = [
         {
             name: 'Design Team',
-            icon: Paintbrush,
+            icon: PenTool,
             members: [
                 { name: 'Arjun Rathore' },
                 { name: 'Aryan Saini' },
@@ -55,7 +56,7 @@ const Footer: React.FC = () => {
     return (
         <footer className="bg-gradient-to-br from-[#027F7B] to-[#015d5a] text-white">
             {/* Main Footer Content */}
-            <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+            <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
                     {/* Company Info */}
                     <div className="space-y-4">
@@ -113,7 +114,7 @@ const Footer: React.FC = () => {
                     {/* Quick Links */}
                     <div className="ml=0 sm:ml-10">
                         <h4 className="text-md font-semibold text-white mb-3">Quick Links</h4>
-                        <ul className="space-y-2">
+                        <ul className="space-y-1">
                             <li>
                                 <Link
                                     href="/"
@@ -130,14 +131,16 @@ const Footer: React.FC = () => {
                                     Learning
                                 </Link>
                             </li>
-                            <li>
-                                <Link
-                                    href="/profile"
-                                    className="text-gray-300 hover:text-white transition-colors text-sm"
-                                >
-                                    Profile
-                                </Link>
-                            </li>
+                            {!loading && user && (
+                                <li>
+                                    <Link
+                                        href="/profile"
+                                        className="text-gray-300 hover:text-white transition-colors text-sm"
+                                    >
+                                        Profile
+                                    </Link>
+                                </li>
+                            )}
                         </ul>
                     </div>
 
@@ -198,7 +201,7 @@ const Footer: React.FC = () => {
 
             {/* Footer Bottom */}
             <div className="border-t border-white/20 bg-black/10">
-                <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
                     <div className="flex flex-col sm:flex-row justify-between items-center gap-3">
                         <p className="text-gray-300 text-xs">
                             © {year} BITS Hyderabad Consulting Group. All rights reserved.

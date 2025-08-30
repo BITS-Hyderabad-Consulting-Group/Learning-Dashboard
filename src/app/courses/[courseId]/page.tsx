@@ -104,7 +104,7 @@ export default function CoursePage({ params }: { params: Promise<{ courseId: str
                 body: JSON.stringify({ userId: user.id }),
             });
             const result = await res.json();
-            if (!res.ok) throw new Error(result.error || 'Failed to enrol');
+            if (!res.ok) throw new Error(result.error || 'Failed to enroll');
             await fetchCourseData(); // Refetch data to update UI state
             toast.success('Enrolled successfully!');
         } catch (e: unknown) {
@@ -118,7 +118,7 @@ export default function CoursePage({ params }: { params: Promise<{ courseId: str
 
     if (loading || userLoading) {
         return (
-            <main className="max-w-6xl mx-auto p-6">
+            <main className="max-w-7xl mx-auto p-6">
                 <motion.div
                     className="flex items-center justify-center h-64"
                     initial={{ opacity: 0 }}
@@ -147,7 +147,7 @@ export default function CoursePage({ params }: { params: Promise<{ courseId: str
     // Fallback if data loading fails but we are no longer in a 'loading' state
     if (!data) {
         return (
-            <main className="max-w-6xl mx-auto p-6 text-center text-red-500">
+            <main className="max-w-7xl mx-auto p-6 text-center text-red-500">
                 Course data could not be loaded.
             </main>
         );
@@ -203,17 +203,40 @@ export default function CoursePage({ params }: { params: Promise<{ courseId: str
                                         whileTap={{ scale: 0.95 }}
                                     >
                                         <motion.span
-                                            animate={enrolLoading ? { rotate: 360 } : { rotate: 0 }}
                                             transition={{
                                                 duration: 1,
                                                 repeat: enrolLoading ? Infinity : 0,
                                                 ease: 'linear',
                                             }}
-                                            style={{ display: 'inline-block' }} // Prevents layout shift on rotate
+                                            style={{ display: 'inline-block' }}
                                         >
-                                            {enrolLoading ? '...' : 'Enrol'}
+                                            {enrolLoading ? (
+                                                <svg
+                                                    className="w-4 h-4 text-white"
+                                                    fill="none"
+                                                    viewBox="0 0 24 24"
+                                                    stroke="currentColor"
+                                                >
+                                                    <circle
+                                                        className="opacity-25"
+                                                        cx="12"
+                                                        cy="12"
+                                                        r="10"
+                                                        strokeWidth="4"
+                                                    ></circle>
+                                                    <path
+                                                        className="opacity-75"
+                                                        strokeLinecap="round"
+                                                        strokeLinejoin="round"
+                                                        strokeWidth="4"
+                                                        d="M4 12a8 8 0 018-8"
+                                                    ></path>
+                                                </svg>
+                                            ) : (
+                                                'Enroll'
+                                            )}
                                         </motion.span>
-                                        {enrolLoading && 'Enrolling'}
+                                        {enrolLoading && ' Enrolling'}
                                     </motion.button>
                                 )}
                             </AnimatePresence>

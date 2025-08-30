@@ -76,7 +76,7 @@ All notable changes to this project will be documented in this file. See [standa
 * update auth flow with RLS and triggers ([5a9cd45](https://github.com/BITS-Hyderabad-Consulting-Group/Learning-Dashboard/commit/5a9cd45bace71d5f3dcac5ed1e13170a598680ab))
 * update carousel card count on mobile ([ddefd77](https://github.com/BITS-Hyderabad-Consulting-Group/Learning-Dashboard/commit/ddefd77d153240df64300a22c069eb36a97615bd))
 * Update Course Content page to fetch data from db ([6884be3](https://github.com/BITS-Hyderabad-Consulting-Group/Learning-Dashboard/commit/6884be34108a874ab36e14bc188075428da504ee))
-* Update Course Page UI and implement Enrol ([fcc86e4](https://github.com/BITS-Hyderabad-Consulting-Group/Learning-Dashboard/commit/fcc86e4f77e7af266e2da94bd22b49d4fa7397d8))
+* Update Course Page UI and implement Enroll ([fcc86e4](https://github.com/BITS-Hyderabad-Consulting-Group/Learning-Dashboard/commit/fcc86e4f77e7af266e2da94bd22b49d4fa7397d8))
 * update import path ([1f14995](https://github.com/BITS-Hyderabad-Consulting-Group/Learning-Dashboard/commit/1f14995c8208d3f69fe640f713c9eb90c40647ed))
 * update lockfile after adding embla-carousel-autoplay ([7b8e928](https://github.com/BITS-Hyderabad-Consulting-Group/Learning-Dashboard/commit/7b8e928dbd25860820dc72516f1edbbc6c3bcf63))
 * update lockfile after adding tooltip and date-fns ([5e055e8](https://github.com/BITS-Hyderabad-Consulting-Group/Learning-Dashboard/commit/5e055e8c6069be9c4b6e797ba6c9187bc8b703f4))

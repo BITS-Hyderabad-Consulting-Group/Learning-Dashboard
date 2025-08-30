@@ -32,13 +32,14 @@ function PageLayout({ children }: { children: React.ReactNode }) {
         await signOut();
     };
 
-    const navItems: NavItem[] = [{ label: 'Home', path: '/', icon: Home }];
+    const navItems: NavItem[] = [
+        { label: 'Home', path: '/', icon: Home },
+        { label: 'Learning', path: '/learning', icon: LibraryBig },
+    ];
 
     // Only show nav items if profile is loaded
     if (!loading && profile) {
-        if (profile.role === 'learner') {
-            navItems.push({ label: 'Learning', path: '/learning', icon: LibraryBig });
-        } else if (profile.role === 'admin' || profile.role === 'instructor') {
+        if (profile.role === 'admin' || profile.role === 'instructor') {
             navItems.push({ label: 'Dashboard', path: '/instructor/dashboard', icon: PencilRuler });
         }
     }
