@@ -1,7 +1,15 @@
 'use client';
 
 import { useState } from 'react';
-import { Clock, CheckCheck, Bookmark, BookOpen, Video, FileCheck2 } from 'lucide-react';
+import {
+    Clock,
+    CheckCheck,
+    Bookmark,
+    BookOpen,
+    Video,
+    FileCheck2,
+    Link as LinkIcon,
+} from 'lucide-react';
 import Link from 'next/link';
 
 interface Module {
@@ -222,6 +230,9 @@ export default function WeekList({ weeks, enrolled = true }: Props) {
                                                             )}
                                                             {mod.type === 'Evaluative' && (
                                                                 <FileCheck2 className="w-3 h-3 sm:w-4 sm:h-4" />
+                                                            )}
+                                                            {mod.type === 'Hyperlink' && (
+                                                                <LinkIcon className="w-3 h-3 sm:w-4 sm:h-4" />
                                                             )}
                                                             <span className="text-xs sm:text-sm">
                                                                 {mod.type}

@@ -11,7 +11,7 @@ interface ModuleData {
     title: string;
     week: { id: string; title: string };
     course: { id: string; title: string };
-    type: 'video' | 'article' | 'evaluative' | 'markdown';
+    type: 'video' | 'article' | 'evaluative' | 'markdown' | 'hyperlink';
     content: string;
     evaluativeType?: 'quiz' | 'assignment';
 }
@@ -99,6 +99,18 @@ export default function ModulePage() {
 
                         return <div className="text-gray-500">No video available</div>;
                     })()}
+                {module.type === 'hyperlink' && (
+                    <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 flex flex-col items-center justify-center">
+                        <a
+                            href={module.content}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-blue-700 font-semibold underline text-lg hover:text-blue-900"
+                        >
+                            {module.content}
+                        </a>
+                    </div>
+                )}
                 {module.type === 'article' && (
                     <div className="bg-teal-50 border border-teal-200 rounded-lg p-6">
                         <div className="prose max-w-none">

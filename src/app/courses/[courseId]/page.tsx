@@ -9,18 +9,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 import { CourseData } from '@/types/course';
 
-// Helper function to format module type strings for display
-const formatModuleTypeForDisplay = (type: string): 'Video' | 'Article' | 'Evaluative' => {
-    switch (type.toLowerCase()) {
-        case 'video':
-            return 'Video';
-        case 'article':
-            return 'Article';
-        default:
-            return 'Evaluative'; // For 'quiz', 'assignment', etc.
-    }
-};
-
 export default function CoursePage({ params }: { params: Promise<{ courseId: string }> }) {
     const { courseId } = use(params);
     const [data, setData] = useState<CourseData | null>(null);
@@ -86,7 +74,7 @@ export default function CoursePage({ params }: { params: Promise<{ courseId: str
             ...week,
             modules: week.modules.map((module) => ({
                 ...module,
-                type: formatModuleTypeForDisplay(module.type),
+                type: module.type.charAt(0).toUpperCase() + module.type.slice(1),
             })),
         }));
     }, [data]);
