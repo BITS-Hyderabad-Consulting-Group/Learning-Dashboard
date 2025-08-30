@@ -7,7 +7,7 @@ import { Header } from '@/components/Header';
 import { signInWithGoogle, signOut } from '../lib/auth';
 import { FcGoogle } from 'react-icons/fc';
 
-import { Home, LibraryBig, UserRound, PencilRuler, LogOut } from 'lucide-react';
+import { Home, LibraryBig, UserRound, LogOut } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
 
 interface NavItem {
@@ -23,7 +23,7 @@ interface NavItem {
 function PageLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const router = useRouter();
-    const { user, profile, loading } = useUser();
+    const { user, loading } = useUser();
 
     const handleGoogleSignIn = async () => {
         await signInWithGoogle();
