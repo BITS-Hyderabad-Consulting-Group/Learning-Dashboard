@@ -21,6 +21,39 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
+        // Development mode: if running on localhost, set a random admin user and profile
+        if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+            const devUser: User = {
+                id: 'dev-admin-id',
+                aud: 'authenticated',
+                email: 'admin@localhost.dev',
+                phone: undefined,
+                app_metadata: {},
+                user_metadata: {},
+                created_at: new Date().toISOString(),
+                confirmed_at: new Date().toISOString(),
+                last_sign_in_at: new Date().toISOString(),
+                role: 'authenticated',
+                updated_at: new Date().toISOString(),
+            };
+            const devProfile: Profile = {
+                id: 'dev-admin-id',
+                full_name: 'Dev Admin',
+                role: 'admin',
+                updated_at: new Date().toISOString(),
+                created_at: new Date().toISOString(),
+                xp: 9999,
+                email: 'admin@localhost.dev',
+                biodata: 'Development administrator',
+                photo_url: '',
+            };
+            setSession(null);
+            setUser(devUser);
+            setProfile(devProfile);
+            setLoading(false);
+            return;
+        }
+
         const fetchProfileWithRetry = async (
             userId: string,
             retries = 2
