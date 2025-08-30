@@ -2,17 +2,12 @@ import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase-server'; // Use your existing utility
 import type { EnrolledCourse, AvailableCourse } from '@/types/course';
 
-// Remove the direct client creation
-// const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-// const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-// const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
-
 type CourseWithModules = {
     id: string;
     title: string;
     total_duration: number;
     weeks: {
-        modules: { id: string }[];
+        modules: { id: string; type?: string; content?: string }[];
     }[];
 };
 
@@ -207,9 +202,30 @@ export async function GET(req: NextRequest) {
         const availableCourses: AvailableCourse[] = (availableCoursesData || []).map(
             (course: CourseWithModules & { is_active: boolean; domain?: string }) => {
                 const moduleCount =
-                    course.weeks?.reduce((total: number, week: { modules: { id: string }[] }) => {
-                        return total + (week.modules?.length || 0);
-                    }, 0) || 0;
+                    course.weeks?.reduce(
+                        (
+                            total: number,
+                            week: { modules: { id: string; type?: string; content?: string }[] }
+                        ) => {
+                            return total + (week.modules?.length || 0);
+                        },
+                        0
+                    ) || 0;
+
+                // Add content for hyperlink modules in weeks
+                const weeksWithContent =
+                    course.weeks?.map((week) => ({
+                        ...week,
+                        modules: week.modules.map((mod) => {
+                            if (mod.type?.toLowerCase() === 'hyperlink') {
+                                return {
+                                    ...mod,
+                                    content: mod.content || '', // fallback to url if present
+                                };
+                            }
+                            return mod;
+                        }),
+                    })) || [];
 
                 return {
                     id: course.id,
@@ -218,6 +234,7 @@ export async function GET(req: NextRequest) {
                     total_duration: course.total_duration,
                     is_active: course.is_active,
                     domain: course.domain || '',
+                    weeks: weeksWithContent,
                 };
             }
         );
