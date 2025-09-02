@@ -164,9 +164,12 @@ export default function CourseContentPage() {
     const [isSaving, setIsSaving] = useState(false);
     const [isWeekDialogOpen, setIsWeekDialogOpen] = useState(false);
     const [isModuleDialogOpen, setIsModuleDialogOpen] = useState(false);
-    
+
     const [editingWeek, setEditingWeek] = useState<Week | null>(null);
-    const [editingModule, setEditingModule] = useState<{ week: Week | null; module: Module | null }>({
+    const [editingModule, setEditingModule] = useState<{
+        week: Week | null;
+        module: Module | null;
+    }>({
         week: null,
         module: null,
     });
@@ -209,7 +212,9 @@ export default function CourseContentPage() {
             setIsLoadingContent(true);
             setContentError(null);
             try {
-                const { data: { session } } = await supabase.auth.getSession();
+                const {
+                    data: { session },
+                } = await supabase.auth.getSession();
                 const headers: Record<string, string> = { 'Content-Type': 'application/json' };
                 if (session?.access_token) headers.Authorization = `Bearer ${session.access_token}`;
                 const res = await fetch(`/api/instructor/courses/${courseId}/content`, { headers });
@@ -275,7 +280,12 @@ export default function CourseContentPage() {
                 setWeeks(weekWithModules);
             } catch (e: unknown) {
                 let errorMsg = 'Failed to load';
-                if (typeof e === 'object' && e && 'message' in e && typeof (e as { message?: string }).message === 'string') {
+                if (
+                    typeof e === 'object' &&
+                    e &&
+                    'message' in e &&
+                    typeof (e as { message?: string }).message === 'string'
+                ) {
                     errorMsg = (e as { message: string }).message;
                 }
                 setContentError(errorMsg);
@@ -366,7 +376,9 @@ export default function CourseContentPage() {
             return;
         }
         try {
-            const { data: { session } } = await supabase.auth.getSession();
+            const {
+                data: { session },
+            } = await supabase.auth.getSession();
             const headers: Record<string, string> = { 'Content-Type': 'application/json' };
             if (session?.access_token) headers.Authorization = `Bearer ${session.access_token}`;
             const payload = {
@@ -407,7 +419,12 @@ export default function CourseContentPage() {
             setIsWeekDialogOpen(false);
         } catch (e: unknown) {
             let errorMsg = 'Failed to create week';
-            if (typeof e === 'object' && e && 'message' in e && typeof (e as { message?: string }).message === 'string') {
+            if (
+                typeof e === 'object' &&
+                e &&
+                'message' in e &&
+                typeof (e as { message?: string }).message === 'string'
+            ) {
                 errorMsg = (e as { message: string }).message;
             }
             toast.error(errorMsg);
@@ -452,10 +469,12 @@ export default function CourseContentPage() {
         if (editingModule.module) {
             try {
                 console.log('Updating existing module via API');
-                const { data: { session } } = await supabase.auth.getSession();
+                const {
+                    data: { session },
+                } = await supabase.auth.getSession();
                 const headers: Record<string, string> = { 'Content-Type': 'application/json' };
                 if (session?.access_token) headers.Authorization = `Bearer ${session.access_token}`;
-                
+
                 const payload = {
                     type: 'module',
                     id: editingModule.module.id,
@@ -471,25 +490,25 @@ export default function CourseContentPage() {
                         orderIndex: editingModule.module.orderIndex,
                     },
                 };
-                
+
                 console.log('Update payload:', payload);
                 const res = await fetch(`/api/instructor/courses/${courseId}/content`, {
                     method: 'PUT',
                     headers,
                     body: JSON.stringify(payload),
                 });
-                
+
                 console.log('Update response status:', res.status, res.ok);
-                
+
                 if (!res.ok) {
                     const errBody = await res.json().catch(() => ({}));
                     console.log('Update error:', errBody);
                     throw new Error(errBody.error || 'Failed to update module');
                 }
-                
+
                 const responseData = await res.json();
                 console.log('Update success response:', responseData);
-                
+
                 // Update local state with the response from the API
                 setWeeks((w) =>
                     w.map((week) =>
@@ -505,7 +524,9 @@ export default function CourseContentPage() {
                                                     moduleForm.contentType === 'article'
                                                         ? moduleForm.estimatedReadTime
                                                         : null,
-                                                updatedAt: new Date().toISOString(),
+                                                updatedAt:
+                                                    responseData.module.updated_at ||
+                                                    new Date().toISOString(),
                                             }
                                           : m
                                   ),
@@ -513,15 +534,19 @@ export default function CourseContentPage() {
                             : week
                     )
                 );
-                
+
                 toast.success('Module updated successfully');
                 setIsModuleDialogOpen(false);
                 return;
-                
             } catch (e: unknown) {
                 console.log('Error updating module:', e);
                 let errorMsg = 'Failed to update module';
-                if (typeof e === 'object' && e && 'message' in e && typeof (e as { message?: string }).message === 'string') {
+                if (
+                    typeof e === 'object' &&
+                    e &&
+                    'message' in e &&
+                    typeof (e as { message?: string }).message === 'string'
+                ) {
                     errorMsg = (e as { message: string }).message;
                 }
                 toast.error(errorMsg);
@@ -529,7 +554,9 @@ export default function CourseContentPage() {
             }
         }
         try {
-            const { data: { session } } = await supabase.auth.getSession();
+            const {
+                data: { session },
+            } = await supabase.auth.getSession();
             const headers: Record<string, string> = { 'Content-Type': 'application/json' };
             if (session?.access_token) headers.Authorization = `Bearer ${session.access_token}`;
             const payload = {
@@ -552,10 +579,12 @@ export default function CourseContentPage() {
                 headers,
                 body: JSON.stringify(payload),
             });
-            
+
             if (!res.ok) {
                 const errBody = await res.json().catch(() => ({}));
-                toast.error('API Error: ' + (errBody.error || `Status ${res.status}: ${res.statusText}`));
+                toast.error(
+                    'API Error: ' + (errBody.error || `Status ${res.status}: ${res.statusText}`)
+                );
                 throw new Error(errBody.error || 'Failed to create module');
             }
             const json = await res.json();
@@ -566,7 +595,8 @@ export default function CourseContentPage() {
                 title: moduleForm.title,
                 description: moduleForm.description,
                 contentType: moduleForm.contentType,
-                markdownContent: moduleForm.contentType === 'article' ? moduleForm.markdownContent : '',
+                markdownContent:
+                    moduleForm.contentType === 'article' ? moduleForm.markdownContent : '',
                 contentUrl: moduleForm.contentUrl,
                 duration: moduleForm.duration,
                 isRequired: moduleForm.isRequired,
@@ -588,7 +618,12 @@ export default function CourseContentPage() {
             setIsModuleDialogOpen(false);
         } catch (e: unknown) {
             let errorMsg = 'Failed to create module';
-            if (typeof e === 'object' && e && 'message' in e && typeof (e as { message?: string }).message === 'string') {
+            if (
+                typeof e === 'object' &&
+                e &&
+                'message' in e &&
+                typeof (e as { message?: string }).message === 'string'
+            ) {
                 errorMsg = (e as { message: string }).message;
             }
             toast.error(errorMsg);

@@ -21,7 +21,7 @@ export async function GET(
             );
         }
         const { courseId } = await params;
-        // Get course basic info
+
         const { data: course, error: courseError } = await supabaseServer
             .from('courses')
             .select('id, title, description, total_duration, list_price, is_active')
@@ -30,7 +30,7 @@ export async function GET(
         if (courseError || !course) {
             return NextResponse.json({ error: 'Course not found' }, { status: 404 });
         }
-        // Get weeks with modules
+
         const { data: weeks, error: weeksError } = await supabaseServer
             .from('weeks')
             .select(
@@ -58,20 +58,20 @@ export async function GET(
             console.error('Error fetching weeks:', weeksError);
             return NextResponse.json({ error: 'Failed to fetch course content' }, { status: 500 });
         }
-        // Transform data to match your API structure
+
         const transformedWeeks =
             weeks?.map((week) => ({
                 id: week.id,
                 courseId,
                 weekNumber: week.week_number,
                 title: week.title,
-                description: '', // Default since description doesn't exist in schema
-                duration: 0, // Default since duration doesn't exist in schema
-                isPublished: false, // Default since is_published doesn't exist in schema
-                unlockDate: week.created_at, // Use created_at since unlock_date doesn't exist
+                description: '',
+                duration: 0,
+                isPublished: false,
+                unlockDate: week.created_at,
                 createdAt: week.created_at,
-                updatedAt: week.created_at, // Use created_at since updated_at doesn't exist
-                expanded: false, // Default value for UI
+                updatedAt: week.created_at,
+                expanded: false,
             })) || [];
         const transformedModules =
             weeks?.flatMap(
@@ -79,20 +79,21 @@ export async function GET(
                     week.modules?.map((module) => ({
                         id: module.id,
                         weekId: week.id,
-                        moduleNumber: module.order_in_week || 1, // Use order_in_week as module number
+                        moduleNumber: module.order_in_week || 1,
                         title: module.title,
-                        description: '', // Description field not stored in database
+                        description: '',
                         contentType: module.module_type,
-                        // For articles, content goes to markdownContent; for others, to contentUrl
-                        markdownContent: module.module_type === 'article' ? module.content || '' : '',
+
+                        markdownContent:
+                            module.module_type === 'article' ? module.content || '' : '',
                         contentUrl: module.module_type !== 'article' ? module.content || '' : '',
                         duration: module.duration,
-                        isRequired: true, // Default to true since is_required field doesn't exist
-                        points: module.xp, // xp field maps to points
+                        isRequired: true,
+                        points: module.xp,
                         orderIndex: module.order_in_week,
-                        estimatedReadTime: null, // not in schema
+                        estimatedReadTime: null,
                         createdAt: module.created_at,
-                        updatedAt: module.created_at, // Use created_at since updated_at doesn't exist
+                        updatedAt: module.created_at,
                     })) || []
             ) || [];
         const courseContent = {
@@ -101,11 +102,13 @@ export async function GET(
                 title: course.title,
                 description: course.description,
                 price: course.list_price,
-                // difficulty removed from schema; omit difficultyLevel
+
                 status: course.is_active ? 'active' : 'draft',
                 isActive: course.is_active,
                 totalDuration: (course as { total_duration?: number }).total_duration,
-                duration: `${Math.ceil(((course as { total_duration?: number }).total_duration || 0) / 60)} weeks`,
+                duration: `${Math.ceil(
+                    ((course as { total_duration?: number }).total_duration || 0) / 60
+                )} weeks`,
             },
             weeks: transformedWeeks,
             modules: transformedModules,
@@ -140,14 +143,14 @@ export async function POST(
         const { type, data } = body;
         if (type === 'week') {
             const { title, weekNumber } = data;
-            // Validate required fields
+
             if (!title || !weekNumber) {
                 return NextResponse.json(
                     { error: 'Title and week number are required' },
                     { status: 400 }
                 );
             }
-            // Create new week
+
             const { data: newWeek, error: createError } = await supabaseServer
                 .from('weeks')
                 .insert([
@@ -180,24 +183,24 @@ export async function POST(
                 markdownContent,
                 points,
                 orderIndex,
+                duration,
             } = data;
-            // Validate required fields
+
             if (!weekId || !title || !contentType) {
                 return NextResponse.json(
                     { error: 'Week ID, title, and content type are required' },
                     { status: 400 }
                 );
             }
-            // Get next module number for the week
+
             const { count: moduleCount } = await supabaseServer
                 .from('modules')
                 .select('id', { count: 'exact', head: true })
                 .eq('week_id', weekId);
-            
-            // For articles, save markdownContent; for others, save contentUrl
-            const contentToSave = contentType === 'article' ? markdownContent || '' : contentUrl || '';
-            
-            // Create new module
+
+            const contentToSave =
+                contentType === 'article' ? markdownContent || '' : contentUrl || '';
+
             const { data: newModule, error: createError } = await supabaseServer
                 .from('modules')
                 .insert([
@@ -208,7 +211,7 @@ export async function POST(
                         content: contentToSave,
                         xp: points || 10,
                         order_in_week: orderIndex || (moduleCount || 0) + 1,
-                        duration: 0, // Set default duration
+                        duration: duration || 0,
                         created_at: new Date().toISOString(),
                     },
                 ])
@@ -265,6 +268,7 @@ export async function PUT(request: NextRequest) {
                 markdownContent,
                 points,
                 orderIndex,
+                duration,
             } = data;
 
             console.log('Module update data:', {
@@ -272,10 +276,9 @@ export async function PUT(request: NextRequest) {
                 contentType,
                 contentUrl,
                 markdownContent,
-                points
+                points,
             });
 
-            // Validate required fields
             if (!id || !title || !contentType) {
                 console.log('Validation failed - missing required fields');
                 return NextResponse.json(
@@ -284,11 +287,10 @@ export async function PUT(request: NextRequest) {
                 );
             }
 
-            // For articles, save markdownContent; for others, save contentUrl
-            const contentToSave = contentType === 'article' ? markdownContent || '' : contentUrl || '';
+            const contentToSave =
+                contentType === 'article' ? markdownContent || '' : contentUrl || '';
             console.log('Content to save:', contentToSave);
 
-            // Update existing module
             const { data: updatedModule, error: updateError } = await supabaseServer
                 .from('modules')
                 .update({
@@ -297,7 +299,7 @@ export async function PUT(request: NextRequest) {
                     content: contentToSave,
                     xp: points || 10,
                     order_in_week: orderIndex,
-                    duration: 0, // Default duration
+                    duration: duration || 0,
                 })
                 .eq('id', id)
                 .select()
@@ -319,7 +321,6 @@ export async function PUT(request: NextRequest) {
         } else if (type === 'week') {
             const { title, weekNumber } = data;
 
-            // Validate required fields
             if (!id || !title) {
                 return NextResponse.json(
                     { error: 'Week ID and title are required' },
@@ -327,7 +328,6 @@ export async function PUT(request: NextRequest) {
                 );
             }
 
-            // Update existing week
             const { data: updatedWeek, error: updateError } = await supabaseServer
                 .from('weeks')
                 .update({

@@ -74,7 +74,9 @@ export default function AdminDashboardPage() {
     const [dashboardData, setDashboardData] = useState<DashboardData | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
-    const [selectedCourse, setSelectedCourse] = useState<DashboardData['recentCourses'][0] | null>(null);
+    const [selectedCourse, setSelectedCourse] = useState<DashboardData['recentCourses'][0] | null>(
+        null
+    );
     const [courseDetails, setCourseDetails] = useState<CourseDetailsState | null>(null);
     const [courseDetailsLoading, setCourseDetailsLoading] = useState(false);
     const [courseDetailsError, setCourseDetailsError] = useState<string | null>(null);
@@ -97,11 +99,15 @@ export default function AdminDashboardPage() {
     useEffect(() => {
         const fetchDashboardData = async () => {
             try {
-                const { data: { session } } = await supabase.auth.getSession();
+                const {
+                    data: { session },
+                } = await supabase.auth.getSession();
                 const response = await fetch('/api/instructor/dashboard', {
                     headers: {
                         'Content-Type': 'application/json',
-                        ...(session?.access_token ? { Authorization: `Bearer ${session.access_token}` } : {}),
+                        ...(session?.access_token
+                            ? { Authorization: `Bearer ${session.access_token}` }
+                            : {}),
                     },
                 });
                 if (!response.ok) {
@@ -176,14 +182,11 @@ export default function AdminDashboardPage() {
                     moduleIds.length
                         ? supabase
                               .from('user_module_progress')
-                              .select('user_id,module_id,marked_for_review')
+                              .select('user_id,module_id,marked_for_review,completed_at')
                               .in('module_id', moduleIds)
                         : Promise.resolve({ data: [], error: null }),
                     userIds.length
-                        ? supabase
-                              .from('profiles')
-                              .select('id,full_name')
-                              .in('id', userIds)
+                        ? supabase.from('profiles').select('id,full_name').in('id', userIds)
                         : Promise.resolve({ data: [], error: null }),
                     moduleIds.length
                         ? supabase
@@ -220,15 +223,22 @@ export default function AdminDashboardPage() {
                 // Modules review counts
                 const reviewCounts: Record<string, number> = {};
                 const progressByUser: Record<string, Set<string>> = {};
-                (progressRes.data as { user_id: string; module_id: string; marked_for_review: boolean }[]).forEach(
-                    (row) => {
-                        if (row.marked_for_review) {
-                            reviewCounts[row.module_id] = (reviewCounts[row.module_id] || 0) + 1;
-                        }
+                (
+                    progressRes.data as {
+                        user_id: string;
+                        module_id: string;
+                        marked_for_review: boolean;
+                        completed_at: string | null;
+                    }[]
+                ).forEach((row) => {
+                    if (row.marked_for_review) {
+                        reviewCounts[row.module_id] = (reviewCounts[row.module_id] || 0) + 1;
+                    }
+                    if (row.completed_at) {
                         if (!progressByUser[row.user_id]) progressByUser[row.user_id] = new Set();
                         progressByUser[row.user_id].add(row.module_id);
                     }
-                );
+                });
 
                 const modulesDetail: CourseDetailModule[] = (modules || []).map((m) => ({
                     id: m.id,
@@ -262,15 +272,26 @@ export default function AdminDashboardPage() {
                         modules: modulesDetail,
                         enrollments: enrollmentDetails,
                         quizSubmissions: quizDetails,
-                        totalModules: totalModules === 1 && moduleIds.length === 0 ? 0 : totalModules,
+                        totalModules:
+                            totalModules === 1 && moduleIds.length === 0 ? 0 : totalModules,
                     });
                 }
             } catch (e: unknown) {
                 if (!timedOut) {
                     let msg = 'Failed to load course details';
-                    if (typeof e === 'object' && e && 'message' in e && typeof (e as { message?: string }).message === 'string') {
+                    if (
+                        typeof e === 'object' &&
+                        e &&
+                        'message' in e &&
+                        typeof (e as { message?: string }).message === 'string'
+                    ) {
                         msg = (e as { message: string }).message;
-                    } else if (typeof e === 'object' && e && 'details' in e && typeof (e as { details?: string }).details === 'string') {
+                    } else if (
+                        typeof e === 'object' &&
+                        e &&
+                        'details' in e &&
+                        typeof (e as { details?: string }).details === 'string'
+                    ) {
                         msg = (e as { details: string }).details;
                     }
                     setCourseDetailsError(msg);
@@ -377,11 +398,15 @@ export default function AdminDashboardPage() {
                                     <TableBody>
                                         {courseDetails.enrollments.map((e) => (
                                             <TableRow key={e.userId}>
-                                                <TableCell className="font-medium">{e.userName}</TableCell>
+                                                <TableCell className="font-medium">
+                                                    {e.userName}
+                                                </TableCell>
                                                 <TableCell className="text-right flex items-center justify-end gap-2">
                                                     <span>{e.progress}%</span>
                                                     {e.progress < 30 && (
-                                                        <Badge variant="destructive">Struggling</Badge>
+                                                        <Badge variant="destructive">
+                                                            Struggling
+                                                        </Badge>
                                                     )}
                                                     <Progress value={e.progress} className="w-24" />
                                                 </TableCell>
@@ -411,13 +436,17 @@ export default function AdminDashboardPage() {
                                     <TableHeader>
                                         <TableRow>
                                             <TableHead>Module</TableHead>
-                                            <TableHead className="text-right">Marked For Review</TableHead>
+                                            <TableHead className="text-right">
+                                                Marked For Review
+                                            </TableHead>
                                         </TableRow>
                                     </TableHeader>
                                     <TableBody>
                                         {courseDetails.modules.map((m) => (
                                             <TableRow key={m.id}>
-                                                <TableCell className="font-medium">{m.title}</TableCell>
+                                                <TableCell className="font-medium">
+                                                    {m.title}
+                                                </TableCell>
                                                 <TableCell className="text-right font-semibold">
                                                     {m.markedForReviewCount}
                                                 </TableCell>
@@ -452,7 +481,9 @@ export default function AdminDashboardPage() {
                                     <TableBody>
                                         {courseDetails.quizSubmissions.map((qs) => (
                                             <TableRow key={qs.submissionId}>
-                                                <TableCell className="font-medium">{qs.userName}</TableCell>
+                                                <TableCell className="font-medium">
+                                                    {qs.userName}
+                                                </TableCell>
                                                 <TableCell>{qs.quizTitle}</TableCell>
                                                 <TableCell className="text-right">
                                                     {qs.score !== null ? (
@@ -483,7 +514,9 @@ export default function AdminDashboardPage() {
             <div className="flex flex-wrap justify-between items-center gap-4">
                 <div>
                     <h1 className="text-3xl font-bold text-gray-900">Instructor Dashboard</h1>
-                    <p className="text-muted-foreground">Welcome back, {profile?.full_name || 'Instructor'}!</p>
+                    <p className="text-muted-foreground">
+                        Welcome back, {profile?.full_name || 'Instructor'}!
+                    </p>
                 </div>
                 <Button asChild className="bg-teal-700 hover:bg-teal-800">
                     <Link href="/instructor/courses/new">Create New Course</Link>
