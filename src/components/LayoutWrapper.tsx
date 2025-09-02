@@ -7,7 +7,7 @@ import { Header } from '@/components/Header';
 import { signInWithGoogle, signOut } from '../lib/auth';
 import { FcGoogle } from 'react-icons/fc';
 
-import { Home, LibraryBig, UserRound, LogOut } from 'lucide-react';
+import { Home, LibraryBig, UserRound, LogOut, PencilRuler } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
 
 interface NavItem {
@@ -23,7 +23,7 @@ interface NavItem {
 function PageLayout({ children }: { children: React.ReactNode }) {
     const pathname = usePathname();
     const router = useRouter();
-    const { user, loading } = useUser();
+    const { user, profile, loading } = useUser();
 
     const handleGoogleSignIn = async () => {
         await signInWithGoogle();
@@ -37,6 +37,12 @@ function PageLayout({ children }: { children: React.ReactNode }) {
         { label: 'Home', path: '/', icon: Home },
         { label: 'Learning', path: '/learning', icon: LibraryBig },
     ];
+
+    if (!loading && profile) {
+        if (profile.role === 'admin' || profile.role === 'instructor') {
+            navItems.push({ label: 'Dashboard', path: '/instructor/dashboard', icon: PencilRuler });
+        }
+    }
 
     if (loading) {
         navItems.push({
