@@ -21,107 +21,28 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        // Development mode: if running on localhost, set a random admin user and profile
-        if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
-            const devUser: User = {
-                id: 'dev-admin-id',
-                aud: 'authenticated',
-                email: 'admin@localhost.dev',
-                phone: undefined,
-                app_metadata: {},
-                user_metadata: {},
-                created_at: new Date().toISOString(),
-                confirmed_at: new Date().toISOString(),
-                last_sign_in_at: new Date().toISOString(),
-                role: 'authenticated',
-                updated_at: new Date().toISOString(),
-            };
-            const devProfile: Profile = {
-                id: 'dev-admin-id',
-                full_name: 'Dev Admin',
-                role: 'admin',
-                updated_at: new Date().toISOString(),
-                created_at: new Date().toISOString(),
-                xp: 9999,
-                email: 'admin@localhost.dev',
-                biodata: 'Development administrator',
-                photo_url: '',
-            };
-            setSession(null);
-            setUser(devUser);
-            setProfile(devProfile);
-            setLoading(false);
-            return;
-        }
-
-        const fetchProfileWithRetry = async (
-            userId: string,
-            retries = 2
-        ): Promise<Profile | null> => {
-            for (let attempt = 0; attempt <= retries; attempt++) {
-                try {
-                    const { data: profileData, error: profileError } = await supabase
-                        .from('profiles')
-                        .select('*')
-                        .eq('id', userId)
-                        .maybeSingle();
-                    if (profileError) {
-                        console.error('Profile fetch error:', profileError.message);
-                        if (attempt === retries) return null;
-                    } else {
-                        return profileData;
-                    }
-                } catch (err) {
-                    console.error('Profile fetch exception:', err);
-                    if (attempt === retries) return null;
-                }
-            }
-            return null;
-        };
-
-        const getSessionAndProfile = async () => {
-            try {
-                const {
-                    data: { session },
-                } = await supabase.auth.getSession();
-                setSession(session);
-                setUser(session?.user ?? null);
-
-                if (session?.user) {
-                    const profileData = await fetchProfileWithRetry(session.user.id);
-                    setProfile(profileData);
-                }
-            } catch (err) {
-                console.error('Session/profile fetch exception:', err);
-            }
-            setLoading(false);
-        };
-
-        getSessionAndProfile();
-
         const { data: authListener } = supabase.auth.onAuthStateChange(async (_event, session) => {
             setSession(session);
-            setUser(session?.user ?? null);
+            const currentUser = session?.user ?? null;
+            setUser(currentUser);
 
-            if (session?.user) {
-                let profileData: Profile | null = null;
+            if (currentUser) {
                 try {
-                    const { data, error } = await supabase
+                    const { data: profileData, error } = await supabase
                         .from('profiles')
                         .select('*')
-                        .eq('id', session.user.id)
+                        .eq('id', currentUser.id)
                         .single();
                     if (error) {
-                        console.error('Profile fetch error (authListener):', error.message);
-                        profileData = null;
+                        console.error('Error fetching profile:', error.message);
+                        setProfile(null);
                     } else {
-                        profileData = data;
+                        setProfile(profileData);
                     }
                 } catch (err) {
-                    console.error('Profile fetch exception (authListener):', err);
-                    profileData = null;
+                    console.error('Exception while fetching profile:', err);
+                    setProfile(null);
                 }
-                setProfile(profileData);
             } else {
                 setProfile(null);
             }
@@ -129,7 +50,7 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
         });
 
         return () => {
-            authListener?.subscription.unsubscribe();
+            authListener.subscription.unsubscribe();
         };
     }, []);
 
