@@ -1,9 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase-server';
-import { verifyAdminAuth } from '@/lib/auth';
+import { verifyAdminAuth } from '@/lib/auth-server';
 export async function GET(request: NextRequest) {
     try {
-        const authResult = await verifyAdminAuth(request);
+        const authResult = await verifyAdminAuth();
         if ('error' in authResult) {
             return NextResponse.json(
                 { error: authResult.error },
@@ -17,7 +17,6 @@ export async function GET(request: NextRequest) {
         const limit = parseInt(searchParams.get('limit') || '10');
         const search = searchParams.get('search') || '';
         const status = searchParams.get('status') || '';
-        // const domain = searchParams.get('domain') || ''; // unused variable removed
         const offset = (page - 1) * limit;
         // Build query
         let query = supabaseServer.from('courses').select(
@@ -82,7 +81,7 @@ export async function GET(request: NextRequest) {
 }
 export async function POST(request: NextRequest) {
     try {
-        const authResult = await verifyAdminAuth(request);
+        const authResult = await verifyAdminAuth();
         if ('error' in authResult) {
             return NextResponse.json(
                 { error: authResult.error },
@@ -146,12 +145,14 @@ export async function POST(request: NextRequest) {
     } catch (error: unknown) {
         console.error('Create course error:', error);
         let errorMsg = 'Internal server error';
-        if (typeof error === 'object' && error && 'message' in error && typeof (error as { message?: string }).message === 'string') {
+        if (
+            typeof error === 'object' &&
+            error &&
+            'message' in error &&
+            typeof (error as { message?: string }).message === 'string'
+        ) {
             errorMsg = (error as { message: string }).message;
         }
-        return NextResponse.json(
-            { error: errorMsg, details: error },
-            { status: 500 }
-        );
+        return NextResponse.json({ error: errorMsg, details: error }, { status: 500 });
     }
 }

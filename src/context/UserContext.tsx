@@ -1,9 +1,10 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState } from 'react';
-import { supabase } from '../lib/supabase-client';
+import { supabase } from '@/lib/supabase-client'; // Imports the new browser client
 import { Session, User } from '@supabase/supabase-js';
 import { Profile } from '@/types/user';
+import { useRouter } from 'next/navigation';
 
 type UserContextType = {
     user: User | null;
@@ -19,40 +20,45 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
     const [user, setUser] = useState<User | null>(null);
     const [profile, setProfile] = useState<Profile | null>(null);
     const [loading, setLoading] = useState(true);
+    const router = useRouter();
 
     useEffect(() => {
-        const { data: authListener } = supabase.auth.onAuthStateChange(async (_event, session) => {
+        const getInitialSession = async () => {
+            const {
+                data: { session },
+            } = await supabase.auth.getSession();
             setSession(session);
-            const currentUser = session?.user ?? null;
-            setUser(currentUser);
-
-            if (currentUser) {
-                try {
-                    const { data: profileData, error } = await supabase
-                        .from('profiles')
-                        .select('*')
-                        .eq('id', currentUser.id)
-                        .single();
-                    if (error) {
-                        console.error('Error fetching profile:', error.message);
-                        setProfile(null);
-                    } else {
-                        setProfile(profileData);
-                    }
-                } catch (err) {
-                    console.error('Exception while fetching profile:', err);
-                    setProfile(null);
-                }
-            } else {
-                setProfile(null);
+            setUser(session?.user ?? null);
+            if (session?.user) {
+                const { data: profileData } = await supabase
+                    .from('profiles')
+                    .select('*')
+                    .eq('id', session.user.id)
+                    .single();
+                setProfile(profileData);
             }
             setLoading(false);
+        };
+
+        getInitialSession();
+
+        const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
+            setSession(session);
+            setUser(session?.user ?? null);
+
+            if (_event === 'SIGNED_IN' || _event === 'SIGNED_OUT') {
+                router.refresh();
+            }
+
+            if (!session) {
+                setProfile(null);
+            }
         });
 
         return () => {
             authListener.subscription.unsubscribe();
         };
-    }, []);
+    }, [router]);
 
     const value = {
         session,

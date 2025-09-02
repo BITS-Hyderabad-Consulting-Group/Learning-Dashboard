@@ -1,13 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase-server';
-import { verifyAdminAuth } from '@/lib/auth';
+import { verifyAdminAuth } from '@/lib/auth-server';
 
 type RouteParams = { courseId: string; quizId: string };
 
 // PUT /api/admin/quizzes/[courseId]/[quizId] - Update quiz
 export async function PUT(request: NextRequest, { params }: { params: Promise<RouteParams> }) {
     try {
-        // const authResult = await verifyAdminAuth(request);
+        // const authResult = await verifyAdminAuth();
         // (authResult, courseId) are unused, so removed to silence lint
         const { quizId } = await params;
         const body = await request.json();
@@ -117,7 +117,7 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<Ro
 // DELETE /api/admin/quizzes/[courseId]/[quizId] - Soft delete quiz
 export async function DELETE(request: NextRequest, { params }: { params: Promise<RouteParams> }) {
     try {
-        const authResult = await verifyAdminAuth(request);
+        const authResult = await verifyAdminAuth();
         if ('error' in authResult) {
             return NextResponse.json({ error: authResult.error }, { status: authResult.status });
         }
@@ -132,10 +132,7 @@ export async function DELETE(request: NextRequest, { params }: { params: Promise
             return NextResponse.json({ error: 'Quiz not found' }, { status: 404 });
         }
         // Hard delete the quiz since deleted_at column doesn't exist
-        const { error } = await supabaseServer
-            .from('quizzes')
-            .delete()
-            .eq('id', quizId);
+        const { error } = await supabaseServer.from('quizzes').delete().eq('id', quizId);
         if (error) {
             console.error('Error deleting quiz:', error);
             return NextResponse.json({ error: 'Failed to delete quiz' }, { status: 500 });

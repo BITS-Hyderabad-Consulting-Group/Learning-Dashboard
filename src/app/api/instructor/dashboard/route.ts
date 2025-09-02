@@ -1,10 +1,10 @@
-import { NextRequest, NextResponse } from 'next/server';
+import { NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase-server';
-import { verifyAdminAuth } from '@/lib/auth';
-export async function GET(request: NextRequest) {
+import { verifyAdminAuth } from '@/lib/auth-server';
+export async function GET() {
     try {
         // Verify admin authentication
-        const authResult = await verifyAdminAuth(request);
+        const authResult = await verifyAdminAuth();
         if ('error' in authResult) {
             return NextResponse.json(
                 { error: authResult.error },

@@ -1,14 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase-server';
-import { verifyAdminAuth } from '@/lib/auth';
+import { verifyAdminAuth } from '@/lib/auth-server';
 
-// Define the params type as a Promise for Next.js 15
 type Params = Promise<{ courseId: string }>;
 
 // GET /api/admin/quizzes/[courseId] - Get quizzes for course
 export async function GET(request: NextRequest, { params }: { params: Params }) {
     try {
-        const authResult = await verifyAdminAuth(request);
+        const authResult = await verifyAdminAuth();
         if ('error' in authResult) {
             return NextResponse.json(
                 { error: authResult.error },
@@ -51,25 +50,25 @@ export async function GET(request: NextRequest, { params }: { params: Params }) 
             .from('weeks')
             .select('id')
             .eq('course_id', courseId);
-        
+
         if (weeksError) {
             console.error('Error fetching weeks:', weeksError);
             return NextResponse.json({ error: 'Failed to fetch course weeks' }, { status: 500 });
         }
-        
+
         const weekIds = weeks?.map((w) => w.id) || [];
-        
+
         // Then get all modules for these weeks
         const { data: modules, error: moduleError } = await supabaseServer
             .from('modules')
             .select('id')
             .in('week_id', weekIds);
-            
+
         if (moduleError) {
             console.error('Error fetching modules:', moduleError);
             return NextResponse.json({ error: 'Failed to fetch course modules' }, { status: 500 });
         }
-        
+
         const moduleIds = modules?.map((m) => m.id) || [];
         const courseQuizzes = (quizzes || []).filter((quiz: { module_id: string }) =>
             moduleIds.includes(quiz.module_id)
@@ -83,7 +82,7 @@ export async function GET(request: NextRequest, { params }: { params: Params }) 
 // POST /api/admin/quizzes/[courseId] - Create new quiz
 export async function POST(request: NextRequest) {
     try {
-        const authResult = await verifyAdminAuth(request);
+        const authResult = await verifyAdminAuth();
         if ('error' in authResult) {
             return NextResponse.json(
                 { error: authResult.error },

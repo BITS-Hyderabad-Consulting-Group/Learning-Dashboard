@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase-server';
-import { verifyAdminAuth } from '@/lib/auth';
+import { verifyAdminAuth } from '@/lib/auth-server';
 
 // Define the params type as a Promise for Next.js 15
 type Params = Promise<{ courseId: string }>;
@@ -8,7 +8,7 @@ type Params = Promise<{ courseId: string }>;
 // GET /api/admin/quizzes/[courseId]/submissions - Get quiz submissions
 export async function GET(request: NextRequest, { params }: { params: Params }) {
     try {
-        const authResult = await verifyAdminAuth(request);
+        const authResult = await verifyAdminAuth();
         if ('error' in authResult) {
             return NextResponse.json({ error: authResult.error }, { status: authResult.status });
         }
@@ -38,10 +38,7 @@ export async function GET(request: NextRequest, { params }: { params: Params }) 
         const moduleIds = modules.map((m) => m.id);
 
         // Get quizzes for these modules
-        let quizQuery = supabaseServer
-            .from('quizzes')
-            .select('id')
-            .in('module_id', moduleIds);
+        let quizQuery = supabaseServer.from('quizzes').select('id').in('module_id', moduleIds);
 
         if (quizId) {
             quizQuery = quizQuery.eq('id', quizId);
@@ -129,21 +126,21 @@ export async function GET(request: NextRequest, { params }: { params: Params }) 
         const transformedSubmissions = (submissions || []).map((submission: Submission) => {
             const user = users.find((u: User) => u.id === submission.user_id);
             const quiz = quizTitles.find((q: Quiz) => q.id === submission.quiz_id);
-            
+
             // Combine both types of answers
             const allAnswers = [
-                ...(submission.user_question_answers || []).map(a => ({
+                ...(submission.user_question_answers || []).map((a) => ({
                     questionId: a.question_id,
                     selectedAnswerId: a.selected_answer_id,
-                    submittedText: null
+                    submittedText: null,
                 })),
-                ...(submission.user_text_submissions || []).map(a => ({
+                ...(submission.user_text_submissions || []).map((a) => ({
                     questionId: a.question_id,
                     selectedAnswerId: null,
-                    submittedText: a.submitted_text
-                }))
+                    submittedText: a.submitted_text,
+                })),
             ];
-            
+
             return {
                 submissionId: submission.id,
                 quizId: submission.quiz_id,

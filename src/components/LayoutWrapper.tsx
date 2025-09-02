@@ -4,7 +4,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { UserProvider, useUser } from '@/context/UserContext';
 import Footer from '@/components/Footer';
 import { Header } from '@/components/Header';
-import { signInWithGoogle, signOut } from '../lib/auth';
+import { signInWithGoogle, signOut } from '../lib/auth-client';
 import { FcGoogle } from 'react-icons/fc';
 
 import { Home, LibraryBig, UserRound, LogOut, PencilRuler } from 'lucide-react';

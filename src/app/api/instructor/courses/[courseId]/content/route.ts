@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase-server';
-import { verifyAdminAuth } from '@/lib/auth';
+import { verifyAdminAuth } from '@/lib/auth-server';
 type Params = Promise<{ courseId: string }>;
 export async function GET(
     request: NextRequest,
@@ -11,7 +11,7 @@ export async function GET(
     }
 ) {
     try {
-        const authResult = await verifyAdminAuth(request);
+        const authResult = await verifyAdminAuth();
         if ('error' in authResult) {
             return NextResponse.json(
                 { error: authResult.error },
@@ -129,7 +129,7 @@ export async function POST(
     }
 ) {
     try {
-        const authResult = await verifyAdminAuth(request);
+        const authResult = await verifyAdminAuth();
         if ('error' in authResult) {
             return NextResponse.json(
                 { error: authResult.error },
@@ -245,7 +245,7 @@ export async function POST(
 export async function PUT(request: NextRequest) {
     try {
         console.log('PUT request received');
-        const authResult = await verifyAdminAuth(request);
+        const authResult = await verifyAdminAuth();
         if ('error' in authResult) {
             console.log('Auth failed:', authResult.error);
             return NextResponse.json(
