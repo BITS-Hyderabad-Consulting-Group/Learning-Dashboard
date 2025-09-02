@@ -117,7 +117,7 @@ export default function Learning() {
 
     // No longer needed: const coursesWithProgress = useMemo(() => enrolledCourses, [enrolledCourses]);
 
-    if (isUserLoading) {
+    if (isUserLoading || isCoursesLoading) {
         return <SkeletonLoader />;
     }
 
