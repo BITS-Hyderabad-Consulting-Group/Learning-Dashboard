@@ -108,7 +108,6 @@ export default function Learning() {
         return () => {
             ignore = true;
         };
-        // eslint-disable-next-line
     }, [searchTerm, sortOrder, currentPage, coursesPerPage, user, selectedDomain]);
 
     useEffect(() => {

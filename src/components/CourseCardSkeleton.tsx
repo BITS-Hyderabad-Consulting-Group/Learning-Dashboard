@@ -16,9 +16,7 @@ export default function CourseCardSkeleton({ progress = false }: { progress?: bo
                     </div>
                 </div>
                 <div className="px-6 pb-6 flex flex-col items-start space-y-1">
-                    <div className="flex w-full justify-between">
-                        <div className="w-12 h-4 bg-gray-300 rounded animate-pulse"></div>
-                    </div>
+                    <div className="flex w-full justify-between"></div>
                 </div>
                 {progress && (
                     <div className="px-6 pb-4">
