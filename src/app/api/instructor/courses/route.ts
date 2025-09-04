@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
         const status = searchParams.get('status') || '';
         const offset = (page - 1) * limit;
         // Build query
-        let query = supabaseServer.from('courses').select(
+    let query = supabaseServer.from('courses').select(
             `
         id,
         title,
@@ -28,6 +28,7 @@ export async function GET(request: NextRequest) {
         updated_at,
         is_active,
         list_price,
+    domain,
         instructor:profiles(full_name),
         weeks(id),
         user_course_enrollments(id)
@@ -64,6 +65,7 @@ export async function GET(request: NextRequest) {
                 created_at: course.created_at,
                 updated_at: course.updated_at,
                 list_price: course.list_price,
+                domain: course.domain || null,
             })) || [];
         return NextResponse.json({
             courses: transformedCourses,
@@ -83,76 +85,59 @@ export async function POST(request: NextRequest) {
     try {
         const authResult = await verifyAdminAuth();
         if ('error' in authResult) {
-            return NextResponse.json(
-                { error: authResult.error },
-                {
-                    status: authResult.status,
-                }
-            );
+            return NextResponse.json({ error: authResult.error }, { status: authResult.status });
         }
-        const body = await request.json();
-        const {
-            title,
-            description,
-            duration,
-            total_duration,
-            prerequisites,
-            objectives,
-            list_price,
-            instructor,
-        } = body;
-        // Validate required fields
+        let body: Record<string, unknown>;
+        try {
+            body = await request.json();
+        } catch {
+            return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 });
+        }
+        const { title, description, objectives: rawObjectives, list_price, instructor, domain } = body as {
+            title?: string;
+            description?: string;
+            objectives?: string[] | string;
+            list_price?: number;
+            instructor?: string;
+            domain?: string;
+        };
+        const objectives: string[] = Array.isArray(rawObjectives)
+            ? rawObjectives as string[]
+            : typeof rawObjectives === 'string'
+                ? (rawObjectives as string).split(/\n+/).map((s) => s.trim()).filter((s) => s.length > 0)
+                : [];
         if (!title || !description) {
-            return NextResponse.json(
-                { error: 'Title and description are required' },
-                { status: 400 }
-            );
+            return NextResponse.json({ error: 'Title and description are required' }, { status: 400 });
         }
-        // Create new course
-        const { data: newCourse, error: createError } = await supabaseServer
+        const insertResult = await supabaseServer
             .from('courses')
             .insert([
                 {
                     title,
                     description,
-                    total_duration: duration || total_duration || 0,
-                    prerequisites: prerequisites || '',
-                    objectives: objectives || [],
+                    objectives: objectives,
                     list_price: list_price || 0,
-                    instructor: instructor || authResult.user.id,
-                    is_active: false, // Start as draft
+                    instructor: instructor || (authResult as { user: { id: string } }).user.id,
+                    domain: domain || null,
+                    is_active: false,
                     created_at: new Date().toISOString(),
                     updated_at: new Date().toISOString(),
                 },
             ])
             .select()
             .single();
-        if (createError) {
-            console.error('Error creating course:', createError);
-            // Return DB error message/details to help debug from client/network tab
+        if (insertResult.error) {
             return NextResponse.json(
-                { error: createError.message || 'Failed to create course', details: createError },
+                { error: insertResult.error.message || 'Failed to create course' },
                 { status: 500 }
             );
         }
         return NextResponse.json(
-            {
-                message: 'Course created successfully',
-                course: newCourse,
-            },
+            { message: 'Course created successfully', course: insertResult.data },
             { status: 201 }
         );
-    } catch (error: unknown) {
-        console.error('Create course error:', error);
-        let errorMsg = 'Internal server error';
-        if (
-            typeof error === 'object' &&
-            error &&
-            'message' in error &&
-            typeof (error as { message?: string }).message === 'string'
-        ) {
-            errorMsg = (error as { message: string }).message;
-        }
-        return NextResponse.json({ error: errorMsg, details: error }, { status: 500 });
+    } catch (e) {
+        const msg = typeof (e as Error)?.message === 'string' ? (e as Error).message : 'Internal server error';
+        return NextResponse.json({ error: msg }, { status: 500 });
     }
 }

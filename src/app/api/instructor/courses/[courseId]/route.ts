@@ -34,6 +34,7 @@ export async function GET(
         objectives,
         list_price,
         is_active,
+        domain,
             created_at,
             updated_at,
             instructor_profile:profiles!instructor(full_name)
@@ -62,7 +63,7 @@ export async function GET(
             prereq: course.prerequisites || 'None',
             badge_name: `${course.title} Expert`, // Generate badge name
             status: course.is_active ? 'active' : 'draft',
-            domain: 'Business', // Default domain - you can add this
+            domain: course.domain || 'Business',
             banner_url: '', // Add this field to your table if needed
             date_created: course.created_at,
             date_updated: course.updated_at,
@@ -102,16 +103,7 @@ export async function PUT(
         }
         const { courseId } = await params;
         const body = await request.json();
-        const {
-            title,
-            description,
-            duration,
-            total_duration,
-            prerequisites,
-            objectives,
-            list_price,
-            is_active,
-        } = body;
+    const { title, description, duration, total_duration, prerequisites, objectives, list_price, is_active, domain } = body;
         // Update course
         const { data: updatedCourse, error: updateError } = await supabaseServer
             .from('courses')
@@ -124,6 +116,7 @@ export async function PUT(
                 list_price,
                 // difficulty removed from schema; no difficulty mapping
                 is_active,
+                domain,
                 updated_at: new Date().toISOString(),
             })
             .eq('id', courseId)

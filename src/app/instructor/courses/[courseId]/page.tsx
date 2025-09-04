@@ -3,11 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import Image from 'next/image';
 import data from '../../../instructor/APIdata.json';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { BookOpen, Layers, Star, Image as ImageIcon } from 'lucide-react';
+import { BookOpen, Layers, Star } from 'lucide-react';
 import { useUser } from '@/context/UserContext';
 
 type Week = {
@@ -19,30 +18,18 @@ type Week = {
     duration: number;
 };
 
-type Module = {
-    id: string;
-    weekId: string;
-    title: string;
-    contentType: string;
-    duration: number;
-    markedForReviewCount: number;
-};
-
 type CourseFormState = {
     id: string;
     name: string;
     description: string;
-    prereq: string;
     status: string;
-    attendees: number;
     duration: number | string;
     badge_name: string;
     domain: string;
     date_created: string;
     date_updated: string;
-    banner_url: string;
     weeks: Week[];
-    modules: Module[];
+    learningModules?: string[]; // new: captures "learning modules" (maps to objectives array in backend)
     
 };
 
@@ -56,20 +43,21 @@ export default function CourseUpsertPage({ params }: { params: Promise<{ courseI
     // --- AUTH / USER CONTEXT ---
     const { profile, loading, session } = useUser();
 
-    const [form, setForm] = useState<CourseFormState>(data.newCourseTemplate);
+    const [form, setForm] = useState<CourseFormState>({ ...data.newCourseTemplate, learningModules: [] });
+    // Multiline text area content for learning objectives (create mode only)
+    const [learningObjectivesText, setLearningObjectivesText] = useState('');
     const [isDataLoaded, setIsDataLoaded] = useState(false);
     const [submitted, setSubmitted] = useState(false);
-    const [bannerPreview, setBannerPreview] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
     useEffect(() => {
         const load = async () => {
-            if (!courseId) return; // Wait for courseId to be set
+            if (!courseId) return;
             
             if (isCreateMode) {
-                setForm(data.newCourseTemplate);
-                setBannerPreview('');
+                setForm({ ...data.newCourseTemplate, learningModules: [] });
+                setLearningObjectivesText('');
                 setIsDataLoaded(true);
                 return;
             }
@@ -92,20 +80,16 @@ export default function CourseUpsertPage({ params }: { params: Promise<{ courseI
                     id: apiCourse.id,
                     name: apiCourse.name || apiCourse.title, // Handle both name and title
                     description: apiCourse.description || '',
-                    prereq: apiCourse.prereq || apiCourse.prerequisites || '',
                     status: apiCourse.status || 'draft',
-                    attendees: apiCourse.attendees || 0,
                     duration: apiCourse.duration || apiCourse.totalDuration || 0,
                     badge_name: apiCourse.badge_name || '',
                     domain: apiCourse.domain || 'General',
                     date_created: apiCourse.date_created || new Date().toISOString(),
                     date_updated: apiCourse.date_updated || new Date().toISOString(),
-                    banner_url: apiCourse.banner_url || '',
                     weeks: apiCourse.weeks || [],
-                    modules: apiCourse.modules || [],
+                    learningModules: apiCourse.objectives || [],
                 };
                 setForm(mapped);
-                setBannerPreview(mapped.banner_url || '');
             } catch (e: unknown) {
                 let errorMsg = 'Failed to load course';
                 if (typeof e === 'object' && e && 'message' in e && typeof (e as { message?: string }).message === 'string') {
@@ -127,16 +111,7 @@ export default function CourseUpsertPage({ params }: { params: Promise<{ courseI
         setForm((prev) => ({ ...prev, [name]: finalValue }));
     }
 
-    function handleFileChange(e: React.ChangeEvent<HTMLInputElement>) {
-        const file = e.target.files?.[0];
-        if (file && (file.type === 'image/jpeg' || file.type === 'image/png')) {
-            const reader = new FileReader();
-            reader.onloadend = () => setBannerPreview(reader.result as string);
-            reader.readAsDataURL(file);
-        } else if (file) {
-            alert('Please upload a valid JPEG or PNG image.');
-        }
-    }
+    // (Removed tag-based add/remove handlers; now using simple textarea.)
 
     async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -159,20 +134,30 @@ export default function CourseUpsertPage({ params }: { params: Promise<{ courseI
                 title: string;
                 description: string;
                 total_duration: number;
-                prerequisites: string;
                 objectives: string[];
                 list_price: number;
                 is_active: boolean;
                 instructor: string | null;
+                domain: string;
             } = {
                 title: String(form.name).trim(), // name -> title
                 description: String(form.description).trim(),
-                total_duration: typeof form.duration === 'number' ? form.duration : parseInt(String(form.duration) || '0', 10),
-                prerequisites: form.prereq || '', // prereq -> prerequisites
-                objectives: [],
+                // total_duration only if provided (in create mode we removed duration field, send 0)
+                total_duration: isCreateMode
+                    ? 0
+                    : typeof form.duration === 'number'
+                    ? form.duration
+                    : parseInt(String(form.duration) || '0', 10),
+                objectives: isCreateMode
+                  ? learningObjectivesText
+                      .split(/\n+/)
+                      .map((s: string) => s.trim())
+                      .filter((s: string) => s.length > 0)
+                  : form.learningModules || [], // map new learning modules
                 list_price: (form as { list_price?: number }).list_price || 0,
-                is_active: form.status === 'active', // Convert status to boolean
+                is_active: form.status === 'active',
                 instructor: profile?.id || (session as { user?: { id?: string } })?.user?.id || null,
+                domain: form.domain || 'General',
             };
 
             const url = isCreateMode ? '/api/instructor/courses' : `/api/instructor/courses/${courseId}`;
@@ -185,6 +170,8 @@ export default function CourseUpsertPage({ params }: { params: Promise<{ courseI
                 headers['Authorization'] = `Bearer ${session.access_token}`;
             }
 
+            // Minimal log for debugging (can be removed if not desired)
+            // console.debug('Submitting course payload', { url, method });
             const res = await fetch(url, {
                 method,
                 headers,
@@ -193,17 +180,26 @@ export default function CourseUpsertPage({ params }: { params: Promise<{ courseI
             });
 
             if (!res.ok) {
-                const errBody = await res.json().catch(() => ({ error: 'Unknown error' }));
-                console.error('API error response:', errBody);
-                const msg = errBody.error || `Request failed with ${res.status}`;
-                // prefer detailed DB error details if provided
-                const details = errBody.details ? ` - ${JSON.stringify(errBody.details)}` : '';
-                setErrorMessage(msg + details);
+                let parsed: { error?: string; details?: unknown } | null = null;
+                let rawText: string | null = null;
+                try {
+                    parsed = await res.json();
+                } catch {
+                    try {
+                        rawText = await res.text();
+                    } catch {
+                        rawText = null;
+                    }
+                }
+                const msg = parsed?.error || `Request failed (${res.status})`;
+                const details = parsed?.details ? ` - ${JSON.stringify(parsed.details)}` : '';
+                const tail = !parsed && rawText ? ` :: ${rawText.slice(0,180)}` : '';
+                setErrorMessage(msg + details + tail);
                 setIsSubmitting(false);
                 return;
             }
-
             const data = await res.json().catch(() => ({}));
+            // console.debug('Course upsert success');
             const newId = data?.course?.id || courseId;
             setSubmitted(true);
 
@@ -215,8 +211,7 @@ export default function CourseUpsertPage({ params }: { params: Promise<{ courseI
                 // For edits, stay on the same page or go to dashboard
                 router.push(`/instructor/courses/${courseId}`);
             }
-        } catch (err: unknown) {
-            console.error('Submit error:', err);
+        } catch (err) {
             let errorMsg = 'Failed to save course.';
             if (typeof err === 'object' && err && 'message' in err && typeof (err as { message?: string }).message === 'string') {
                 errorMsg = (err as { message: string }).message;
@@ -261,7 +256,7 @@ export default function CourseUpsertPage({ params }: { params: Promise<{ courseI
 
     return (
         <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-white to-teal-50 px-4 py-8">
-            <Card className="w-full max-w-2xl rounded-2xl p-4 sm:p-8 shadow-xl border border-gray-100">
+            <Card className="w-full max-w-7xl rounded-2xl p-4 sm:p-8 shadow-xl border border-gray-100">
                 <form onSubmit={handleSubmit}>
                     <CardHeader>
                         <CardTitle className="text-3xl text-teal-800 mb-2 text-center font-extrabold">
@@ -304,19 +299,31 @@ export default function CourseUpsertPage({ params }: { params: Promise<{ courseI
                                     >
                                         Domain
                                     </label>
-                                    <select
-                                        id="domain"
-                                        name="domain"
-                                        value={form.domain}
-                                        onChange={handleChange}
-                                        className="w-full border border-gray-200 rounded-lg px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-teal-500"
-                                    >
-                                        {data.domains.map((d) => (
-                                            <option key={d} value={d}>
-                                                {d}
-                                            </option>
-                                        ))}
-                                    </select>
+                                    {isCreateMode ? (
+                                        <input
+                                            id="domain"
+                                            name="domain"
+                                            type="text"
+                                            value={form.domain}
+                                            onChange={handleChange}
+                                            className="w-full border border-gray-200 rounded-lg px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-teal-500"
+                                            placeholder="e.g. Business, Finance, Tech"
+                                        />
+                                    ) : (
+                                        <select
+                                            id="domain"
+                                            name="domain"
+                                            value={form.domain}
+                                            onChange={handleChange}
+                                            className="w-full border border-gray-200 rounded-lg px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-teal-500"
+                                        >
+                                            {data.domains.map((d) => (
+                                                <option key={d} value={d}>
+                                                    {d}
+                                                </option>
+                                            ))}
+                                        </select>
+                                    )}
                                 </div>
                                 <div className="sm:col-span-2">
                                     <label
@@ -364,72 +371,25 @@ export default function CourseUpsertPage({ params }: { params: Promise<{ courseI
                                         ))}
                                     </select>
                                 </div>
-                                <div>
-                                    <label
-                                        htmlFor="duration"
-                                        className="block text-sm font-semibold text-gray-700 mb-1"
-                                    >
-                                        Duration
-                                    </label>
-                                    <input
-                                        id="duration"
-                                        name="duration"
-                                        type="text"
-                                        value={form.duration}
-                                        onChange={handleChange}
-                                        className="w-full border border-gray-200 rounded-lg px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-teal-500"
-                                    />
-                                </div>
-                                <div>
-                                    <label
-                                        htmlFor="modules"
-                                        className="block text-sm font-semibold text-gray-700 mb-1"
-                                    >
-                                        Modules
-                                    </label>
-                                    <input
-                                        id="modules"
-                                        name="modules"
-                                        type="number"
-                                        min={0}
-                                        value={form.modules.length}
-                                        onChange={handleChange}
-                                        className="w-full border border-gray-200 rounded-lg px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-teal-500"
-                                    />
-                                </div>
-                                <div>
-                                    <label
-                                        htmlFor="attendees"
-                                        className="block text-sm font-semibold text-gray-700 mb-1"
-                                    >
-                                        Attendees
-                                    </label>
-                                    <input
-                                        id="attendees"
-                                        name="attendees"
-                                        type="number"
-                                        min={0}
-                                        value={form.attendees}
-                                        onChange={handleChange}
-                                        className="w-full border border-gray-200 rounded-lg px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-teal-500"
-                                    />
-                                </div>
-                                <div className="sm:col-span-2">
-                                    <label
-                                        htmlFor="prereq"
-                                        className="block text-sm font-semibold text-gray-700 mb-1"
-                                    >
-                                        Prerequisites
-                                    </label>
-                                    <input
-                                        id="prereq"
-                                        name="prereq"
-                                        type="text"
-                                        value={form.prereq}
-                                        onChange={handleChange}
-                                        className="w-full border border-gray-200 rounded-lg px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-teal-500"
-                                    />
-                                </div>
+                                {isCreateMode && (
+                                    <div className="sm:col-span-2">
+                                        <label
+                                            htmlFor="learningObjectives"
+                                            className="block text-sm font-semibold text-gray-700 mb-1"
+                                        >
+                                            Learning Objectives
+                                        </label>
+                                        <textarea
+                                            id="learningObjectives"
+                                            value={learningObjectivesText}
+                                            onChange={(e) => setLearningObjectivesText(e.target.value)}
+                                            rows={4}
+                                            placeholder={`One objective per line\nE.g.\nUnderstand MECE framework\nPerform basic financial analysis`}
+                                            className="w-full border border-gray-200 rounded-lg px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-teal-500 whitespace-pre-wrap"
+                                        />
+                                        <p className="text-xs text-gray-400 mt-2">One per line; saved as course objectives.</p>
+                                    </div>
+                                )}
                                 <div className="sm:col-span-2">
                                     <label
                                         htmlFor="badge_name"
@@ -447,35 +407,6 @@ export default function CourseUpsertPage({ params }: { params: Promise<{ courseI
                                     />
                                 </div>
                             </div>
-                        </section>
-
-                        <section>
-                            <h2 className="text-lg font-semibold text-teal-700 mb-4 flex items-center gap-2">
-                                <ImageIcon className="w-5 h-5 text-teal-500" /> Banner Image
-                            </h2>
-                            <input
-                                id="banner_url"
-                                name="banner_url"
-                                type="file"
-                                accept="image/jpeg,image/png"
-                                onChange={handleFileChange}
-                                className="w-full border border-gray-200 rounded-lg px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-teal-500"
-                            />
-                            {bannerPreview && (
-                                <Image
-                                    src={bannerPreview}
-                                    alt="Banner Preview"
-                                    className="mt-4 rounded-lg max-h-48 w-full object-cover border"
-                                    width={800}
-                                    height={192}
-                                    style={{
-                                        objectFit: 'cover',
-                                        width: '100%',
-                                        height: 'auto',
-                                        maxHeight: '12rem',
-                                    }}
-                                />
-                            )}
                         </section>
 
                         {!isCreateMode && (

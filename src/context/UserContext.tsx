@@ -39,22 +39,17 @@ export const UserProvider = ({ children }: { children: React.ReactNode }) => {
             }
             setLoading(false);
         };
-
         getInitialSession();
-
         const { data: authListener } = supabase.auth.onAuthStateChange((_event, session) => {
             setSession(session);
             setUser(session?.user ?? null);
-
             if (_event === 'SIGNED_IN' || _event === 'SIGNED_OUT') {
                 router.refresh();
             }
-
             if (!session) {
                 setProfile(null);
             }
         });
-
         return () => {
             authListener.subscription.unsubscribe();
         };
