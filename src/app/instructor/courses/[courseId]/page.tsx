@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import data from '../../../instructor/APIdata.json';
+import data from '../../../instructor/SampleData.json';
 import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { BookOpen, Layers, Star } from 'lucide-react';
@@ -30,12 +30,11 @@ type CourseFormState = {
     date_updated: string;
     weeks: Week[];
     learningModules?: string[]; // new: captures "learning modules" (maps to objectives array in backend)
-    
 };
 
 export default function CourseUpsertPage({ params }: { params: Promise<{ courseId: string }> }) {
     const [courseId, setCourseId] = useState<string>('');
-    
+
     useEffect(() => {
         params.then((p) => setCourseId(p.courseId));
     }, [params]);
@@ -43,7 +42,10 @@ export default function CourseUpsertPage({ params }: { params: Promise<{ courseI
     // --- AUTH / USER CONTEXT ---
     const { profile, loading, session } = useUser();
 
-    const [form, setForm] = useState<CourseFormState>({ ...data.newCourseTemplate, learningModules: [] });
+    const [form, setForm] = useState<CourseFormState>({
+        ...data.newCourseTemplate,
+        learningModules: [],
+    });
     // Multiline text area content for learning objectives (create mode only)
     const [learningObjectivesText, setLearningObjectivesText] = useState('');
     const [isDataLoaded, setIsDataLoaded] = useState(false);
@@ -54,7 +56,7 @@ export default function CourseUpsertPage({ params }: { params: Promise<{ courseI
     useEffect(() => {
         const load = async () => {
             if (!courseId) return;
-            
+
             if (isCreateMode) {
                 setForm({ ...data.newCourseTemplate, learningModules: [] });
                 setLearningObjectivesText('');
@@ -92,7 +94,12 @@ export default function CourseUpsertPage({ params }: { params: Promise<{ courseI
                 setForm(mapped);
             } catch (e: unknown) {
                 let errorMsg = 'Failed to load course';
-                if (typeof e === 'object' && e && 'message' in e && typeof (e as { message?: string }).message === 'string') {
+                if (
+                    typeof e === 'object' &&
+                    e &&
+                    'message' in e &&
+                    typeof (e as { message?: string }).message === 'string'
+                ) {
                     errorMsg = (e as { message: string }).message;
                 }
                 setErrorMessage(errorMsg);
@@ -149,18 +156,21 @@ export default function CourseUpsertPage({ params }: { params: Promise<{ courseI
                     ? form.duration
                     : parseInt(String(form.duration) || '0', 10),
                 objectives: isCreateMode
-                  ? learningObjectivesText
-                      .split(/\n+/)
-                      .map((s: string) => s.trim())
-                      .filter((s: string) => s.length > 0)
-                  : form.learningModules || [], // map new learning modules
+                    ? learningObjectivesText
+                          .split(/\n+/)
+                          .map((s: string) => s.trim())
+                          .filter((s: string) => s.length > 0)
+                    : form.learningModules || [], // map new learning modules
                 list_price: (form as { list_price?: number }).list_price || 0,
                 is_active: form.status === 'active',
-                instructor: profile?.id || (session as { user?: { id?: string } })?.user?.id || null,
+                instructor:
+                    profile?.id || (session as { user?: { id?: string } })?.user?.id || null,
                 domain: form.domain || 'General',
             };
 
-            const url = isCreateMode ? '/api/instructor/courses' : `/api/instructor/courses/${courseId}`;
+            const url = isCreateMode
+                ? '/api/instructor/courses'
+                : `/api/instructor/courses/${courseId}`;
             const method = isCreateMode ? 'POST' : 'PUT';
 
             const headers: Record<string, string> = {
@@ -193,7 +203,7 @@ export default function CourseUpsertPage({ params }: { params: Promise<{ courseI
                 }
                 const msg = parsed?.error || `Request failed (${res.status})`;
                 const details = parsed?.details ? ` - ${JSON.stringify(parsed.details)}` : '';
-                const tail = !parsed && rawText ? ` :: ${rawText.slice(0,180)}` : '';
+                const tail = !parsed && rawText ? ` :: ${rawText.slice(0, 180)}` : '';
                 setErrorMessage(msg + details + tail);
                 setIsSubmitting(false);
                 return;
@@ -213,7 +223,12 @@ export default function CourseUpsertPage({ params }: { params: Promise<{ courseI
             }
         } catch (err) {
             let errorMsg = 'Failed to save course.';
-            if (typeof err === 'object' && err && 'message' in err && typeof (err as { message?: string }).message === 'string') {
+            if (
+                typeof err === 'object' &&
+                err &&
+                'message' in err &&
+                typeof (err as { message?: string }).message === 'string'
+            ) {
                 errorMsg = (err as { message: string }).message;
             }
             setErrorMessage(errorMsg);
@@ -246,7 +261,10 @@ export default function CourseUpsertPage({ params }: { params: Promise<{ courseI
             <div className="flex justify-center items-center min-h-screen">
                 <div className="text-center">
                     <p className="text-red-600 text-lg mb-4">{errorMessage}</p>
-                    <Button onClick={() => router.push('/instructor/dashboard')} className="bg-teal-600 hover:bg-teal-700">
+                    <Button
+                        onClick={() => router.push('/instructor/dashboard')}
+                        className="bg-teal-600 hover:bg-teal-700"
+                    >
                         Back to Dashboard
                     </Button>
                 </div>
@@ -255,14 +273,14 @@ export default function CourseUpsertPage({ params }: { params: Promise<{ courseI
     }
 
     return (
-        <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-white to-teal-50 px-4 py-8">
-            <Card className="w-full max-w-7xl rounded-2xl p-4 sm:p-8 shadow-xl border border-gray-100">
+        <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-white to-teal-50 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <Card className="w-full rounded-2xl p-4 sm:p-8 shadow-xl border border-gray-100">
                 <form onSubmit={handleSubmit}>
                     <CardHeader>
                         <CardTitle className="text-3xl text-teal-800 mb-2 text-center font-extrabold">
                             {isCreateMode ? 'Create New Course' : 'Edit Course'}
                         </CardTitle>
-                        <p className="text-gray-500 text-center text-base mt-1">
+                        <p className="text-gray-500 text-center text-base mb-2">
                             {isCreateMode
                                 ? 'Fill out the details to start a new course.'
                                 : `Editing: ${form.name}`}
@@ -299,31 +317,15 @@ export default function CourseUpsertPage({ params }: { params: Promise<{ courseI
                                     >
                                         Domain
                                     </label>
-                                    {isCreateMode ? (
-                                        <input
-                                            id="domain"
-                                            name="domain"
-                                            type="text"
-                                            value={form.domain}
-                                            onChange={handleChange}
-                                            className="w-full border border-gray-200 rounded-lg px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-teal-500"
-                                            placeholder="e.g. Business, Finance, Tech"
-                                        />
-                                    ) : (
-                                        <select
-                                            id="domain"
-                                            name="domain"
-                                            value={form.domain}
-                                            onChange={handleChange}
-                                            className="w-full border border-gray-200 rounded-lg px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-teal-500"
-                                        >
-                                            {data.domains.map((d) => (
-                                                <option key={d} value={d}>
-                                                    {d}
-                                                </option>
-                                            ))}
-                                        </select>
-                                    )}
+                                    <input
+                                        id="domain"
+                                        name="domain"
+                                        type="text"
+                                        value={form.domain}
+                                        onChange={handleChange}
+                                        className="w-full border border-gray-200 rounded-lg px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-teal-500"
+                                        placeholder="e.g. Business, Finance, Tech"
+                                    />
                                 </div>
                                 <div className="sm:col-span-2">
                                     <label
@@ -382,12 +384,16 @@ export default function CourseUpsertPage({ params }: { params: Promise<{ courseI
                                         <textarea
                                             id="learningObjectives"
                                             value={learningObjectivesText}
-                                            onChange={(e) => setLearningObjectivesText(e.target.value)}
+                                            onChange={(e) =>
+                                                setLearningObjectivesText(e.target.value)
+                                            }
                                             rows={4}
                                             placeholder={`One objective per line\nE.g.\nUnderstand MECE framework\nPerform basic financial analysis`}
                                             className="w-full border border-gray-200 rounded-lg px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-teal-500 whitespace-pre-wrap"
                                         />
-                                        <p className="text-xs text-gray-400 mt-2">One per line; saved as course objectives.</p>
+                                        <p className="text-xs text-gray-400 mt-2">
+                                            One per line, saved as course objectives.
+                                        </p>
                                     </div>
                                 )}
                                 <div className="sm:col-span-2">
@@ -423,7 +429,8 @@ export default function CourseUpsertPage({ params }: { params: Promise<{ courseI
                                         </>
                                     ) : (
                                         <div className="text-gray-500 text-center py-4">
-                                            No curriculum content yet. Use the curriculum builder to add weeks and modules.
+                                            No curriculum content yet. Use the curriculum builder to
+                                            add weeks and modules.
                                         </div>
                                     )}
                                     <div className="text-xs text-gray-400 pt-2 border-t">
@@ -444,7 +451,13 @@ export default function CourseUpsertPage({ params }: { params: Promise<{ courseI
                             disabled={isSubmitting}
                             className="w-full bg-gradient-to-r from-teal-700 to-teal-500 text-white hover:from-teal-800 hover:to-teal-600 mb-2 text-lg py-3 rounded-xl shadow-md transition-all disabled:opacity-60"
                         >
-                            {isCreateMode ? (isSubmitting ? 'Creating…' : 'Create Course') : isSubmitting ? 'Saving…' : 'Save Changes'}
+                            {isCreateMode
+                                ? isSubmitting
+                                    ? 'Creating…'
+                                    : 'Create Course'
+                                : isSubmitting
+                                ? 'Saving…'
+                                : 'Save Changes'}
                         </Button>
                         {submitted && (
                             <div className="text-green-700 font-semibold text-center mt-2">
@@ -452,7 +465,9 @@ export default function CourseUpsertPage({ params }: { params: Promise<{ courseI
                             </div>
                         )}
                         {errorMessage && (
-                            <div className="text-red-600 font-medium text-center mt-2">{errorMessage}</div>
+                            <div className="text-red-600 font-medium text-center mt-2">
+                                {errorMessage}
+                            </div>
                         )}
                     </CardFooter>
                 </form>

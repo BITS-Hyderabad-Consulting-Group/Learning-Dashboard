@@ -1,0 +1,23 @@
+{
+    "domains": ["Business", "Communication", "Consulting", "Marketing", "Finance"],
+    "statuses": ["draft", "active", "archived"],
+    "sampleCourseNames": ["Business Communication Skills", "Marketing Fundamentals"],
+    "defaultDescription": "Master essential business skills for the modern workplace.",
+    "newCourseTemplate": {
+        "id": "",
+        "owner_id": "",
+        "name": "",
+        "description": "",
+        "prereq": "",
+        "duration": "",
+        "attendees": 0,
+        "badge_name": "",
+        "status": "",
+        "domain": "",
+        "banner_url": "",
+        "date_created": "",
+        "date_updated": "",
+        "weeks": [],
+        "modules": []
+    }
+}
