@@ -20,6 +20,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import { AdminCourseCard } from '@/components/AdminCourseCard';
+import InstructorDashboardSkeleton from './SkeletonLoader';
 
 // Define types for our data structure
 interface DashboardData {
@@ -311,7 +312,7 @@ export default function AdminDashboardPage() {
     }, [selectedCourse]);
 
     if (loading || isLoading) {
-        return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+        return <InstructorDashboardSkeleton />;
     }
 
     if (!profile || (profile.role !== 'admin' && profile.role !== 'instructor')) {
