@@ -5,7 +5,7 @@ import { Card, CardHeader, CardTitle } from '@/components/ui/card';
 import { useParams } from 'next/navigation';
 import Markdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import DOMPurify from 'dompurify';
+import rehypeRaw from 'rehype-raw';
 
 interface ModuleData {
     id: string;
@@ -16,20 +16,6 @@ interface ModuleData {
     content: string;
     evaluativeType?: 'quiz' | 'assignment';
 }
-
-// Helper function to detect if content is HTML
-const isHtmlContent = (content: string): boolean => {
-    return /<[a-z][\s\S]*>/i.test(content);
-};
-
-// Helper function to sanitize HTML content
-const sanitizeHtml = (html: string): string => {
-    if (typeof window !== 'undefined') {
-        return DOMPurify.sanitize(html);
-    }
-    // For server-side rendering, return as-is (will be sanitized on client)
-    return html;
-};
 
 export default function ModulePage() {
     const { moduleId } = useParams();
@@ -126,313 +112,151 @@ export default function ModulePage() {
                         </a>
                     </div>
                 )}
-                {module.type === 'article' && (
+                {(module.type === 'article' || module.type === 'markdown') && (
                     <div className="bg-teal-50 border border-teal-200 rounded-lg p-6">
                         <div className="prose max-w-none">
-                            {isHtmlContent(module.content) ? (
-                                <div
-                                    className="text-gray-700 leading-relaxed"
-                                    dangerouslySetInnerHTML={{
-                                        __html: sanitizeHtml(module.content)
-                                    }}
-                                />
-                            ) : (
-                                <Markdown
-                                    remarkPlugins={[remarkGfm]}
-                                    components={{
-                                        h1: ({ children }) => (
-                                            <h1 className="text-3xl font-bold mb-4 mt-6">{children}</h1>
-                                        ),
-                                        h2: ({ children }) => (
-                                            <h2 className="text-2xl font-bold mb-3 mt-5">{children}</h2>
-                                        ),
-                                        h3: ({ children }) => (
-                                            <h3 className="text-xl font-bold mb-2 mt-4">{children}</h3>
-                                        ),
-                                        h4: ({ children }) => (
-                                            <h4 className="text-lg font-bold mb-2 mt-3">{children}</h4>
-                                        ),
-                                        pre: ({ children }) => (
-                                            <pre className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto border font-mono text-sm mt-4 mb-4">
-                                                {children}
-                                            </pre>
-                                        ),
-                                        code: ({ children, className }) => {
-                                            // Check if it's inside a pre tag (code block) or inline
-                                            if (className && className.includes('language-')) {
-                                                return (
-                                                    <code className="text-green-400">{children}</code>
-                                                );
-                                            }
-                                            // Inline code
+                            <Markdown
+                                remarkPlugins={[remarkGfm]}
+                                rehypePlugins={[rehypeRaw]}
+                                components={{
+                                    h1: ({ children }) => (
+                                        <h1 className="text-3xl font-bold mb-4 mt-6">{children}</h1>
+                                    ),
+                                    h2: ({ children }) => (
+                                        <h2 className="text-2xl font-bold mb-3 mt-5">{children}</h2>
+                                    ),
+                                    h3: ({ children }) => (
+                                        <h3 className="text-xl font-bold mb-2 mt-4">{children}</h3>
+                                    ),
+                                    h4: ({ children }) => (
+                                        <h4 className="text-lg font-bold mb-2 mt-3">{children}</h4>
+                                    ),
+                                    pre: ({ children }) => (
+                                        <pre className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto border font-mono text-sm mt-4 mb-4">
+                                            {children}
+                                        </pre>
+                                    ),
+                                    code: ({ children, className }) => {
+                                        // Check if it's inside a pre tag (code block) or inline
+                                        if (className && className.includes('language-')) {
                                             return (
-                                                <code className="bg-gray-200 text-red-600 px-1 py-0.5 rounded text-sm font-mono">
-                                                    {children}
-                                                </code>
+                                                <code className="text-green-400">{children}</code>
                                             );
-                                        },
-                                        // Table components
-                                        table: ({ children }) => (
-                                            <div className="overflow-x-auto my-6">
-                                                <table className="min-w-full border-collapse border border-gray-300 bg-white">
-                                                    {children}
-                                                </table>
-                                            </div>
-                                        ),
-                                        thead: ({ children }) => (
-                                            <thead className="bg-gray-100 border-b border-gray-300">
+                                        }
+                                        // Inline code
+                                        return (
+                                            <code className="bg-gray-200 text-red-600 px-1 py-0.5 rounded text-sm font-mono">
                                                 {children}
-                                            </thead>
-                                        ),
-                                        tbody: ({ children }) => (
-                                            <tbody className="bg-white">{children}</tbody>
-                                        ),
-                                        tr: ({ children }) => (
-                                            <tr className="border-b border-gray-200 hover:bg-gray-50">
+                                            </code>
+                                        );
+                                    },
+                                    // Table components
+                                    table: ({ children }) => (
+                                        <div className="overflow-x-auto my-6">
+                                            <table className="min-w-full border-collapse border border-gray-300 bg-white">
                                                 {children}
-                                            </tr>
-                                        ),
-                                        th: ({ children }) => (
-                                            <th className="border border-gray-300 px-3 py-2 text-left font-semibold text-gray-900 bg-gray-100 whitespace-nowrap align-top">
-                                                {children}
-                                            </th>
-                                        ),
-                                        td: ({ children }) => (
-                                            <td className="border border-gray-300 px-3 py-2 text-gray-800 whitespace-nowrap align-top">
-                                                {children}
-                                            </td>
-                                        ),
-                                        // Text formatting
-                                        strong: ({ children }) => (
-                                            <strong className="font-bold text-gray-900">
-                                                {children}
-                                            </strong>
-                                        ),
-                                        em: ({ children }) => (
-                                            <em className="italic text-gray-800">{children}</em>
-                                        ),
-                                        u: ({ children }) => <u className="underline">{children}</u>,
-                                        // Lists
-                                        ul: ({ children }) => (
-                                            <ul className="list-disc pl-6 my-3 space-y-1">
-                                                {children}
-                                            </ul>
-                                        ),
-                                        ol: ({ children }) => (
-                                            <ol className="list-decimal pl-6 my-3 space-y-1">
-                                                {children}
-                                            </ol>
-                                        ),
-                                        li: ({ children }) => {
-                                            // Handle checkboxes in list items
-                                            const childText =
-                                                typeof children === 'string'
-                                                    ? children
-                                                    : Array.isArray(children)
-                                                    ? children.join('')
-                                                    : String(children);
+                                            </table>
+                                        </div>
+                                    ),
+                                    thead: ({ children }) => (
+                                        <thead className="bg-gray-100 border-b border-gray-300">
+                                            {children}
+                                        </thead>
+                                    ),
+                                    tbody: ({ children }) => (
+                                        <tbody className="bg-white">{children}</tbody>
+                                    ),
+                                    tr: ({ children }) => (
+                                        <tr className="border-b border-gray-200 hover:bg-gray-50">
+                                            {children}
+                                        </tr>
+                                    ),
+                                    th: ({ children }) => (
+                                        <th className="border border-gray-300 px-3 py-2 text-left font-semibold text-gray-900 bg-gray-100 whitespace-nowrap align-top">
+                                            {children}
+                                        </th>
+                                    ),
+                                    td: ({ children }) => (
+                                        <td className="border border-gray-300 px-3 py-2 text-gray-800 whitespace-nowrap align-top">
+                                            {children}
+                                        </td>
+                                    ),
+                                    // Text formatting
+                                    strong: ({ children }) => (
+                                        <strong className="font-bold text-gray-900">
+                                            {children}
+                                        </strong>
+                                    ),
+                                    em: ({ children }) => (
+                                        <em className="italic text-gray-800">{children}</em>
+                                    ),
+                                    u: ({ children }) => <u className="underline">{children}</u>,
+                                    // Lists
+                                    ul: ({ children }) => (
+                                        <ul className="list-disc pl-6 my-3 space-y-1">
+                                            {children}
+                                        </ul>
+                                    ),
+                                    ol: ({ children }) => (
+                                        <ol className="list-decimal pl-6 my-3 space-y-1">
+                                            {children}
+                                        </ol>
+                                    ),
+                                    li: ({ children }) => {
+                                        // Handle checkboxes in list items
+                                        const childText =
+                                            typeof children === 'string'
+                                                ? children
+                                                : Array.isArray(children)
+                                                ? children.join('')
+                                                : String(children);
 
-                                            if (childText.startsWith('[x] ')) {
-                                                return (
-                                                    <li className="text-gray-700 list-none flex items-center">
-                                                        <span className="mr-2 text-green-600">✅</span>
-                                                        {childText.substring(4)}
-                                                    </li>
-                                                );
-                                            } else if (childText.startsWith('[ ] ')) {
-                                                return (
-                                                    <li className="text-gray-700 list-none flex items-center">
-                                                        <span className="mr-2 text-gray-400">☐</span>
-                                                        {childText.substring(4)}
-                                                    </li>
-                                                );
-                                            }
-
-                                            return <li className="text-gray-700">{children}</li>;
-                                        },
-                                        // Paragraphs and line breaks
-                                        p: ({ children }) => (
-                                            <p className="mb-3 text-gray-700 leading-relaxed">
-                                                {children}
-                                            </p>
-                                        ),
-                                        br: () => <br className="my-2" />,
-                                        // Blockquotes
-                                        blockquote: ({ children }) => (
-                                            <blockquote className="border-l-4 border-teal-400 pl-4 my-4 italic text-gray-600 bg-gray-50 py-2">
-                                                {children}
-                                            </blockquote>
-                                        ),
-                                        // Links
-                                        a: ({ children, href }) => (
-                                            <a
-                                                href={href}
-                                                className="text-teal-600 hover:text-teal-800 underline"
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                            >
-                                                {children}
-                                            </a>
-                                        ),
-                                    }}
-                                >
-                                    {module.content}
-                                </Markdown>
-                            )}
-                        </div>
-                    </div>
-                )}
-                {module.type === 'markdown' && (
-                    <div className="bg-teal-50 border border-teal-200 rounded-lg p-6">
-                        <div className="prose max-w-none">
-                            {isHtmlContent(module.content) ? (
-                                <div
-                                    className="text-gray-700 leading-relaxed"
-                                    dangerouslySetInnerHTML={{
-                                        __html: sanitizeHtml(module.content)
-                                    }}
-                                />
-                            ) : (
-                                <Markdown
-                                    remarkPlugins={[remarkGfm]}
-                                    components={{
-                                        h1: ({ children }) => (
-                                            <h1 className="text-3xl font-bold mb-4 mt-6">{children}</h1>
-                                        ),
-                                        h2: ({ children }) => (
-                                            <h2 className="text-2xl font-bold mb-3 mt-5">{children}</h2>
-                                        ),
-                                        h3: ({ children }) => (
-                                            <h3 className="text-xl font-bold mb-2 mt-4">{children}</h3>
-                                        ),
-                                        h4: ({ children }) => (
-                                            <h4 className="text-lg font-bold mb-2 mt-3">{children}</h4>
-                                        ),
-                                        pre: ({ children }) => (
-                                            <pre className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto border font-mono text-sm mt-4 mb-4">
-                                                {children}
-                                            </pre>
-                                        ),
-                                        code: ({ children, className }) => {
-                                            // Check if it's inside a pre tag (code block) or inline
-                                            if (className && className.includes('language-')) {
-                                                return (
-                                                    <code className="text-green-400">{children}</code>
-                                                );
-                                            }
-                                            // Inline code
+                                        if (childText.startsWith('[x] ')) {
                                             return (
-                                                <code className="bg-gray-200 text-red-600 px-1 py-0.5 rounded text-sm font-mono">
-                                                    {children}
-                                                </code>
+                                                <li className="text-gray-700 list-none flex items-center">
+                                                    <span className="mr-2 text-green-600">✅</span>
+                                                    {childText.substring(4)}
+                                                </li>
                                             );
-                                        },
-                                        // Table components
-                                        table: ({ children }) => (
-                                            <div className="overflow-x-auto my-6">
-                                                <table className="min-w-full border-collapse border-2 border-gray-400 bg-white shadow-sm rounded-lg">
-                                                    {children}
-                                                </table>
-                                            </div>
-                                        ),
-                                        thead: ({ children }) => (
-                                            <thead className="bg-gray-100">{children}</thead>
-                                        ),
-                                        tbody: ({ children }) => (
-                                            <tbody className="bg-white">{children}</tbody>
-                                        ),
-                                        tr: ({ children }) => (
-                                            <tr className="border-b-2 border-gray-300 hover:bg-gray-50">
-                                                {children}
-                                            </tr>
-                                        ),
-                                        th: ({ children }) => (
-                                            <th className="border-2 border-gray-400 px-6 py-3 text-left font-bold text-gray-900 bg-gray-200">
-                                                {children}
-                                            </th>
-                                        ),
-                                        td: ({ children }) => (
-                                            <td className="border-2 border-gray-400 px-6 py-3 text-gray-800">
-                                                {children}
-                                            </td>
-                                        ),
-                                        // Text formatting
-                                        strong: ({ children }) => (
-                                            <strong className="font-bold text-gray-900">
-                                                {children}
-                                            </strong>
-                                        ),
-                                        em: ({ children }) => (
-                                            <em className="italic text-gray-800">{children}</em>
-                                        ),
-                                        u: ({ children }) => <u className="underline">{children}</u>,
-                                        // Lists
-                                        ul: ({ children }) => (
-                                            <ul className="list-disc pl-6 my-3 space-y-1">
-                                                {children}
-                                            </ul>
-                                        ),
-                                        ol: ({ children }) => (
-                                            <ol className="list-decimal pl-6 my-3 space-y-1">
-                                                {children}
-                                            </ol>
-                                        ),
-                                        li: ({ children }) => {
-                                            // Handle checkboxes in list items
-                                            const childText =
-                                                typeof children === 'string'
-                                                    ? children
-                                                    : Array.isArray(children)
-                                                    ? children.join('')
-                                                    : String(children);
+                                        } else if (childText.startsWith('[ ] ')) {
+                                            return (
+                                                <li className="text-gray-700 list-none flex items-center">
+                                                    <span className="mr-2 text-gray-400">☐</span>
+                                                    {childText.substring(4)}
+                                                </li>
+                                            );
+                                        }
 
-                                            if (childText.startsWith('[x] ')) {
-                                                return (
-                                                    <li className="text-gray-700 list-none flex items-center">
-                                                        <span className="mr-2 text-green-600">✅</span>
-                                                        {childText.substring(4)}
-                                                    </li>
-                                                );
-                                            } else if (childText.startsWith('[ ] ')) {
-                                                return (
-                                                    <li className="text-gray-700 list-none flex items-center">
-                                                        <span className="mr-2 text-gray-400">☐</span>
-                                                        {childText.substring(4)}
-                                                    </li>
-                                                );
-                                            }
-
-                                            return <li className="text-gray-700">{children}</li>;
-                                        },
-                                        // Paragraphs and line breaks
-                                        p: ({ children }) => (
-                                            <p className="mb-3 text-gray-700 leading-relaxed">
-                                                {children}
-                                            </p>
-                                        ),
-                                        br: () => <br className="my-2" />,
-                                        // Blockquotes
-                                        blockquote: ({ children }) => (
-                                            <blockquote className="border-l-4 border-teal-400 pl-4 my-4 italic text-gray-600 bg-gray-50 py-2">
-                                                {children}
-                                            </blockquote>
-                                        ),
-                                        // Links
-                                        a: ({ children, href }) => (
-                                            <a
-                                                href={href}
-                                                className="text-teal-600 hover:text-teal-800 underline"
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                            >
-                                                {children}
-                                            </a>
-                                        ),
-                                    }}
-                                >
-                                    {module.content}
-                                </Markdown>
-                            )}
+                                        return <li className="text-gray-700">{children}</li>;
+                                    },
+                                    // Paragraphs and line breaks
+                                    p: ({ children }) => (
+                                        <p className="mb-3 text-gray-700 leading-relaxed">
+                                            {children}
+                                        </p>
+                                    ),
+                                    br: () => <br className="my-2" />,
+                                    // Blockquotes
+                                    blockquote: ({ children }) => (
+                                        <blockquote className="border-l-4 border-teal-400 pl-4 my-4 italic text-gray-600 bg-gray-50 py-2">
+                                            {children}
+                                        </blockquote>
+                                    ),
+                                    // Links
+                                    a: ({ children, href }) => (
+                                        <a
+                                            href={href}
+                                            className="text-teal-600 hover:text-teal-800 underline"
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            {children}
+                                        </a>
+                                    ),
+                                }}
+                            >
+                                {module.content}
+                            </Markdown>
                         </div>
                     </div>
                 )}
