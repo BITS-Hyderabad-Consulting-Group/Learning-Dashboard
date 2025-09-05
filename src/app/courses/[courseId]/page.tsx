@@ -8,7 +8,7 @@ import WeekList from '@/components/WeekList';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { ChevronDown } from 'lucide-react';
-
+import CoursePageSkeleton from './CoursePageSkeleton';
 import { CourseData } from '@/types/course';
 
 export default function CoursePage({ params }: { params: Promise<{ courseId: string }> }) {
@@ -115,31 +115,7 @@ export default function CoursePage({ params }: { params: Promise<{ courseId: str
     };
 
     if (loading || userLoading) {
-        return (
-            <main className="max-w-7xl mx-auto p-6">
-                <motion.div
-                    className="flex items-center justify-center h-64"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.4 }}
-                >
-                    <motion.div
-                        className="text-lg text-gray-600"
-                        animate={{
-                            scale: [1, 1.05, 1],
-                            opacity: [0.5, 1, 0.5],
-                        }}
-                        transition={{
-                            duration: 2,
-                            repeat: Infinity,
-                            ease: 'easeInOut',
-                        }}
-                    >
-                        Loading course data...
-                    </motion.div>
-                </motion.div>
-            </main>
-        );
+        return <CoursePageSkeleton />;
     }
 
     // Fallback if data loading fails but we are no longer in a 'loading' state

@@ -8,6 +8,7 @@ import { Card, CardHeader, CardTitle, CardContent, CardFooter } from '@/componen
 import { Button } from '@/components/ui/button';
 import { BookOpen, Layers, Star } from 'lucide-react';
 import { useUser } from '@/context/UserContext';
+import CourseUpsertPageSkeleton from './SkeletonLoader';
 
 type Week = {
     id: string;
@@ -247,11 +248,7 @@ export default function CourseUpsertPage({ params }: { params: Promise<{ courseI
         }
     }, [profile, loading, router]);
     if (loading || !isDataLoaded) {
-        return (
-            <div className="flex justify-center items-center min-h-screen">
-                <p>Loading...</p>
-            </div>
-        );
+        return <CourseUpsertPageSkeleton />;
     }
     if (!profile || (profile.role !== 'admin' && profile.role !== 'instructor')) {
         return null;
