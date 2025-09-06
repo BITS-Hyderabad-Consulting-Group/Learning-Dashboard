@@ -89,7 +89,10 @@ export default function CoursePage({ params }: { params: Promise<{ courseId: str
     }, [data]);
 
     const handleEnrol = async () => {
-        if (!user || !user.id) return;
+        if (!user || !user.id) {
+            toast.error('You must be logged in to enroll.');
+            return;
+        }
         setEnrolLoading(true);
         setEnrolError(null);
         try {
@@ -228,9 +231,9 @@ export default function CoursePage({ params }: { params: Promise<{ courseId: str
                                 ))}
                             </motion.div>
                             <AnimatePresence>
-                                {!data?.enrolled && user && (
+                                {!data?.enrolled && (
                                     <motion.button
-                                        className="bg-[#007C6A] text-white font-bold px-5 py-1.5 rounded-md shadow-md hover:bg-[#005F5F] transition-all duration-200 text-base whitespace-nowrap mt-4"
+                                        className="w-full bg-[#03706E] text-white font-bold py-2 rounded-md shadow-md hover:bg-[#005F5F] transition-all duration-200 text-lg mt-4"
                                         onClick={handleEnrol}
                                         disabled={enrolLoading}
                                         initial={{
@@ -240,8 +243,8 @@ export default function CoursePage({ params }: { params: Promise<{ courseId: str
                                         animate={{ opacity: 1, scale: 1 }}
                                         exit={{ opacity: 0, scale: 0.9 }}
                                         transition={{ duration: 0.3 }}
-                                        whileHover={{ scale: 1.05 }}
-                                        whileTap={{ scale: 0.95 }}
+                                        whileHover={{ scale: 1.02 }}
+                                        whileTap={{ scale: 0.98 }}
                                     >
                                         <motion.span
                                             transition={{

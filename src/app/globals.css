@@ -120,3 +120,7 @@
     @apply bg-background text-foreground;
   }
 }
+
+.bhcg-success-toast {
+    color: #03706e !important;
+}
