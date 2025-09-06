@@ -104,7 +104,7 @@ export default function WeekList({ weeks, enrolled = true }: Props) {
                         {/* Vertical solid line connecting circles - hidden on mobile */}
                         {/* {index < weeks.length - 1 && (
                             <div
-                                className={`absolute left-2.5 top-11 w-0.5 bg-[#007C6A] z-0 transition-all duration-200 hidden sm:block`}
+                                className={`absolute left-2.5 top-11 w-0.5 bg-[#03706E] z-0 transition-all duration-200 hidden sm:block`}
                                 style={{
                                     height: isOpen
                                         ? `${
@@ -118,9 +118,9 @@ export default function WeekList({ weeks, enrolled = true }: Props) {
                         )} */}
 
                         {/* Circle - hidden on mobile */}
-                        {/* <div className="absolute left-0 top-5 w-6 h-6 rounded-full border-4 border-[#007C6A] bg-white z-10 hidden sm:flex items-center justify-center">
+                        {/* <div className="absolute left-0 top-5 w-6 h-6 rounded-full border-4 border-[#03706E] bg-white z-10 hidden sm:flex items-center justify-center">
                             {isOpen ? (
-                                <div className="w-2.5 h-2.5 bg-[#007C6A] rounded-full" />
+                                <div className="w-2.5 h-2.5 bg-[#03706E] rounded-full" />
                             ) : null}
                         </div> */}
 
@@ -131,7 +131,7 @@ export default function WeekList({ weeks, enrolled = true }: Props) {
                             {/* Left: Circle indicator + Week Title */}
                             <div className="flex items-center gap-3">
                                 {/* Circle indicator */}
-                                <div className="w-5 h-5 rounded-full border-2 flex items-center justify-center bg-white border-[#007C6A]">
+                                <div className="w-5 h-5 rounded-full border-2 flex items-center justify-center bg-white border-[#03706E]">
                                     {week.modules.length > 0 &&
                                     week.modules.every((m) => {
                                         const state = getModuleState(m.id || '', {
@@ -150,7 +150,7 @@ export default function WeekList({ weeks, enrolled = true }: Props) {
                                         const [weekPart, ...rest] = week.title.split(' | ');
                                         return (
                                             <h3 className="font-semibold text-base">
-                                                <span className="text-[#007C6A]">{weekPart} |</span>
+                                                <span className="text-[#03706E]">{weekPart} |</span>
                                                 <span className="text-black ml-2">
                                                     {rest.join()}
                                                 </span>
@@ -158,7 +158,7 @@ export default function WeekList({ weeks, enrolled = true }: Props) {
                                         );
                                     })()
                                 ) : (
-                                    <h3 className="text-[#007C6A] font-semibold text-base">
+                                    <h3 className="text-[#03706E] font-semibold text-base">
                                         {week.title}
                                     </h3>
                                 )}
@@ -168,7 +168,7 @@ export default function WeekList({ weeks, enrolled = true }: Props) {
                             <div className="flex items-center gap-1 text-gray-500 text-sm font-medium">
                                 <Clock className="w-4 h-4 text-gray-500" />
                                 <span>{formatDuration(week.duration)}</span>
-                                <span className="ml-2 text-lg font-bold text-[#007C6A]">
+                                <span className="ml-2 text-lg font-bold text-[#03706E]">
                                     {isOpen ? '−' : '+'}
                                 </span>
                             </div>
@@ -207,14 +207,14 @@ export default function WeekList({ weeks, enrolled = true }: Props) {
                                                                     href={mod.content}
                                                                     target="_blank"
                                                                     rel="noopener noreferrer"
-                                                                    className="cursor-pointer text-[#065F5F] hover:text-[#007C6A] hover:underline transition-colors"
+                                                                    className="cursor-pointer text-[#065F5F] hover:text-[#03706E] hover:underline transition-colors"
                                                                 >
                                                                     {mod.title}
                                                                 </a>
                                                             ) : (
                                                                 <Link
                                                                     href={`/modules/${mod.id}`}
-                                                                    className="cursor-pointer text-[#065F5F] hover:text-[#007C6A] hover:underline transition-colors"
+                                                                    className="cursor-pointer text-[#065F5F] hover:text-[#03706E] hover:underline transition-colors"
                                                                 >
                                                                     {mod.title}
                                                                 </Link>
@@ -273,11 +273,11 @@ export default function WeekList({ weeks, enrolled = true }: Props) {
                                                                 style={{
                                                                     backgroundColor:
                                                                         currentState.completed
-                                                                            ? '#007C6A'
+                                                                            ? '#03706E'
                                                                             : 'white',
                                                                     borderColor:
                                                                         currentState.completed
-                                                                            ? '#007C6A'
+                                                                            ? '#03706E'
                                                                             : '#d1d5db',
                                                                 }}
                                                                 aria-disabled={!enrolled}
@@ -312,7 +312,7 @@ export default function WeekList({ weeks, enrolled = true }: Props) {
                                                                 <Bookmark
                                                                     className={`w-5 h-5 ${
                                                                         currentState.markedForReview
-                                                                            ? 'text-[#007C6A] fill-[#007C6A]'
+                                                                            ? 'text-[#03706E] fill-[#03706E]'
                                                                             : 'text-[#025959]'
                                                                     }`}
                                                                 />

@@ -149,7 +149,7 @@ export default function CoursePage({ params }: { params: Promise<{ courseId: str
                     >
                         <div className="flex items-center gap-3 justify-between w-full">
                             <motion.h1
-                                className="bg-[#007C6A] text-white px-3 py-1.5 rounded-md text-xl font-bold w-fit"
+                                className="bg-[#03706E] text-white px-3 py-1.5 rounded-md text-xl font-bold w-fit"
                                 initial={{ scale: 0.9, opacity: 0 }}
                                 animate={{ scale: 1, opacity: 1 }}
                                 transition={{ duration: 0.3, delay: 0.3 }}
@@ -158,7 +158,7 @@ export default function CoursePage({ params }: { params: Promise<{ courseId: str
                             </motion.h1>
                             <CollapsibleTrigger className="md:hidden rounded-full p-2 bg-white/30 hover:bg-white/50">
                                 <motion.div animate={{ rotate: isAboutOpen ? 180 : 0 }}>
-                                    <ChevronDown className="h-5 w-5 text-[#007C6A]" />
+                                    <ChevronDown className="h-5 w-5 text-[#03706E]" />
                                 </motion.div>
                             </CollapsibleTrigger>
                         </div>
@@ -213,7 +213,7 @@ export default function CoursePage({ params }: { params: Promise<{ courseId: str
                                             transition: { duration: 0.2 },
                                         }}
                                     >
-                                        <span className="font-semibold text-[#007C6A]">
+                                        <span className="font-semibold text-[#03706E]">
                                             {item.label}
                                         </span>
                                         <motion.span
@@ -329,7 +329,7 @@ export default function CoursePage({ params }: { params: Promise<{ courseId: str
                                             rotate: isObjectivesOpen ? 180 : 0,
                                         }}
                                     >
-                                        <ChevronDown className="h-5 w-5 text-[#007C6A]" />
+                                        <ChevronDown className="h-5 w-5 text-[#03706E]" />
                                     </motion.div>
                                 </CollapsibleTrigger>
                             </div>
@@ -361,7 +361,7 @@ export default function CoursePage({ params }: { params: Promise<{ courseId: str
                                             }}
                                         >
                                             <motion.span
-                                                className="text-[#007C6A] font-bold text-lg"
+                                                className="text-[#03706E] font-bold text-lg"
                                                 initial={{ scale: 0 }}
                                                 animate={{ scale: 1 }}
                                                 transition={{
