@@ -18,12 +18,11 @@ export default function CoursePage({ params }: { params: Promise<{ courseId: str
     const [enrolLoading, setEnrolLoading] = useState(false);
     const [enrolError, setEnrolError] = useState<string | null>(null);
     const { user, loading: userLoading } = useUser();
-    const [isAboutOpen, setIsAboutOpen] = useState(false);
+    const [isAboutOpen, setIsAboutOpen] = useState(true);
     const [isObjectivesOpen, setIsObjectivesOpen] = useState(false);
 
     useEffect(() => {
         const isMobile = window.innerWidth < 768;
-        setIsAboutOpen(!isMobile);
         setIsObjectivesOpen(!isMobile);
     }, []);
 
