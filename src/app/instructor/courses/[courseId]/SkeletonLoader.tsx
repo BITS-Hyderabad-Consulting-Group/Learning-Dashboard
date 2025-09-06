@@ -6,7 +6,7 @@ import { BookOpen, Layers, Star } from 'lucide-react';
 export default function CourseUpsertPageSkeleton() {
     return (
         <div className="flex justify-center items-center min-h-screen bg-gradient-to-br from-white to-teal-50 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 animate-pulse">
-            <Card className="w-full max-w-2xl rounded-2xl p-4 sm:p-8 shadow-xl border border-gray-100">
+            <Card className="w-full max-w-7xl rounded-2xl p-4 sm:p-8 shadow-xl border border-gray-100">
                 <CardHeader>
                     {/* Title Skeleton */}
                     <div className="h-9 w-48 bg-gray-300 rounded-md mx-auto mb-2"></div>
