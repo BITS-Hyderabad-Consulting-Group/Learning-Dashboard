@@ -78,7 +78,7 @@ import {
     FileText,
     Video,
     HelpCircle,
-    Award,
+    LinkIcon,
     BookOpen,
     AlertTriangle,
     Save,
@@ -93,7 +93,7 @@ interface Module {
     moduleNumber: number;
     title: string;
     description: string;
-    contentType: 'article' | 'video' | 'quiz' | 'assignment' | 'resource';
+    contentType: 'article' | 'video' | 'quiz' | 'hyperlink';
     markdownContent?: string;
     contentUrl?: string;
     duration: number;
@@ -143,16 +143,9 @@ const contentTypeIcons = {
     article: FileText,
     video: Video,
     quiz: HelpCircle,
-    assignment: Edit,
-    resource: Award,
+    hyperlink: LinkIcon,
 };
-const contentTypes: Module['contentType'][] = [
-    'article',
-    'video',
-    'quiz',
-    'assignment',
-    'resource',
-];
+const contentTypes: Module['contentType'][] = ['article', 'video', 'quiz', 'hyperlink'];
 
 export default function CourseContentPage() {
     const { profile, loading } = useUser();
@@ -986,73 +979,16 @@ export default function CourseContentPage() {
                                     : 'Create a new week by filling out the form below.'}
                             </DialogDescription>
                         </DialogHeader>
-                        <div className="space-y-4">
-                            {[
-                                {
-                                    label: 'Week Title',
-                                    id: 'weekTitle',
-                                    value: weekForm.title,
-                                    onChange: (v: string) => setWeekForm({ ...weekForm, title: v }),
-                                },
-                                {
-                                    label: 'Description',
-                                    id: 'weekDescription',
-                                    value: weekForm.description,
-                                    onChange: (v: string) =>
-                                        setWeekForm({ ...weekForm, description: v }),
-                                    textarea: true,
-                                },
-                            ].map((f, i) => (
-                                <div key={i} className="space-y-2">
-                                    <Label htmlFor={f.id}>{f.label}</Label>
-                                    {f.textarea ? (
-                                        <Textarea
-                                            id={f.id}
-                                            value={f.value}
-                                            onChange={(e) => f.onChange(e.target.value)}
-                                            rows={3}
-                                        />
-                                    ) : (
-                                        <Input
-                                            id={f.id}
-                                            value={f.value}
-                                            onChange={(e) => f.onChange(e.target.value)}
-                                        />
-                                    )}
-                                </div>
-                            ))}
-                            <div className="grid grid-cols-2 gap-4">
-                                {[
-                                    {
-                                        label: 'Duration (minutes)',
-                                        id: 'weekDuration',
-                                        value: weekForm.duration,
-                                        type: 'number',
-                                        onChange: (v: string) =>
-                                            setWeekForm({
-                                                ...weekForm,
-                                                duration: parseInt(v) || 0,
-                                            }),
-                                    },
-                                    {
-                                        label: 'Unlock Date',
-                                        id: 'unlockDate',
-                                        value: weekForm.unlockDate,
-                                        type: 'date',
-                                        onChange: (v: string) =>
-                                            setWeekForm({ ...weekForm, unlockDate: v }),
-                                    },
-                                ].map((f, i) => (
-                                    <div key={i} className="space-y-2">
-                                        <Label htmlFor={f.id}>{f.label}</Label>
-                                        <Input
-                                            id={f.id}
-                                            type={f.type}
-                                            value={f.value}
-                                            onChange={(e) => f.onChange(e.target.value)}
-                                        />
-                                    </div>
-                                ))}
+                        <div className="space-y-4 py-4">
+                            <div>
+                                <Label htmlFor="weekTitle">Week Title</Label>
+                                <Input
+                                    id="weekTitle"
+                                    value={weekForm.title}
+                                    onChange={(e) =>
+                                        setWeekForm({ ...weekForm, title: e.target.value })
+                                    }
+                                />
                             </div>
                             <div className="flex justify-end gap-2 pt-4">
                                 <Button
@@ -1124,7 +1060,7 @@ export default function CourseContentPage() {
                                         </div>
                                         {[
                                             {
-                                                label: 'Duration (min)',
+                                                label: 'Estimated Reading Time (min)',
                                                 value: moduleForm.duration,
                                                 onChange: (v: string) =>
                                                     setModuleForm({
@@ -1139,15 +1075,6 @@ export default function CourseContentPage() {
                                                     setModuleForm({
                                                         ...moduleForm,
                                                         points: parseInt(v) || 0,
-                                                    }),
-                                            },
-                                            {
-                                                label: 'Read Time',
-                                                value: moduleForm.estimatedReadTime,
-                                                onChange: (v: string) =>
-                                                    setModuleForm({
-                                                        ...moduleForm,
-                                                        estimatedReadTime: parseInt(v) || 0,
                                                     }),
                                             },
                                         ].map((f, i) => (
