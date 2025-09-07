@@ -66,7 +66,6 @@ import {
     AlertDialogHeader,
     AlertDialogTitle,
 } from '@/components/ui/alert-dialog';
-import { Textarea } from '@/components/ui/textarea';
 import {
     ChevronRight,
     ChevronDown,
@@ -980,7 +979,7 @@ export default function CourseContentPage() {
                             </DialogDescription>
                         </DialogHeader>
                         <div className="space-y-4 py-4">
-                            <div>
+                            <div className="p-2">
                                 <Label htmlFor="weekTitle">Week Title</Label>
                                 <Input
                                     id="weekTitle"
@@ -1025,19 +1024,6 @@ export default function CourseContentPage() {
                             {moduleForm.contentType === 'article' ? (
                                 <>
                                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <div className="space-y-2">
-                                            <Label>Description</Label>
-                                            <Textarea
-                                                value={moduleForm.description}
-                                                onChange={(e) =>
-                                                    setModuleForm({
-                                                        ...moduleForm,
-                                                        description: e.target.value,
-                                                    })
-                                                }
-                                                rows={3}
-                                            />
-                                        </div>
                                         <div className="space-y-2">
                                             <Label>Content Type</Label>
                                             <Select
@@ -1113,34 +1099,13 @@ export default function CourseContentPage() {
                                                 setModuleForm({ ...moduleForm, title: v }),
                                         },
                                         {
-                                            label: 'Description',
-                                            value: moduleForm.description,
-                                            onChange: (v: string) =>
-                                                setModuleForm({ ...moduleForm, description: v }),
-                                            textarea: true,
-                                        },
-                                        {
                                             label: 'Content URL',
                                             value: moduleForm.contentUrl,
                                             onChange: (v: string) =>
                                                 setModuleForm({ ...moduleForm, contentUrl: v }),
                                         },
                                     ].map((f, i) => (
-                                        <div key={i} className="space-y-2">
-                                            <Label>{f.label}</Label>
-                                            {f.textarea ? (
-                                                <Textarea
-                                                    value={f.value}
-                                                    onChange={(e) => f.onChange(e.target.value)}
-                                                    rows={3}
-                                                />
-                                            ) : (
-                                                <Input
-                                                    value={f.value}
-                                                    onChange={(e) => f.onChange(e.target.value)}
-                                                />
-                                            )}
-                                        </div>
+                                        <div key={i} className="space-y-2" />
                                     ))}
                                     <div className="grid grid-cols-2 gap-4">
                                         <div className="space-y-2">
@@ -1190,31 +1155,6 @@ export default function CourseContentPage() {
                                                     })
                                                 }
                                             />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <Label>Required</Label>
-                                            <Select
-                                                value={moduleForm.isRequired.toString()}
-                                                onValueChange={(v) =>
-                                                    setModuleForm({
-                                                        ...moduleForm,
-                                                        isRequired: v === 'true',
-                                                    })
-                                                }
-                                            >
-                                                <SelectTrigger>
-                                                    <SelectValue />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    {['true', 'false'].map((opt) => (
-                                                        <SelectItem key={opt} value={opt}>
-                                                            {opt === 'true'
-                                                                ? 'Required'
-                                                                : 'Optional'}
-                                                        </SelectItem>
-                                                    ))}
-                                                </SelectContent>
-                                            </Select>
                                         </div>
                                     </div>
                                 </>
