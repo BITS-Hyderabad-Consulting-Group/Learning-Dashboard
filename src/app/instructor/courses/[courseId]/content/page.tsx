@@ -1009,7 +1009,7 @@ export default function CourseContentPage() {
 
                 {/* Module Dialog */}
                 <Dialog open={isModuleDialogOpen} onOpenChange={setIsModuleDialogOpen}>
-                    <DialogContent className="sm:max-w-7xl max-h-[95vh] flex flex-col">
+                    <DialogContent className="sm:max-w-4xl max-h-[90vh] flex flex-col">
                         <DialogHeader className="flex-shrink-0">
                             <DialogTitle>
                                 {editingModule?.module ? 'Edit Module' : 'Add New Module'}
@@ -1020,11 +1020,12 @@ export default function CourseContentPage() {
                                     : 'Create a new module by filling out the form below.'}
                             </DialogDescription>
                         </DialogHeader>
-                        <div className="flex-1 overflow-y-auto p-1 space-y-4">
+
+                        <div className="flex-1 overflow-y-auto p-4 space-y-6">
                             {moduleForm.contentType === 'article' ? (
                                 <>
-                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                        <div className="space-y-2">
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-start">
+                                        <div className="space-y-1.5">
                                             <Label>Content Type</Label>
                                             <Select
                                                 value={moduleForm.contentType}
@@ -1044,35 +1045,32 @@ export default function CourseContentPage() {
                                                 </SelectContent>
                                             </Select>
                                         </div>
-                                        {[
-                                            {
-                                                label: 'Estimated Reading Time (min)',
-                                                value: moduleForm.duration,
-                                                onChange: (v: string) =>
+                                        <div className="space-y-1.5">
+                                            <Label>Points (XP)</Label>
+                                            <Input
+                                                type="number"
+                                                value={moduleForm.points}
+                                                onChange={(e) =>
                                                     setModuleForm({
                                                         ...moduleForm,
-                                                        duration: parseInt(v) || 0,
-                                                    }),
-                                            },
-                                            {
-                                                label: 'Points',
-                                                value: moduleForm.points,
-                                                onChange: (v: string) =>
+                                                        points: parseInt(e.target.value) || 0,
+                                                    })
+                                                }
+                                            />
+                                        </div>
+                                        <div className="space-y-1.5">
+                                            <Label>Estimated Reading Time (min)</Label>
+                                            <Input
+                                                type="number"
+                                                value={moduleForm.duration}
+                                                onChange={(e) =>
                                                     setModuleForm({
                                                         ...moduleForm,
-                                                        points: parseInt(v) || 0,
-                                                    }),
-                                            },
-                                        ].map((f, i) => (
-                                            <div key={i} className="space-y-2">
-                                                <Label>{f.label}</Label>
-                                                <Input
-                                                    type="number"
-                                                    value={f.value}
-                                                    onChange={(e) => f.onChange(e.target.value)}
-                                                />
-                                            </div>
-                                        ))}
+                                                        duration: parseInt(e.target.value) || 0,
+                                                    })
+                                                }
+                                            />
+                                        </div>
                                     </div>
                                     <MarkdownEditor
                                         title={moduleForm.title}
@@ -1090,25 +1088,37 @@ export default function CourseContentPage() {
                                     />
                                 </>
                             ) : (
-                                <>
-                                    {[
-                                        {
-                                            label: 'Module Title',
-                                            value: moduleForm.title,
-                                            onChange: (v: string) =>
-                                                setModuleForm({ ...moduleForm, title: v }),
-                                        },
-                                        {
-                                            label: 'Content URL',
-                                            value: moduleForm.contentUrl,
-                                            onChange: (v: string) =>
-                                                setModuleForm({ ...moduleForm, contentUrl: v }),
-                                        },
-                                    ].map((f, i) => (
-                                        <div key={i} className="space-y-2" />
-                                    ))}
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-2">
+                                <div className="space-y-4">
+                                    <div className="space-y-1.5">
+                                        <Label htmlFor="moduleTitle">Module Title</Label>
+                                        <Input
+                                            id="moduleTitle"
+                                            value={moduleForm.title}
+                                            onChange={(e) =>
+                                                setModuleForm({
+                                                    ...moduleForm,
+                                                    title: e.target.value,
+                                                })
+                                            }
+                                        />
+                                    </div>
+
+                                    <div className="space-y-1.5">
+                                        <Label htmlFor="contentUrl">Content URL</Label>
+                                        <Input
+                                            id="contentUrl"
+                                            value={moduleForm.contentUrl}
+                                            onChange={(e) =>
+                                                setModuleForm({
+                                                    ...moduleForm,
+                                                    contentUrl: e.target.value,
+                                                })
+                                            }
+                                        />
+                                    </div>
+
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                                        <div className="space-y-1.5">
                                             <Label>Content Type</Label>
                                             <Select
                                                 value={moduleForm.contentType}
@@ -1128,7 +1138,20 @@ export default function CourseContentPage() {
                                                 </SelectContent>
                                             </Select>
                                         </div>
-                                        <div className="space-y-2">
+                                        <div className="space-y-1.5">
+                                            <Label>Points (XP)</Label>
+                                            <Input
+                                                type="number"
+                                                value={moduleForm.points}
+                                                onChange={(e) =>
+                                                    setModuleForm({
+                                                        ...moduleForm,
+                                                        points: parseInt(e.target.value) || 0,
+                                                    })
+                                                }
+                                            />
+                                        </div>
+                                        <div className="space-y-1.5">
                                             <Label>Duration (min)</Label>
                                             <Input
                                                 type="number"
@@ -1142,25 +1165,11 @@ export default function CourseContentPage() {
                                             />
                                         </div>
                                     </div>
-                                    <div className="grid grid-cols-2 gap-4">
-                                        <div className="space-y-2">
-                                            <Label>Points</Label>
-                                            <Input
-                                                type="number"
-                                                value={moduleForm.points}
-                                                onChange={(e) =>
-                                                    setModuleForm({
-                                                        ...moduleForm,
-                                                        points: parseInt(e.target.value) || 0,
-                                                    })
-                                                }
-                                            />
-                                        </div>
-                                    </div>
-                                </>
+                                </div>
                             )}
                         </div>
-                        <div className="flex justify-end gap-2 pt-4 border-t">
+
+                        <div className="flex justify-end gap-2 p-4 border-t flex-shrink-0">
                             <Button variant="outline" onClick={() => setIsModuleDialogOpen(false)}>
                                 Cancel
                             </Button>
