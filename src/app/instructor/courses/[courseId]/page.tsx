@@ -341,6 +341,29 @@ export default function CourseUpsertPage({ params }: { params: Promise<{ courseI
                                         placeholder={data.defaultDescription}
                                     />
                                 </div>
+                                <div className="sm:col-span-2">
+                                    <label
+                                        htmlFor="learningObjectives"
+                                        className="block text-sm font-semibold text-gray-700 mb-1"
+                                    >
+                                        Learning Objectives
+                                    </label>
+                                    <textarea
+                                        id="learningObjectives"
+                                        value={learningObjectivesText}
+                                        onChange={(e) => setLearningObjectivesText(e.target.value)}
+                                        rows={4}
+                                        placeholder={
+                                            form.learningModules && form.learningModules.length > 0
+                                                ? form.learningModules.join('\n')
+                                                : `One objective per line\nE.g.\nUnderstand MECE framework\nPerform basic financial analysis`
+                                        }
+                                        className="w-full border border-gray-200 rounded-lg px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-teal-500 whitespace-pre-wrap"
+                                    />
+                                    <p className="text-xs text-gray-400 mt-2">
+                                        One per line, saved as course objectives.
+                                    </p>
+                                </div>
                             </div>
                         </section>
 

@@ -1009,7 +1009,7 @@ export default function CourseContentPage() {
 
                 {/* Module Dialog */}
                 <Dialog open={isModuleDialogOpen} onOpenChange={setIsModuleDialogOpen}>
-                    <DialogContent className="sm:max-w-4xl max-h-[90vh] flex flex-col">
+                    <DialogContent className="sm:max-w-7xl max-h-[95vh] flex flex-col">
                         <DialogHeader className="flex-shrink-0">
                             <DialogTitle>
                                 {editingModule?.module ? 'Edit Module' : 'Add New Module'}
