@@ -693,7 +693,7 @@ export default function CourseContentPage() {
                                     {/* difficulty removed */}
                                 </div>
                                 <p className="text-gray-600 mb-4">{course.description}</p>
-                                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
+                                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 text-sm">
                                     {[
                                         {
                                             icon: Clock,
@@ -701,7 +701,7 @@ export default function CourseContentPage() {
                                         },
                                         { icon: BookOpen, text: `${getTotalModules()} modules` },
                                         { text: `Price: $${course.price}` },
-                                        { text: `Limit: ${course.enrollmentLimit} students` },
+                                       
                                     ].map((item, i) => (
                                         <div key={i} className="flex items-center gap-2">
                                             {item.icon && (
@@ -762,9 +762,7 @@ export default function CourseContentPage() {
                                                             `${week.duration} min`,
                                                             `${week.modules?.length || 0} modules`,
                                                             `${totalPoints} points`,
-                                                            `Unlocks: ${formatDate(
-                                                                week.unlockDate
-                                                            )}`,
+                                                            
                                                         ].map((t, idx) => (
                                                             <span key={idx}>{t}</span>
                                                         ))}
