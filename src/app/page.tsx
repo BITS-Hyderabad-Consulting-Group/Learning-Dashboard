@@ -26,6 +26,7 @@ export default function HomePage() {
     const [loading, setLoading] = useState(true);
     const [isMobile, setIsMobile] = useState(false);
 
+
     useEffect(() => {
         setIsMobile(window.innerWidth <= 768);
     }, []);
@@ -105,6 +106,7 @@ export default function HomePage() {
                         </Link>
                     </div>
                 </section>
+
                 <Scroller />
                 <div className="space-y-20 my-24">
                     <section className="w-full">

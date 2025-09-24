@@ -53,6 +53,8 @@ export default function CourseUpsertPage({ params }: { params: Promise<{ courseI
     const [submitted, setSubmitted] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [errorMessage, setErrorMessage] = useState<string | null>(null);
+    const [certName, setCertName] = useState('');
+    const [isGeneratingCert, setIsGeneratingCert] = useState(false);
 
     useEffect(() => {
         const load = async () => {
@@ -455,6 +457,68 @@ export default function CourseUpsertPage({ params }: { params: Promise<{ courseI
                                     )}
                                     <div className="text-xs text-gray-400 pt-2 border-t">
                                         To edit curriculum, use the curriculum builder.
+                                    </div>
+                                </div>
+                            </section>
+                        )}
+
+                        {!isCreateMode && (
+                            <section>
+                                <h2 className="text-lg font-semibold text-teal-700 mb-4 flex items-center gap-2">
+                                    Generate Certificate
+                                </h2>
+                                <div className="bg-white border border-gray-100 rounded-xl p-6 space-y-4 shadow-sm">
+                                    <div>
+                                        <label htmlFor="cert_name" className="block text-sm font-semibold text-gray-700 mb-1">
+                                            Recipient Name
+                                        </label>
+                                        <input
+                                            id="cert_name"
+                                            name="cert_name"
+                                            type="text"
+                                            value={certName}
+                                            onChange={(e) => setCertName(e.target.value)}
+                                            className="w-full border border-gray-200 rounded-lg px-4 py-2 text-base focus:outline-none focus:ring-2 focus:ring-teal-500"
+                                            placeholder="e.g. Jane Doe"
+                                        />
+                                    </div>
+                                    <div>
+                                        <Button
+                                            type="button"
+                                            disabled={isGeneratingCert || !certName.trim()}
+                                            className="bg-teal-600 hover:bg-teal-700"
+                                            onClick={async () => {
+                                                setIsGeneratingCert(true);
+                                                try {
+                                                    const res = await fetch('/api/certificates', {
+                                                        method: 'POST',
+                                                        headers: { 'Content-Type': 'application/json' },
+                                                        body: JSON.stringify({ name: certName.trim(), courseId }),
+                                                    });
+                                                    if (!res.ok) {
+                                                        const j: { error?: string } | null = await res
+                                                            .json()
+                                                            .catch(() => null);
+                                                        throw new Error(j?.error || `Failed to generate certificate (${res.status})`);
+                                                    }
+                                                    const blob = await res.blob();
+                                                    const url = URL.createObjectURL(blob);
+                                                    const a = document.createElement('a');
+                                                    a.href = url;
+                                                    a.download = `certificate-${courseId}.pdf`;
+                                                    document.body.appendChild(a);
+                                                    a.click();
+                                                    a.remove();
+                                                    URL.revokeObjectURL(url);
+                                                } catch (e) {
+                                                    setErrorMessage(e instanceof Error ? e.message : 'Failed to generate certificate');
+                                                } finally {
+                                                    setIsGeneratingCert(false);
+                                                }
+                                            }}
+                                        >
+                                            {isGeneratingCert ? 'Generating…' : 'Download Certificate'}
+                                        </Button>
                                     </div>
                                 </div>
                             </section>

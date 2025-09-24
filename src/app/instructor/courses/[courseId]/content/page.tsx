@@ -290,12 +290,12 @@ export default function CourseContentPage() {
         }
     }, [courseId, loading, profile]);
 
-    const formatDate = (d: string) =>
-        new Date(d).toLocaleDateString('en-US', {
-            year: 'numeric',
-            month: 'short',
-            day: 'numeric',
-        });
+    // const formatDate = (d: string) =>
+    //     new Date(d).toLocaleDateString('en-US', {
+    //         year: 'numeric',
+    //         month: 'short',
+    //         day: 'numeric',
+    //     });
     const getTotalModules = () => weeks.reduce((t, w) => t + (w.modules?.length || 0), 0);
     const getTotalDuration = () => weeks.reduce((t, w) => t + w.duration, 0);
 
