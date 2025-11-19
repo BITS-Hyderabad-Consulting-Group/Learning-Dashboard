@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useUser } from '@/context/UserContext';
 import { useRouter, useParams } from 'next/navigation';
 import { supabase } from '@/lib/supabase-client';
@@ -166,9 +166,11 @@ export default function CourseContentPage() {
         module: null,
     });
     const [weekToDelete, setWeekToDelete] = useState<Week | null>(null);
-    const [moduleToDelete, setModuleToDelete] = useState<{ week: Week; module: Module } | null>(
-        null
-    );
+    const weekDeleteRef = useRef<Week | null>(null);
+    const [moduleToDelete, setModuleToDelete] = useState<{ week: Week; module: Module } | null>(null);
+    const moduleDeleteRef = useRef<{ week: Week; module: Module } | null>(null);
+    const [isDeletingWeek, setIsDeletingWeek] = useState(false);
+    const [isDeletingModule, setIsDeletingModule] = useState(false);
     const [weekForm, setWeekForm] = useState({
         title: '',
         description: '',
@@ -622,32 +624,118 @@ export default function CourseContentPage() {
         }
     };
 
-    const handleDeleteWeek = () => {
-        if (weekToDelete) {
-            setWeeks((w) => w.filter((week) => week.id !== weekToDelete.id));
-            toast.success(`Deleted ${weekToDelete.title}`);
-            setWeekToDelete(null);
+
+// --- Add these helper functions somewhere above the delete handlers ---
+
+// helper: call DELETE API for week
+    const callDeleteWeekApi = async (weekId: string) => {
+        console.log('callDeleteWeekApi called with weekId:', weekId);
+        if (!courseId) throw new Error('Missing courseId');
+        const {
+            data: { session },
+        } = await supabase.auth.getSession();
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+        if (session?.access_token) headers.Authorization = `Bearer ${session.access_token}`;
+        
+        const url = `/api/instructor/courses/${courseId}/content`;
+        console.log('Making DELETE request to:', url);
+        console.log('Request body:', JSON.stringify({ type: 'week', id: weekId }));
+        
+        const res = await fetch(url, {
+            method: 'DELETE',
+            headers,
+            body: JSON.stringify({ type: 'week', id: weekId }),
+        });
+        
+        console.log('DELETE response status:', res.status, res.statusText);
+        const body = await res.json().catch(() => ({}));
+        console.log('DELETE response body:', body);
+        
+        if (!res.ok) {
+            throw new Error(body.error || `Delete week failed: ${res.status} ${res.statusText}`);
         }
+        return body;
     };
-    const handleDeleteModule = () => {
-        if (moduleToDelete) {
-            setWeeks((w) =>
-                w.map((week) =>
-                    week.id === moduleToDelete.week.id
-                        ? {
-                              ...week,
-                              modules: week.modules?.filter(
-                                  (m) => m.id !== moduleToDelete.module.id
-                              ),
-                          }
-                        : week
-                )
-            );
-            toast.success(`Deleted ${moduleToDelete.module.title}`);
-            setModuleToDelete(null);
+
+    // helper: call DELETE API for module
+    const callDeleteModuleApi = async (moduleId: string) => {
+        if (!courseId) throw new Error('Missing courseId');
+        const {
+            data: { session },
+        } = await supabase.auth.getSession();
+        const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+        if (session?.access_token) headers.Authorization = `Bearer ${session.access_token}`;
+        const res = await fetch(`/api/instructor/courses/${courseId}/content`, {
+            method: 'DELETE',
+            headers,
+            body: JSON.stringify({ type: 'module', id: moduleId }),
+        });
+        const body = await res.json().catch(() => ({}));
+        if (!res.ok) {
+            throw new Error(body.error || `Delete module failed: ${res.status} ${res.statusText}`);
+        }
+        return body;
+    };
+
+    // --- Replace the existing synchronous delete handlers with these async ones ---
+    const handleDeleteWeek = async () => {
+        if (isDeletingWeek) return;
+        const week = weekDeleteRef.current;
+        console.log('handleDeleteWeek called with:', week);
+        if (!week) {
+            toast.error('No week selected to delete');
+            return;
+        }
+        setIsDeletingWeek(true);
+        try {
+            console.log('Calling delete API for week:', week.id);
+            await callDeleteWeekApi(week.id);
+            setWeeks((w) => w.filter((wk) => wk.id !== week.id));
+            toast.success(`Deleted ${week.title}`);
+            setWeekToDelete(null);
+            weekDeleteRef.current = null;
+        } catch (e: unknown) {
+            let msg = 'Failed to delete week';
+            if (typeof e === 'object' && e && 'message' in e && typeof (e as any).message === 'string') {
+                msg = (e as any).message;
+            }
+            toast.error(msg);
+        } finally {
+            setIsDeletingWeek(false);
         }
     };
 
+    const handleDeleteModule = async () => {
+        if (isDeletingModule) return;
+        const payload = moduleDeleteRef.current;
+        if (!payload || !payload.module || !payload.week) {
+            toast.error('No module selected to delete');
+            return;
+        }
+        const { module: m, week: w } = payload;
+        setIsDeletingModule(true);
+        try {
+            await callDeleteModuleApi(m.id);
+            setWeeks((prev) =>
+                prev.map((week) =>
+                    week.id === w.id ? { ...week, modules: week.modules?.filter((mod) => mod.id !== m.id) } : week
+                )
+            );
+            toast.success(`Deleted ${m.title}`);
+            setModuleToDelete(null);
+            moduleDeleteRef.current = null;
+        } catch (e: unknown) {
+            let msg = 'Failed to delete module';
+            if (typeof e === 'object' && e && 'message' in e && typeof (e as any).message === 'string') {
+                msg = (e as any).message;
+            }
+            toast.error(msg);
+        } finally {
+            setIsDeletingModule(false);
+        }
+    };
+
+    
     if (isLoadingContent) {
         return (
             <div className="min-h-screen flex items-center justify-center text-sm text-muted-foreground">
@@ -785,7 +873,11 @@ export default function CourseContentPage() {
                                                     },
                                                     {
                                                         icon: Trash2,
-                                                        onClick: () => setWeekToDelete(week),
+                                                        onClick: () => {
+                                                            console.log('Delete week button clicked for:', week);
+                                                            setWeekToDelete(week);
+                                                            weekDeleteRef.current = week;
+                                                        },
                                                         className: 'text-red-600 hover:bg-red-50',
                                                     },
                                                 ].map((b, idx) => (
@@ -909,11 +1001,16 @@ export default function CourseContentPage() {
                                                                         },
                                                                         {
                                                                             icon: Trash2,
-                                                                            onClick: () =>
+                                                                            onClick: () => {
                                                                                 setModuleToDelete({
                                                                                     week,
                                                                                     module,
-                                                                                }),
+                                                                                });
+                                                                                moduleDeleteRef.current = {
+                                                                                    week,
+                                                                                    module,
+                                                                                };
+                                                                            },
                                                                             className:
                                                                                 'text-red-600 hover:text-red-700 hover:bg-red-50',
                                                                         },
@@ -1182,7 +1279,15 @@ export default function CourseContentPage() {
                 </Dialog>
 
                 {/* Delete Week */}
-                <AlertDialog open={!!weekToDelete} onOpenChange={() => setWeekToDelete(null)}>
+                <AlertDialog
+                    open={!!weekToDelete}
+                    onOpenChange={(open) => {
+                        if (!open) {
+                            setWeekToDelete(null);
+                            weekDeleteRef.current = null;
+                        }
+                    }}
+                >
                     <AlertDialogContent>
                         <AlertDialogHeader>
                             <AlertDialogTitle className="flex items-center gap-2">
@@ -1190,23 +1295,45 @@ export default function CourseContentPage() {
                                 Delete Week
                             </AlertDialogTitle>
                             <AlertDialogDescription>
-                                Are you sure? This will also delete all modules.
+                                Are you sure you want to delete{' '}
+                                <span className="font-semibold">{weekToDelete?.title || 'this week'}</span>? This
+                                will also delete all modules in it.
                             </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction
-                                onClick={handleDeleteWeek}
-                                className="bg-red-600 hover:bg-red-700"
+                            <AlertDialogCancel
+                                onClick={() => {
+                                    setWeekToDelete(null);
+                                    weekDeleteRef.current = null;
+                                }}
                             >
-                                Delete Week
+                                Cancel
+                            </AlertDialogCancel>
+                            <AlertDialogAction
+                                onClick={async (event) => {
+                                    event.preventDefault();
+                                    console.log('AlertDialog Delete Week clicked, weekToDelete:', weekDeleteRef.current);
+                                    await handleDeleteWeek();
+                                }}
+                                className="bg-red-600 hover:bg-red-700"
+                                disabled={isDeletingWeek}
+                            >
+                                {isDeletingWeek ? 'Deleting...' : 'Delete Week'}
                             </AlertDialogAction>
                         </AlertDialogFooter>
                     </AlertDialogContent>
                 </AlertDialog>
 
                 {/* Delete Module */}
-                <AlertDialog open={!!moduleToDelete} onOpenChange={() => setModuleToDelete(null)}>
+                <AlertDialog
+                    open={!!moduleToDelete}
+                    onOpenChange={(open) => {
+                        if (!open) {
+                            setModuleToDelete(null);
+                            moduleDeleteRef.current = null;
+                        }
+                    }}
+                >
                     <AlertDialogContent>
                         <AlertDialogHeader>
                             <AlertDialogTitle className="flex items-center gap-2">
@@ -1214,16 +1341,29 @@ export default function CourseContentPage() {
                                 Delete Module
                             </AlertDialogTitle>
                             <AlertDialogDescription>
-                                Are you sure? This action cannot be undone.
+                                Are you sure you want to delete{' '}
+                                <span className="font-semibold">{moduleToDelete?.module.title || 'this module'}</span>?
+                                This action cannot be undone.
                             </AlertDialogDescription>
                         </AlertDialogHeader>
                         <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction
-                                onClick={handleDeleteModule}
-                                className="bg-red-600 hover:bg-red-700"
+                            <AlertDialogCancel
+                                onClick={() => {
+                                    setModuleToDelete(null);
+                                    moduleDeleteRef.current = null;
+                                }}
                             >
-                                Delete Module
+                                Cancel
+                            </AlertDialogCancel>
+                            <AlertDialogAction
+                                onClick={async (event) => {
+                                    event.preventDefault();
+                                    await handleDeleteModule();
+                                }}
+                                className="bg-red-600 hover:bg-red-700"
+                                disabled={isDeletingModule}
+                            >
+                                {isDeletingModule ? 'Deleting...' : 'Delete Module'}
                             </AlertDialogAction>
                         </AlertDialogFooter>
                     </AlertDialogContent>
