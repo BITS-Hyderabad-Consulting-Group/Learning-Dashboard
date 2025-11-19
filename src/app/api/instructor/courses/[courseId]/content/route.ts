@@ -363,3 +363,68 @@ export async function PUT(request: NextRequest) {
         );
     }
 }
+
+export async function DELETE(request: NextRequest, { params }: { params: Promise<{ courseId: string }> }) {
+    try {
+        const authResult = await verifyAdminAuth();
+        if ('error' in authResult) {
+            return NextResponse.json({ error: authResult.error }, { status: authResult.status });
+        }
+
+        const body = await request.json().catch(() => ({}));
+        const { type, id } = body as { type?: 'week' | 'module'; id?: string };
+
+        if (!type || !id) {
+            return NextResponse.json({ error: 'Missing type or id' }, { status: 400 });
+        }
+
+        if (type === 'module') {
+            // delete single module
+            const { data: deleted, error } = await supabaseServer
+                .from('modules')
+                .delete()
+                .eq('id', id)
+                .select();
+
+            if (error) {
+                console.error('Error deleting module:', error);
+                return NextResponse.json({ error: 'Failed to delete module' }, { status: 500 });
+            }
+
+            return NextResponse.json({ message: 'Module deleted', module: deleted?.[0] || null }, { status: 200 });
+        } else if (type === 'week') {
+            // delete modules that belong to the week first (if cascade isn't set), then delete the week
+            const { data: modulesDeleted, error: modulesError } = await supabaseServer
+                .from('modules')
+                .delete()
+                .eq('week_id', id)
+                .select();
+
+            if (modulesError) {
+                console.error('Error deleting modules for week:', modulesError);
+                return NextResponse.json({ error: 'Failed to delete modules for week' }, { status: 500 });
+            }
+
+            const { data: weekDeleted, error: weekError } = await supabaseServer
+                .from('weeks')
+                .delete()
+                .eq('id', id)
+                .select();
+
+            if (weekError) {
+                console.error('Error deleting week:', weekError);
+                return NextResponse.json({ error: 'Failed to delete week' }, { status: 500 });
+            }
+
+            return NextResponse.json(
+                { message: 'Week and its modules deleted', week: weekDeleted?.[0] || null },
+                { status: 200 }
+            );
+        }
+
+        return NextResponse.json({ error: 'Invalid type' }, { status: 400 });
+    } catch (e: unknown) {
+        console.error('Unexpected delete error:', e);
+        return NextResponse.json({ error: 'Internal server error' }, { status: 500 });
+    }
+}
