@@ -622,15 +622,60 @@ export default function CourseContentPage() {
         }
     };
 
-    const handleDeleteWeek = () => {
-        if (weekToDelete) {
+    const handleDeleteWeek = async () => {
+        if (!weekToDelete || !courseId) return;
+        try {
+            const {
+                data: { session },
+            } = await supabase.auth.getSession();
+            const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+            if (session?.access_token) headers.Authorization = `Bearer ${session.access_token}`;
+            const res = await fetch(
+                `/api/instructor/courses/${courseId}/content?type=week&weekId=${weekToDelete.id}`,
+                {
+                    method: 'DELETE',
+                    headers,
+                }
+            );
+            if (!res.ok) {
+                const error = await res.json().catch(() => ({}));
+                throw new Error(error.error || 'Failed to delete week');
+            }
             setWeeks((w) => w.filter((week) => week.id !== weekToDelete.id));
             toast.success(`Deleted ${weekToDelete.title}`);
             setWeekToDelete(null);
+        } catch (e: unknown) {
+            let errorMsg = 'Failed to delete week';
+            if (
+                typeof e === 'object' &&
+                e &&
+                'message' in e &&
+                typeof (e as { message?: string }).message === 'string'
+            ) {
+                errorMsg = (e as { message: string }).message;
+            }
+            toast.error(errorMsg);
         }
     };
-    const handleDeleteModule = () => {
-        if (moduleToDelete) {
+    const handleDeleteModule = async () => {
+        if (!moduleToDelete || !courseId) return;
+        try {
+            const {
+                data: { session },
+            } = await supabase.auth.getSession();
+            const headers: Record<string, string> = { 'Content-Type': 'application/json' };
+            if (session?.access_token) headers.Authorization = `Bearer ${session.access_token}`;
+            const res = await fetch(
+                `/api/instructor/courses/${courseId}/content?type=module&moduleId=${moduleToDelete.module.id}`,
+                {
+                    method: 'DELETE',
+                    headers,
+                }
+            );
+            if (!res.ok) {
+                const error = await res.json().catch(() => ({}));
+                throw new Error(error.error || 'Failed to delete module');
+            }
             setWeeks((w) =>
                 w.map((week) =>
                     week.id === moduleToDelete.week.id
@@ -645,6 +690,17 @@ export default function CourseContentPage() {
             );
             toast.success(`Deleted ${moduleToDelete.module.title}`);
             setModuleToDelete(null);
+        } catch (e: unknown) {
+            let errorMsg = 'Failed to delete module';
+            if (
+                typeof e === 'object' &&
+                e &&
+                'message' in e &&
+                typeof (e as { message?: string }).message === 'string'
+            ) {
+                errorMsg = (e as { message: string }).message;
+            }
+            toast.error(errorMsg);
         }
     };
 
@@ -701,7 +757,6 @@ export default function CourseContentPage() {
                                         },
                                         { icon: BookOpen, text: `${getTotalModules()} modules` },
                                         { text: `Price: $${course.price}` },
-                                       
                                     ].map((item, i) => (
                                         <div key={i} className="flex items-center gap-2">
                                             {item.icon && (
@@ -762,7 +817,6 @@ export default function CourseContentPage() {
                                                             `${week.duration} min`,
                                                             `${week.modules?.length || 0} modules`,
                                                             `${totalPoints} points`,
-                                                            
                                                         ].map((t, idx) => (
                                                             <span key={idx}>{t}</span>
                                                         ))}
