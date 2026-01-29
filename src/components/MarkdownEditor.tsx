@@ -16,6 +16,86 @@ interface MarkdownEditorProps {
     placeholder?: string;
 }
 
+// CSS styles for markdown preview
+const markdownStyles = {
+    wrapper: {
+        fontSize: '0.875rem',
+        lineHeight: '1.625',
+        color: '#374151',
+    } as const,
+    h1: {
+        fontSize: '1.5rem',
+        fontWeight: '700',
+        marginBottom: '0.5rem',
+        color: '#111827',
+    } as const,
+    h2: {
+        fontSize: '1.25rem',
+        fontWeight: '600',
+        marginBottom: '0.5rem',
+        color: '#111827',
+    } as const,
+    h3: {
+        fontSize: '1.125rem',
+        fontWeight: '600',
+        marginBottom: '0.5rem',
+        color: '#111827',
+    } as const,
+    p: {
+        marginBottom: '1rem',
+    } as const,
+    ul: {
+        listStyleType: 'disc' as const,
+        paddingLeft: '1.5rem',
+        marginBottom: '1rem',
+    } as const,
+    ol: {
+        listStyleType: 'decimal' as const,
+        paddingLeft: '1.5rem',
+        marginBottom: '1rem',
+    } as const,
+    li: {
+        marginBottom: '0.25rem',
+    } as const,
+    strong: {
+        fontWeight: '600',
+        color: '#111827',
+    } as const,
+    em: {
+        fontStyle: 'italic' as const,
+    } as const,
+    code: {
+        backgroundColor: '#f3f4f6',
+        padding: '0.125rem 0.25rem',
+        borderRadius: '0.25rem',
+        fontSize: '0.875rem',
+        color: '#111827',
+    } as const,
+    pre: {
+        backgroundColor: '#1f2937',
+        color: '#f9fafb',
+        padding: '1rem',
+        borderRadius: '0.5rem',
+        overflowX: 'auto' as const,
+        marginBottom: '1rem',
+    } as const,
+    blockquote: {
+        borderLeft: '4px solid #e5e7eb',
+        paddingLeft: '1rem',
+        fontStyle: 'italic' as const,
+        color: '#6b7280',
+        marginBottom: '1rem',
+    } as const,
+    a: {
+        color: '#059669',
+        textDecoration: 'underline' as const,
+    } as const,
+    hr: {
+        borderTop: '1px solid #e5e7eb',
+        margin: '1.5rem 0',
+    } as const,
+};
+
 export function MarkdownEditor({
     title,
     content,
@@ -77,6 +157,51 @@ export function MarkdownEditor({
             </div>
         );
     }
+
+    // Custom markdown renderer with inline styles
+    const MarkdownRenderer = ({ content }: { content: string }) => {
+        return (
+            <div style={markdownStyles.wrapper} key={previewKey}>
+                <Markdown
+                    remarkPlugins={[remarkGfm]}
+                    components={{
+                        h1: ({ children }) => <h1 style={markdownStyles.h1}>{children}</h1>,
+                        h2: ({ children }) => <h2 style={markdownStyles.h2}>{children}</h2>,
+                        h3: ({ children }) => <h3 style={markdownStyles.h3}>{children}</h3>,
+                        p: ({ children }) => <p style={markdownStyles.p}>{children}</p>,
+                        ul: ({ children }) => <ul style={markdownStyles.ul}>{children}</ul>,
+                        ol: ({ children }) => <ol style={markdownStyles.ol}>{children}</ol>,
+                        li: ({ children }) => <li style={markdownStyles.li}>{children}</li>,
+                        strong: ({ children }) => <strong style={markdownStyles.strong}>{children}</strong>,
+                        em: ({ children }) => <em style={markdownStyles.em}>{children}</em>,
+                        code: ({ className, children }) => {
+                            const isInline = !className;
+                            if (isInline) {
+                                return <code style={markdownStyles.code}>{children}</code>;
+                            }
+                            return (
+                                <pre style={markdownStyles.pre}>
+                                    <code className={className}>{children}</code>
+                                </pre>
+                            );
+                        },
+                        blockquote: ({ children }) => (
+                            <blockquote style={markdownStyles.blockquote}>{children}</blockquote>
+                        ),
+                        a: ({ href, children }) => (
+                            <a href={href} style={markdownStyles.a} target="_blank" rel="noopener noreferrer">
+                                {children}
+                            </a>
+                        ),
+                        hr: () => <hr style={markdownStyles.hr} />,
+                    }}
+                >
+                    {content}
+                </Markdown>
+            </div>
+        );
+    };
+
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[600px]">
             {/* Editor Panel */}
@@ -132,39 +257,24 @@ export function MarkdownEditor({
                     </div>
                 </CardHeader>
                 <CardContent className="flex-1 bg-gray-50 overflow-y-auto" suppressHydrationWarning>
-                    <div 
-                        className="prose prose-sm max-w-none"
-                        key={previewKey}
-                        style={{
-                            '--tw-prose-body': '#374151',
-                            '--tw-prose-headings': '#111827',
-                            '--tw-prose-links': '#059669',
-                            '--tw-prose-bold': '#111827',
-                            '--tw-prose-counters': '#6b7280',
-                            '--tw-prose-bullets': '#9ca3af',
-                        } as React.CSSProperties}
-                    >
-                        {title && (
-                            <h1 className="text-2xl font-medium mb-6 text-gray-800 border-b border-gray-200 pb-3">
-                                {title}
-                            </h1>
-                        )}
-                        {content ? (
-                            <div className="text-gray-700 leading-relaxed">
-                                <Markdown remarkPlugins={[remarkGfm]}>
-                                    {content}
-                                </Markdown>
-                            </div>
-                        ) : (
-                            <div className="text-gray-400 text-center py-12">
-                                <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
-                                <p>Your content will appear here as you type...</p>
-                                <p className="text-sm mt-2">
-                                    Try typing some Markdown in the editor!
-                                </p>
-                            </div>
-                        )}
-                    </div>
+                    {title && (
+                        <h1 className="text-2xl font-medium mb-6 text-gray-800 border-b border-gray-200 pb-3">
+                            {title}
+                        </h1>
+                    )}
+                    {content ? (
+                        <div className="text-gray-700 leading-relaxed">
+                            <MarkdownRenderer content={content} />
+                        </div>
+                    ) : (
+                        <div className="text-gray-400 text-center py-12">
+                            <FileText className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                            <p>Your content will appear here as you type...</p>
+                            <p className="text-sm mt-2">
+                                Try typing some Markdown in the editor!
+                            </p>
+                        </div>
+                    )}
                 </CardContent>
             </Card>
         </div>
