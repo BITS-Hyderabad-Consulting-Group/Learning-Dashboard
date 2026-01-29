@@ -158,50 +158,6 @@ export function MarkdownEditor({
         );
     }
 
-    // Custom markdown renderer with inline styles
-    const MarkdownRenderer = ({ content }: { content: string }) => {
-        return (
-            <div style={markdownStyles.wrapper} key={previewKey}>
-                <Markdown
-                    remarkPlugins={[remarkGfm]}
-                    components={{
-                        h1: ({ children }) => <h1 style={markdownStyles.h1}>{children}</h1>,
-                        h2: ({ children }) => <h2 style={markdownStyles.h2}>{children}</h2>,
-                        h3: ({ children }) => <h3 style={markdownStyles.h3}>{children}</h3>,
-                        p: ({ children }) => <p style={markdownStyles.p}>{children}</p>,
-                        ul: ({ children }) => <ul style={markdownStyles.ul}>{children}</ul>,
-                        ol: ({ children }) => <ol style={markdownStyles.ol}>{children}</ol>,
-                        li: ({ children }) => <li style={markdownStyles.li}>{children}</li>,
-                        strong: ({ children }) => <strong style={markdownStyles.strong}>{children}</strong>,
-                        em: ({ children }) => <em style={markdownStyles.em}>{children}</em>,
-                        code: ({ className, children }) => {
-                            const isInline = !className;
-                            if (isInline) {
-                                return <code style={markdownStyles.code}>{children}</code>;
-                            }
-                            return (
-                                <pre style={markdownStyles.pre}>
-                                    <code className={className}>{children}</code>
-                                </pre>
-                            );
-                        },
-                        blockquote: ({ children }) => (
-                            <blockquote style={markdownStyles.blockquote}>{children}</blockquote>
-                        ),
-                        a: ({ href, children }) => (
-                            <a href={href} style={markdownStyles.a} target="_blank" rel="noopener noreferrer">
-                                {children}
-                            </a>
-                        ),
-                        hr: () => <hr style={markdownStyles.hr} />,
-                    }}
-                >
-                    {content}
-                </Markdown>
-            </div>
-        );
-    };
-
     return (
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 h-[600px]">
             {/* Editor Panel */}
@@ -264,7 +220,33 @@ export function MarkdownEditor({
                     )}
                     {content ? (
                         <div className="text-gray-700 leading-relaxed">
-                            <MarkdownRenderer content={content} />
+                            <Markdown
+                                key={previewKey}
+                                remarkPlugins={[remarkGfm]}
+                                components={{
+                                    h1: ({children}) => <h1 style={markdownStyles.h1}>{children}</h1>,
+                                    h2: ({children}) => <h2 style={markdownStyles.h2}>{children}</h2>,
+                                    h3: ({children}) => <h3 style={markdownStyles.h3}>{children}</h3>,
+                                    p: ({children}) => <p style={markdownStyles.p}>{children}</p>,
+                                    ul: ({children}) => <ul style={markdownStyles.ul}>{children}</ul>,
+                                    ol: ({children}) => <ol style={markdownStyles.ol}>{children}</ol>,
+                                    li: ({children}) => <li style={markdownStyles.li}>{children}</li>,
+                                    strong: ({children}) => <strong style={markdownStyles.strong}>{children}</strong>,
+                                    em: ({children}) => <em style={markdownStyles.em}>{children}</em>,
+                                    code: ({className, children}) => {
+                                        const isInline = !className;
+                                        if (isInline) {
+                                            return <code style={markdownStyles.code}>{children}</code>;
+                                        }
+                                        return <pre style={markdownStyles.pre}><code className={className}>{children}</code></pre>;
+                                    },
+                                    blockquote: ({children}) => <blockquote style={markdownStyles.blockquote}>{children}</blockquote>,
+                                    a: ({href, children}) => <a href={href} style={markdownStyles.a} target="_blank" rel="noopener noreferrer">{children}</a>,
+                                    hr: () => <hr style={markdownStyles.hr} />,
+                                }}
+                            >
+                                {content}
+                            </Markdown>
                         </div>
                     ) : (
                         <div className="text-gray-400 text-center py-12">
