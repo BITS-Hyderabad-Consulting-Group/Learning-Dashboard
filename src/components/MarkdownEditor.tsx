@@ -132,7 +132,18 @@ export function MarkdownEditor({
                     </div>
                 </CardHeader>
                 <CardContent className="flex-1 bg-gray-50 overflow-y-auto" suppressHydrationWarning>
-                    <div className="prose prose-sm max-w-none" key={previewKey}>
+                    <div 
+                        className="prose prose-sm max-w-none"
+                        key={previewKey}
+                        style={{
+                            '--tw-prose-body': '#374151',
+                            '--tw-prose-headings': '#111827',
+                            '--tw-prose-links': '#059669',
+                            '--tw-prose-bold': '#111827',
+                            '--tw-prose-counters': '#6b7280',
+                            '--tw-prose-bullets': '#9ca3af',
+                        } as React.CSSProperties}
+                    >
                         {title && (
                             <h1 className="text-2xl font-medium mb-6 text-gray-800 border-b border-gray-200 pb-3">
                                 {title}
