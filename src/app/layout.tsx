@@ -1,13 +1,11 @@
 import './globals.css';
 
 import type { Metadata } from 'next';
-import './globals.css';
-
 import Analytics from '@/components/Analytics';
 import LayoutWrapper from '@/components/LayoutWrapper';
 import ToasterClient from '@/components/ui/ToasterClient';
 
-const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://learn.bhcg.site';
+const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'https://learn.bhcg.co.in';
 
 export const metadata: Metadata = {
     metadataBase: new URL(siteUrl),
@@ -25,7 +23,7 @@ export const metadata: Metadata = {
         'Education',
         'Dashboard',
     ],
-    authors: [{ name: 'BITS Hyderabad Consulting Group', url: 'https://bhcg.site' }],
+    authors: [{ name: 'BITS Hyderabad Consulting Group', url: 'https://bhcg.co.in' }],
     creator: 'BITS Hyderabad Consulting Group',
 
     openGraph: {
