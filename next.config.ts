@@ -13,6 +13,14 @@ const nextConfig: NextConfig = {
             },
         ],
     },
+    async headers() {
+        return [
+            {
+                source: '/k/:path*',
+                headers: [{ key: 'X-Robots-Tag', value: 'noindex, nofollow, noarchive' }],
+            },
+        ];
+    },
 };
 
 export default nextConfig;

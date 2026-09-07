@@ -7,7 +7,8 @@
         "build": "next build",
         "start": "next start",
         "lint": "next lint",
-        "release": "standard-version"
+        "release": "standard-version",
+        "keepalive:sync": "node scripts/keepalive-sync.mjs"
     },
     "dependencies": {
         "@radix-ui/react-accordion": "^1.2.11",

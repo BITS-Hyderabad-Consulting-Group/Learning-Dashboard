@@ -46,6 +46,30 @@ A cross-functional team of designers and developers from BITS Hyderabad Consulti
 -   Vindaksh C M Reddy
 -   Yashvi A
 
+## 🔄 Supabase keepalive
+
+Free-tier Supabase projects are paused after 7 days without activity. Three
+things keep this one awake:
+
+1.  **`keepalive/` folder** — drop any file in it (image, doc, anything) and
+    push. On every deploy `npm run keepalive:sync` uploads the folder to the
+    private `keepalive` Storage bucket (creating it on first run) and reads from
+    the database. The Netlify build command runs it before `next build`, and it
+    never fails the build if Supabase is unreachable.
+2.  **Hidden page at `/k/<KEEPALIVE_SECRET>`** — lists those files as small
+    thumbnails. Every visit writes a `visits.txt` heartbeat to storage and reads
+    from the database, so simply opening the page is enough of a ping. Any other
+    path under `/k/` 404s, the page is `noindex` and skipped by the middleware.
+3.  **Scheduled ping** — `.github/workflows/supabase-keepalive.yml` calls
+    `/api/keepalive` every 3 days (and on manual dispatch), covering stretches
+    with no deploys and no visitors. Override the target with a repository
+    variable `KEEPALIVE_URL` if the site moves. Note that GitHub disables cron
+    workflows after 60 days with no repository activity, so the folder and the
+    page above remain the belt-and-braces backup.
+
+Set `KEEPALIVE_SECRET` to a long random string in the Netlify environment (and
+in `.env.local` for local use). Without it the page 404s for everyone.
+
 ## 🤝 Contributing
 
 Contributions are welcome! Please open an issue to discuss what you would like to change or submit a pull request.
